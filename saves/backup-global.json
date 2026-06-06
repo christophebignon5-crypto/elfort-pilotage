@@ -1,6 +1,6 @@
 {
   "meta": {
-    "date": "2026-06-06T21:26:31.630Z",
+    "date": "2026-06-06T21:27:55.514Z",
     "version": "1.1",
     "hub": "LPO Léopold Elfort — Mana, Guyane"
   },
@@ -6585,7 +6585,2118 @@
       },
       "active": "2024-2025"
     },
+    "_hub_elfort_last_sync": "2026-06-06T21:26:32.951Z",
     "elfort_user_v4": "BIGNON",
+    "lyceedash_v1": {
+      "lycee_name": "LYCEE POLYVALENT LEOPOLD ELFORT",
+      "annees": {
+        "2025-2026 TRIMESTRE 3": {
+          "seconde": [
+            {
+              "sexe": "Garçon",
+              "redoublant": true,
+              "classe": "2 GT1",
+              "orientation": "1ère Pro Accueil",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": true,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "HGGSP",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "HGGSP",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SVT",
+                "Physique-Chimie",
+                "Maths"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": true,
+              "classe": "2 GT1",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "1ère ST2S",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Maths",
+                "SVT",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "HGGSP",
+                "LLCA",
+                "SES"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "LLCA",
+                "HGGSP",
+                "SES"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "Maths",
+                "HLP"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Maths",
+                "Physique-Chimie",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Maths",
+                "LLCE",
+                "Physique-Chimie"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Réorientation",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "1ère Pro Accueil",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Maths",
+                "Physique-Chimie",
+                "LLCE"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Maths",
+                "SVT",
+                "Physique-Chimie"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "HLP",
+                "HGGSP",
+                "SES"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "LLCE",
+                "SVT"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "SVT",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "HGGSP",
+                "LLCE"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "LLCA",
+                "HGGSP"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Maths",
+                "SVT",
+                "Physique-Chimie"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "1ERPRO MET.COM.VEN.OP.B PR.CL.VA.OF.COM.",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Première Générale",
+              "specialites": [
+                "HGGSP",
+                "SES",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Première Générale",
+              "specialites": [
+                "LLCE",
+                "SVT",
+                "Maths"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": true,
+              "classe": "2 GT2",
+              "orientation": "1ère ST2S",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SVT",
+                "SES",
+                "HGGSP"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "1ère Pro Accueil",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Redoublement",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Redoublement",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Redoublement",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Maths",
+                "Physique-Chimie",
+                "SVT"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Réorientation",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "Maths",
+                "SVT"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": true,
+              "classe": "2 GT2",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Maths",
+                "Physique-Chimie",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Redoublement",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Première Générale",
+              "specialites": [
+                "LLCE",
+                "Maths",
+                "SVT"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Redoublement",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "Première Générale",
+              "specialites": [
+                "HGGSP",
+                "SES",
+                "LLCE"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "HGGSP",
+                "LLCE"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Physique-Chimie",
+                "SVT",
+                "Maths"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": true,
+              "classe": "2 GT3",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "HGGSP",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "1ère ST2S",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "1ère ST2S",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Maths",
+                "Physique-Chimie",
+                "SVT"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "1ère Pro Accueil",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "1ère Pro Accueil",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "Première Générale",
+              "specialites": [
+                "HGGSP",
+                "LLCE",
+                "SES"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "HGGSP",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "1ère Pro Accueil",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "1ère Pro Accueil",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "Première Générale",
+              "specialites": [
+                "HGGSP",
+                "SVT",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "Redoublement",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "HGGSP",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "BAC PRO 3 ANS : 1ERE PRO",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "Première Générale",
+              "specialites": [
+                "HGGSP",
+                "SVT",
+                "HLP"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": true,
+              "classe": "2 GT3",
+              "orientation": "1ERPRO MET.COM.VEN.OP.B PR.CL.VA.OF.COM.",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SVT",
+                "Maths",
+                "Physique-Chimie"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "BAC PRO 3 ANS : 1ERE PRO",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "HGGSP",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Portugais"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Redoublement",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": true,
+              "classe": "2 GT4",
+              "orientation": "Réorientation",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Portugais"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Portugais"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "BAC PRO 3 ANS : 1ERE PRO",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "HGGSP",
+                "HLP"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Portugais"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "HGGSP",
+                "LLCA",
+                "SES"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Portugais"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Portugais"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SVT",
+                "SES",
+                "LLCE"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Maths",
+                "SES",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Portugais"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Maths",
+                "Physique-Chimie",
+                "SVT"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Portugais"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "HGGSP",
+                "LLCA",
+                "HLP"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Portugais"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Maths",
+                "Physique-Chimie",
+                "LLCE"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "Maths",
+                "LLCE"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Maths",
+                "Physique-Chimie",
+                "SVT"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            }
+          ]
+        },
+        "2025-2026 TRIMESTRE 2": {
+          "seconde": [
+            {
+              "sexe": "Garçon",
+              "redoublant": true,
+              "classe": "2 GT1",
+              "orientation": "1ERPRO MET.ENTRET.TEXT.OPT.A BLANCHISS.",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": true,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "HGGSP",
+                "HLP",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "HGGSP",
+                "LLCA",
+                "HLP"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SVT",
+                "Physique-Chimie",
+                "Maths",
+                "SES"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": true,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "HGGSP",
+                "HLP",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "1ère ST2S",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SVT",
+                "Physique-Chimie",
+                "Maths",
+                "SES"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "LLCA",
+                "HGGSP",
+                "SES",
+                "SVT"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "HLP",
+                "LLCA",
+                "HGGSP",
+                "SES"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "HGGSP",
+                "HLP",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Maths",
+                "LLCA",
+                "SVT",
+                "SES"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Maths",
+                "LLCE",
+                "Physique-Chimie",
+                "SVT"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Réorientation",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Physique-Chimie",
+                "Maths",
+                "SVT",
+                "LLCE"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Maths",
+                "SVT",
+                "Physique-Chimie",
+                "LLCE"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "HLP",
+                "SES",
+                "HGGSP",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SVT",
+                "SES",
+                "HGGSP",
+                "LLCE"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "LLCA",
+                "SES",
+                "HGGSP",
+                "SVT"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "HLP",
+                "HGGSP",
+                "LLCE"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "LLCA",
+                "Physique-Chimie",
+                "Maths",
+                "SES"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Maths",
+                "SES",
+                "HLP",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT1",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Maths",
+                "SVT",
+                "Physique-Chimie",
+                "LLCE"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "HGGSP",
+                "HLP",
+                "SVT"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "HGGSP",
+                "SVT",
+                "HLP"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": true,
+              "classe": "2 GT2",
+              "orientation": "1ère ASSP",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SVT",
+                "SES",
+                "HGGSP",
+                "HLP"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "1ère Pro Accueil",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "SVT",
+                "HGGSP",
+                "HLP"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Première Générale",
+              "specialites": [
+                "LLCA",
+                "Maths",
+                "SVT",
+                "Physique-Chimie"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "HLP",
+                "HGGSP",
+                "SVT"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SVT",
+                "Maths",
+                "Physique-Chimie",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SVT",
+                "HGGSP",
+                "SES",
+                "Physique-Chimie"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Première Générale",
+              "specialites": [
+                "LLCA",
+                "SVT",
+                "Maths",
+                "SES"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": true,
+              "classe": "2 GT2",
+              "orientation": "Première Générale",
+              "specialites": [
+                "LLCA",
+                "SVT",
+                "Maths",
+                "SES"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Physique-Chimie",
+                "Maths",
+                "LLCA",
+                "SVT"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "1ère Pro Commerce",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "HGGSP",
+                "SVT",
+                "LLCE"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT2",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "Première Générale",
+              "specialites": [
+                "HGGSP",
+                "HLP",
+                "LLCE",
+                "SES"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "Première Générale",
+              "specialites": [
+                "HGGSP",
+                "LLCE",
+                "SES",
+                "Physique-Chimie"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Physique-Chimie",
+                "SVT",
+                "Maths",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": true,
+              "classe": "2 GT3",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "1ère Pro Accueil",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "1ère ST2S",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Maths",
+                "Physique-Chimie",
+                "SVT",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "1ère Pro Accueil",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "1ère ST2S",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "HGGSP",
+                "LLCE",
+                "HLP"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "LLCA",
+                "HGGSP",
+                "Physique-Chimie"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "1ère Pro Accueil",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "1ère Pro Accueil",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SVT",
+                "HGGSP",
+                "SES",
+                "Physique-Chimie"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "Première Générale",
+              "specialites": [
+                "HGGSP",
+                "SES",
+                "LLCA",
+                "Physique-Chimie"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "1ère STD2A",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "Première Générale",
+              "specialites": [
+                "HGGSP",
+                "HLP",
+                "SES",
+                "SVT"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": true,
+              "classe": "2 GT3",
+              "orientation": "1ère Pro Accueil",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Physique-Chimie",
+                "SVT",
+                "Maths",
+                "LLCE"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT3",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "1CAP2U ELECTRICIEN",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Portugais"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "HGGSP",
+                "SES",
+                "LLCA",
+                "HLP"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SES",
+                "HGGSP",
+                "HLP",
+                "LLCE"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": true,
+              "classe": "2 GT4",
+              "orientation": "1 CAP",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Portugais"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Portugais"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Réorientation",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "HGGSP",
+                "SES",
+                "HLP",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Portugais"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "HGGSP",
+                "SES",
+                "LLCA",
+                "HLP"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Portugais"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "1ère STMG",
+              "specialites": [],
+              "lv1": "Anglais",
+              "lv2": "Portugais"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "HLP",
+                "SES",
+                "HGGSP",
+                "LLCA"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "SVT",
+                "SES",
+                "HGGSP",
+                "LLCE"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Physique-Chimie",
+                "Maths",
+                "SVT",
+                "SES"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Portugais"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "LLCA",
+                "Maths",
+                "Physique-Chimie",
+                "SES"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Portugais"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Maths",
+                "Physique-Chimie",
+                "SVT",
+                "SES"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Portugais"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "HGGSP",
+                "LLCA",
+                "HLP",
+                "SES"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Portugais"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Maths",
+                "Physique-Chimie",
+                "LLCE",
+                "SVT"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Fille",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "HGGSP",
+                "SES",
+                "SVT",
+                "Physique-Chimie"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            },
+            {
+              "sexe": "Garçon",
+              "redoublant": false,
+              "classe": "2 GT4",
+              "orientation": "Première Générale",
+              "specialites": [
+                "Maths",
+                "Physique-Chimie",
+                "SVT",
+                "SES"
+              ],
+              "lv1": "Anglais",
+              "lv2": "Espagnol"
+            }
+          ]
+        }
+      }
+    },
     "dgh_hub_last": "sep",
     "affelnet_students": [],
     "dgh_hub_params": {
