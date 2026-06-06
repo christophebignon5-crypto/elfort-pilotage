@@ -1247,10 +1247,20 @@
             }
         }
 
-        // Initialiser l'affichage de l'année scolaire dans le header
+        // Initialiser l'affichage de l'année scolaire dans le header + restaurer depuis localStorage
         document.addEventListener('DOMContentLoaded', function () {
             const el = document.getElementById('anneeScolaire');
             if (el) el.textContent = getAnneeScolaire();
+
+            if (autoLoadFromLocalStorage()) {
+                mettreAJourOnglets();
+                mettreAJourFiltres();
+                if (affichageMode === 'dashboard') {
+                    afficherDashboard();
+                } else if (activeClass) {
+                    afficherCartes(activeClass);
+                }
+            }
         });
 
         // État global de l'application
@@ -1263,6 +1273,38 @@
             avis: 'all'
         };
         let affichageMode = 'cartes'; // 'cartes' ou 'dashboard'
+
+        /* ── AUTO-SAUVEGARDE LOCALSTORAGE ── */
+        const LS_KEY = 'voeux_parcoursup_v1';
+
+        function autoSaveToLocalStorage() {
+            if (Object.keys(classesData).length === 0) return;
+            try {
+                const snapshot = {
+                    version: '1.0',
+                    date: new Date().toLocaleString(),
+                    classesData: classesData,
+                    activeClass: activeClass,
+                    filters: filters,
+                    affichageMode: affichageMode
+                };
+                localStorage.setItem(LS_KEY, JSON.stringify(snapshot));
+            } catch(e) { /* quota dépassé : on ignore */ }
+        }
+
+        function autoLoadFromLocalStorage() {
+            try {
+                const raw = localStorage.getItem(LS_KEY);
+                if (!raw) return false;
+                const snapshot = JSON.parse(raw);
+                if (!snapshot.classesData) return false;
+                classesData   = snapshot.classesData;
+                activeClass   = snapshot.activeClass || Object.keys(classesData)[0] || null;
+                filters       = snapshot.filters || { nom:'', typeFormation:'all', filiere:'all', avis:'all' };
+                affichageMode = snapshot.affichageMode || 'cartes';
+                return true;
+            } catch(e) { return false; }
+        }
 
         // Avis possibles
         const AVIS = {
@@ -2400,6 +2442,7 @@
                 emptyMessage.textContent = 'Aucune classe chargée';
                 tabsContainer.appendChild(emptyMessage);
             }
+            autoSaveToLocalStorage();
         }
 
         function changerOnglet(className) {
@@ -2540,6 +2583,7 @@
                 }
             }
             afficherCartes(className);
+            autoSaveToLocalStorage();
         }
 
         // Sélectionner une proposition — avec propagation filière identique
@@ -2570,6 +2614,7 @@
             }
 
             afficherCartes(className);
+            autoSaveToLocalStorage();
         }
 
         // Mettre à jour l'appréciation personnalisée — avec propagation filière identique
@@ -2591,6 +2636,7 @@
                 v.appreciation = appreciation;
                 v.propositionIndex = -1;
             });
+            autoSaveToLocalStorage();
         }
 
         // Afficher les cartes élèves
