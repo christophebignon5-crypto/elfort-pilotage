@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tableau de Bord Vie Scolaire — LPO Léopold Elfort</title>
+
+<!-- React, Recharts et XLSX AVANT Babel -->
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/prop-types@15/prop-types.min.js"></script>
+<script crossorigin src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3/dist/pptxgen.bundle.js"></script>
+<!-- Babel en DERNIER -->
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f0f4f8;color:#222;font-size:14px}
+.header{background:linear-gradient(135deg,#1a237e,#1565c0);color:white;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.header-left{display:flex;align-items:center;gap:14px}
+.logo{width:52px;height:52px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px}
+.header h1{font-size:1.25rem;font-weight:700}
+.header p{font-size:.82rem;opacity:.85}
+.annee-badge{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);border-radius:20px;padding:4px 14px;font-size:.88rem;font-weight:600}
+.toolbar{background:white;border-bottom:1px solid #ddd;padding:9px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:6px;border:none;cursor:pointer;font-size:.82rem;font-weight:500;transition:opacity .15s;white-space:nowrap}
+.btn:hover{opacity:.85}.btn:disabled{opacity:.5;cursor:default}
+.btn-primary{background:#1565c0;color:white}
+.btn-success{background:#2e7d32;color:white}
+.btn-outline{background:white;color:#1565c0;border:1.5px solid #1565c0}
+.btn-outline.active,.btn-outline:focus{background:#1565c0;color:white}
+.btn-sm{padding:4px 10px;font-size:.78rem}
+.tabs{background:white;border-bottom:2px solid #1565c0;padding:0 20px;display:flex;overflow-x:auto}
+.tab{padding:11px 18px;cursor:pointer;font-size:.82rem;font-weight:500;color:#607d8b;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .15s}
+.tab:hover{color:#1565c0}.tab.active{color:#1565c0;border-bottom-color:#1565c0;font-weight:700}
+.content{padding:20px;max-width:1400px;margin:0 auto}
+.card{background:white;border-radius:10px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.07);margin-bottom:18px}
+.card-title{font-size:.95rem;font-weight:700;color:#1a237e;margin-bottom:14px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:18px}
+.kpi-card{background:white;border-radius:10px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.07);border-left:4px solid}
+.kpi-label{font-size:.74rem;color:#78909c;text-transform:uppercase;letter-spacing:.5px;display:block}
+.kpi-value{font-size:1.9rem;font-weight:700;display:block;margin:6px 0}
+.kpi-sub{font-size:.76rem;color:#90a4ae;display:block}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+.empty{text-align:center;padding:60px 20px;color:#aaa}
+.empty .icon{font-size:3.5rem;margin-bottom:14px}
+.empty h3{font-size:1.1rem;margin-bottom:6px;color:#888}
+.alert{padding:10px 14px;border-radius:6px;margin-bottom:14px;font-size:.85rem}
+.alert-info{background:#e3f2fd;color:#1565c0;border-left:4px solid #1565c0}
+.alert-warn{background:#fff8e1;color:#e65100;border-left:4px solid #e65100}
+.data-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.data-table th{background:#1565c0;color:white;padding:9px 10px;text-align:left;font-weight:600}
+.data-table td{padding:7px 10px;border-bottom:1px solid #eee}
+.data-table tr:hover td{background:#f5f7fa}
+.data-table tr:last-child td{border-bottom:none}
+.chip{padding:3px 10px;border-radius:4px;font-size:.74rem;font-weight:600}
+.guide-step{display:flex;gap:14px;margin-bottom:20px;padding:14px;border-radius:8px;background:#f5f7fa}
+.guide-num{min-width:34px;height:34px;border-radius:50%;background:#1565c0;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0}
+.guide-content h4{margin-bottom:4px;color:#1a237e;font-size:.9rem}
+.guide-content p{font-size:.84rem;color:#555;line-height:1.55}
+.ctooltip{background:white;border:1px solid #ddd;border-radius:6px;padding:9px 13px;font-size:.82rem;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.ctooltip .lb{font-weight:700;margin-bottom:5px;color:#333}
+.sep{color:#ccc;margin:0 4px}
+.toast{position:fixed;bottom:22px;right:22px;z-index:9999;padding:11px 18px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.25);font-size:.86rem;color:white;max-width:340px}
+.err-box{background:#ffebee;border:2px solid #c62828;border-radius:8px;padding:20px;margin:20px;font-family:monospace;font-size:.85rem;color:#c62828;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<div id="root"><div style="padding:40px;color:#888;text-align:center">Chargement en cours…</div></div>
+<input type="file" id="file-input" style="display:none" />
+
+<script>
+// Capture toute erreur non gérée et l'affiche à l'écran
+window.onerror = function(msg, src, line, col, err) {
+  var box = document.createElement('div');
+  box.className = 'err-box';
+  box.textContent = 'ERREUR JavaScript :\n' + msg + '\nFichier : ' + src + '\nLigne : ' + line;
+  document.getElementById('root').prepend(box);
+};
+window.addEventListener('unhandledrejection', function(e) {
+  var box = document.createElement('div');
+  box.className = 'err-box';
+  box.textContent = 'ERREUR Promise :\n' + (e.reason && e.reason.message ? e.reason.message : String(e.reason));
+  document.getElementById('root').prepend(box);
+});
+</script>
+
+<script type="text/babel">
+const { useReducer, useState, useCallback, useRef } = React;
+const {
+  LineChart, Line, BarChart, Bar, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  ResponsiveContainer, ComposedChart, Area
+} = Recharts;
+
+/* ─── CONSTANTES ─── */
+const MOIS_LABEL = {
+  1:'Janv.',2:'Fevr.',3:'Mars',4:'Avr.',5:'Mai',6:'Juin',
+  7:'Juil.',8:'Aout',9:'Sept.',10:'Oct.',11:'Nov.',12:'Dec.'
+};
+const MOIS_ORDER = ['Sept.','Oct.','Nov.','Dec.','Janv.','Fevr.','Mars','Avr.','Mai','Juin','Juil.','Aout'];
+/* fullName = libellé exact dans la colonne Excel (varie selon les années) */
+const SANCT_TYPES = [
+  {k:'avert',   lbl:'Avertissement',          fullName:'Avertissement'},
+  {k:'blame',   lbl:'Blame',                  fullName:'Blâme'},
+  {k:'excEtab', lbl:'Excl. etab.',            fullName:"Exclusion temporaire de l'établissement"},
+  {k:'excCls',  lbl:'Excl. classe',           fullName:'Exclusion temporaire de la classe'},
+  {k:'excDef',  lbl:'Excl. définitive', fullName:'Exclusion définitive'},
+  {k:'mesResp', lbl:'Mesure resp.',            fullName:'Mesure de responsabilisation'},
+  {k:'mesCons', lbl:'Mesure conserv.',         fullName:'Mesure conservatoire'},
+  {k:'excInt',  lbl:'Excl. internat',          fullName:'Exclusion temporaire Internat'},
+  {k:'excDP',   lbl:'Excl. DP',               fullName:'Exclusion temporaire DP'},
+  {k:'excDInt', lbl:'Excl. déf. internat', fullName:'Exclusion définitive Internat'},
+  {k:'excDDP',  lbl:'Excl. déf. DP',    fullName:'Exclusion définitive DP'},
+  {k:'avertCC', lbl:'Avert. CC',              fullName:'Avertissement CC'},
+  {k:'incl',    lbl:'Inclusion',              fullName:'Inclusion'},
+  {k:'excSurs', lbl:'Excl. déf. sursis', fullName:'Exclusion définitive avec sursis'},
+];
+const PALETTE = ['#1565c0','#e91e63','#2e7d32','#e65100','#7b1fa2','#00695c','#f57f17','#c62828','#0097a7','#6d4c41'];
+
+/* ─── UTILITAIRES ─── */
+function r1(v) { return Math.round(Number(v) * 10) / 10; }
+
+function parseSanctVal(v) {
+  if (!v || v === '-') return 0;
+  var m = String(v).trim().match(/^(\d+)/);
+  return m ? parseInt(m[1]) : 0;
+}
+
+function moisFromVal(v) {
+  if (v instanceof Date) return MOIS_LABEL[v.getMonth() + 1] || '?';
+  if (typeof v === 'number') {
+    var d = new Date(Math.round((v - 25569) * 86400 * 1000));
+    return MOIS_LABEL[d.getUTCMonth() + 1] || '?';
+  }
+  if (typeof v === 'string') {
+    var m = v.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return MOIS_LABEL[parseInt(m[2])] || m[2];
+  }
+  return String(v);
+}
+
+function detectAnnee(names) {
+  for (var i = 0; i < names.length; i++) {
+    var n = names[i];
+    var m = n.match(/(\d{4})-(\d{4})/);
+    if (m) return m[1] + '-' + m[2];
+    m = n.match(/(\d{2})-(\d{2})/);
+    if (m) return '20' + m[1] + '-20' + m[2];
+  }
+  return 'Inconnue';
+}
+
+function findSheet(wb, keyword) {
+  var found = wb.SheetNames.find(function(n) {
+    return n.toLowerCase().indexOf(keyword.toLowerCase()) !== -1;
+  });
+  return found ? wb.Sheets[found] : null;
+}
+
+/* ─── PARSEUR EXCEL ─── */
+function parseExcel(buf) {
+  var wb = XLSX.read(buf, { type: 'array', cellDates: true });
+  var annee = detectAnnee(wb.SheetNames);
+
+  /* TAUX MENSUEL */
+  var tauxSheet = findSheet(wb, 'taux');
+  var tauxMensuel = [];
+  if (tauxSheet) {
+    var trows = XLSX.utils.sheet_to_json(tauxSheet, { header: 1, defval: null });
+    for (var i = 2; i < trows.length; i++) {
+      var r = trows[i];
+      if (!r[0] || String(r[0]).toLowerCase() === 'total') continue;
+      tauxMensuel.push({
+        mois: moisFromVal(r[0]),
+        effGar: Number(r[1]) || 0,
+        effFil: Number(r[2]) || 0,
+        effTot: Number(r[3]) || 0,
+        demiJ: Number(r[4]) || 0,
+        absJust: Number(r[5]) || 0,
+        absNonJ: Number(r[6]) || 0,
+        totAbsDJ: Number(r[7]) || 0,
+        moyEleves: r1(Number(r[8]) || 0),
+        tauxAbs: r1((Number(r[9]) || 0) * 100),
+        garNbre: Number(r[10]) || 0,
+        garPct: r1((Number(r[11]) || 0) * 100),
+        filNbre: Number(r[12]) || 0,
+        filPct: r1((Number(r[13]) || 0) * 100),
+        totNbre: Number(r[14]) || 0,
+        totPct: r1((Number(r[15]) || 0) * 100),
+        dureeMoy: r1(Number(r[16]) || 0),
+      });
+    }
+  }
+
+  /* SANCTIONS — colonnes détectées dynamiquement depuis la ligne d'en-tête */
+  var sanctSheet = findSheet(wb, 'sanction');
+  var sanctions = [];
+  var sanctTotaux = {};
+  SANCT_TYPES.forEach(function(t) { sanctTotaux[t.k] = 0; });
+  var elevesConc = 0;
+  var sanctActiveKeys = []; // clés présentes dans CE fichier
+
+  if (sanctSheet) {
+    var srows = XLSX.utils.sheet_to_json(sanctSheet, { header: 1, defval: null });
+
+    /* Construire la carte nom→indice depuis la ligne 0 */
+    var colMap = {};
+    var hdrRow = srows[0] || [];
+    for (var ci = 0; ci < hdrRow.length; ci++) {
+      if (hdrRow[ci] != null) colMap[String(hdrRow[ci]).trim()] = ci;
+    }
+
+    /* Résoudre l'indice de chaque type de sanction */
+    var sanctCols = [];
+    SANCT_TYPES.forEach(function(t) {
+      var idx = colMap[t.fullName];
+      if (idx !== undefined) {
+        sanctCols.push({ k: t.k, col: idx });
+        sanctActiveKeys.push(t.k);
+      }
+    });
+
+    /* Colonne "Nombre d'élèves concernés" (dernier en-tête non vide) */
+    var elevCol = -1;
+    for (var hi = hdrRow.length - 1; hi >= 0; hi--) {
+      if (hdrRow[hi] != null && String(hdrRow[hi]).indexOf('lèves') !== -1) { elevCol = hi; break; }
+    }
+    if (elevCol === -1) elevCol = hdrRow.length - 1; // fallback : dernière colonne
+
+    for (var si = 1; si < srows.length; si++) {
+      var sr = srows[si];
+      if (!sr[0]) continue;
+      var classe = String(sr[0]).trim();
+      if (classe.toLowerCase() === 'total') {
+        sanctCols.forEach(function(t) { sanctTotaux[t.k] = parseSanctVal(sr[t.col]); });
+        elevesConc = parseSanctVal(sr[elevCol]);
+        break;
+      }
+      var s = {};
+      var tot = 0;
+      sanctCols.forEach(function(t) { s[t.k] = parseSanctVal(sr[t.col]); tot += s[t.k]; });
+      var nbElev = parseSanctVal(sr[elevCol]);
+      if (tot > 0 || nbElev > 0) {
+        sanctions.push({ classe: classe, s: s, tot: tot, nbElev: nbElev });
+      }
+    }
+  }
+
+  /* ABSENCES PAR NIVEAU */
+  function parseNiveaux(sheet) {
+    if (!sheet) return [];
+    var rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null });
+    var res = [];
+    for (var ni = 2; ni < rows.length; ni++) {
+      var nr = rows[ni];
+      if (!nr[0] || typeof nr[0] !== 'string') continue;
+      var niv = String(nr[0]).trim();
+      if (!niv || niv.indexOf('Source') === 0) continue;
+      res.push({ niveau: niv, tr1: Number(nr[1]) || 0, tr2: Number(nr[2]) || 0, tr3: Number(nr[3]) || 0, moy: r1(Number(nr[4]) || 0) });
+    }
+    return res;
+  }
+
+  var ensSheet = null, filSheet = null, garSheet = null;
+  wb.SheetNames.forEach(function(n) {
+    var lc = n.toLowerCase();
+    var hasFil = lc.indexOf('fille') !== -1;
+    var hasGar = lc.indexOf('gar') !== -1;
+    if (hasFil && hasGar) ensSheet = wb.Sheets[n];
+    else if (hasFil) filSheet = wb.Sheets[n];
+    else if (hasGar) garSheet = wb.Sheets[n];
+  });
+
+  return {
+    annee: annee,
+    tauxMensuel: tauxMensuel,
+    sanctions: sanctions,
+    sanctTotaux: sanctTotaux,
+    sanctActiveKeys: sanctActiveKeys,
+    elevesConc: elevesConc,
+    absEns: parseNiveaux(ensSheet),
+    absFil: parseNiveaux(filSheet),
+    absGar: parseNiveaux(garSheet),
+  };
+}
+
+/* ─── STOCKAGE ─── */
+var STORAGE_KEY = 'viescolaire_elfort_v1';
+function loadSt() {
+  try { var s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : null; }
+  catch(e) { return null; }
+}
+function saveSt(d) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); } catch(e) {}
+}
+
+/* ─── REDUCER ─── */
+var INIT = { annees: {}, active: null, tab: 'synthese' };
+function reducer(st, a) {
+  if (a.type === 'ADD') {
+    var annees = Object.assign({}, st.annees);
+    annees[a.d.annee] = a.d;
+    saveSt({ annees: annees, active: a.d.annee });
+    return Object.assign({}, st, { annees: annees, active: a.d.annee });
+  }
+  if (a.type === 'SET_ACTIVE') {
+    saveSt({ annees: st.annees, active: a.v });
+    return Object.assign({}, st, { active: a.v });
+  }
+  if (a.type === 'SET_TAB') {
+    return Object.assign({}, st, { tab: a.v });
+  }
+  if (a.type === 'LOAD') {
+    var an = a.d.annees || {};
+    var act = a.d.active || Object.keys(an)[0] || null;
+    saveSt({ annees: an, active: act });
+    return Object.assign({}, st, { annees: an, active: act });
+  }
+  if (a.type === 'DEL') {
+    var anns = Object.assign({}, st.annees);
+    delete anns[a.v];
+    var newAct = st.active === a.v ? (Object.keys(anns)[0] || null) : st.active;
+    saveSt({ annees: anns, active: newAct });
+    return Object.assign({}, st, { annees: anns, active: newAct });
+  }
+  return st;
+}
+
+/* ─── COMPOSANTS UI ─── */
+function CT(props) {
+  if (!props.active || !props.payload || !props.payload.length) return null;
+  var unit = props.unit || '';
+  return (
+    <div className="ctooltip">
+      <div className="lb">{props.label}</div>
+      {props.payload.map(function(p, i) {
+        return (
+          <div key={i} style={{color: p.color, marginTop: 2}}>
+            {p.name}: <strong>{p.value != null ? p.value + unit : '-'}</strong>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function Empty() {
+  return (
+    <div className="empty">
+      <div className="icon">📂</div>
+      <h3>Aucune donnée chargée</h3>
+      <p>Cliquez sur "Importer Excel" dans la barre d'outils pour charger un fichier de vie scolaire.</p>
+    </div>
+  );
+}
+
+/* Carte graphique avec bouton "Copier" */
+function ChartCard(props) {
+  var copyState = useState(false);
+  var copying = copyState[0]; var setCopying = copyState[1];
+  var copiedState = useState(false);
+  var copied = copiedState[0]; var setCopied = copiedState[1];
+  var cardRef = useRef(null);
+
+  function doCopy() {
+    if (!cardRef.current || !window.html2canvas) return;
+    setCopying(true);
+    window.html2canvas(cardRef.current, { scale: 2, backgroundColor: '#ffffff', useCORS: true })
+      .then(function(canvas) {
+        function dl() {
+          var a = document.createElement('a');
+          a.href = canvas.toDataURL('image/png');
+          a.download = 'graphique.png';
+          a.click();
+          setCopying(false);
+        }
+        if (navigator.clipboard && window.ClipboardItem) {
+          canvas.toBlob(function(blob) {
+            navigator.clipboard.write([new ClipboardItem({'image/png': blob})])
+              .then(function() { setCopying(false); setCopied(true); setTimeout(function(){ setCopied(false); }, 1800); })
+              .catch(dl);
+          });
+        } else { dl(); }
+      })
+      .catch(function() { setCopying(false); });
+  }
+
+  return (
+    <div className="card" ref={cardRef}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+        <div className="card-title" style={{margin:0}}>{props.title}</div>
+        <button
+          onClick={doCopy}
+          disabled={copying}
+          title="Copier ce graphique comme image"
+          style={{background:copied?'#2e7d32':'#f5f5f5',border:'1px solid #ddd',borderRadius:5,padding:'3px 11px',fontSize:'.75rem',cursor:copying?'default':'pointer',color:copied?'white':'#555',flexShrink:0,whiteSpace:'nowrap'}}
+        >
+          {copied ? '✓ Copié' : copying ? '...' : '📋 Copier'}
+        </button>
+      </div>
+      {props.children}
+    </div>
+  );
+}
+
+/* ══ SYNTHÈSE ══ */
+function TabSynthese(props) {
+  var d = props.d;
+  if (!d) return React.createElement(Empty, null);
+
+  var tm = d.tauxMensuel;
+  var absEns = d.absEns;
+  var sanctTotaux = d.sanctTotaux;
+  var tauxMoy = tm.length ? r1(tm.reduce(function(s, m) { return s + m.tauxAbs; }, 0) / tm.length) : 0;
+  var totSanct = Object.values(sanctTotaux).reduce(function(s, v) { return s + v; }, 0);
+  var moisMax = tm.length ? tm.reduce(function(mx, m) { return m.tauxAbs > mx.tauxAbs ? m : mx; }, tm[0]) : { mois: '-', tauxAbs: 0 };
+  var nivMax = absEns.length ? absEns.reduce(function(mx, n) { return n.moy > mx.moy ? n : mx; }, absEns[0]) : { niveau: '-', moy: 0 };
+
+  var activeKeys = d.sanctActiveKeys || SANCT_TYPES.map(function(t) { return t.k; });
+  var sanctByType = SANCT_TYPES
+    .filter(function(t) { return activeKeys.indexOf(t.k) !== -1 && (sanctTotaux[t.k] || 0) > 0; })
+    .map(function(t) { return { name: t.lbl, val: sanctTotaux[t.k] }; })
+    .sort(function(a, b) { return b.val - a.val; });
+
+  return (
+    <div>
+      <div className="kpi-grid">
+        <div className="kpi-card" style={{borderLeftColor:'#1565c0'}}>
+          <span className="kpi-label">Taux d'absence moyen</span>
+          <span className="kpi-value" style={{color:'#1565c0'}}>{tauxMoy}%</span>
+          <span className="kpi-sub">Moyenne annuelle / demi-journees</span>
+        </div>
+        <div className="kpi-card" style={{borderLeftColor:'#e65100'}}>
+          <span className="kpi-label">Total sanctions</span>
+          <span className="kpi-value" style={{color:'#e65100'}}>{totSanct}</span>
+          <span className="kpi-sub">{d.elevesConc} eleves concernes</span>
+        </div>
+        <div className="kpi-card" style={{borderLeftColor:'#c62828'}}>
+          <span className="kpi-label">Mois le plus absent</span>
+          <span className="kpi-value" style={{color:'#c62828',fontSize:'1.4rem'}}>{moisMax.mois}</span>
+          <span className="kpi-sub">Taux {moisMax.tauxAbs}%</span>
+        </div>
+        <div className="kpi-card" style={{borderLeftColor:'#7b1fa2'}}>
+          <span className="kpi-label">Niveau le plus absent</span>
+          <span className="kpi-value" style={{color:'#7b1fa2',fontSize:'1.4rem'}}>{nivMax.niveau}</span>
+          <span className="kpi-sub">Moy. {nivMax.moy}% (ensemble)</span>
+        </div>
+      </div>
+
+      <div className="grid-2">
+        <ChartCard title={"Évolution du taux d'absence — " + d.annee}>
+          <ResponsiveContainer width="100%" height={220}>
+            <ComposedChart data={tm} margin={{top:5,right:20,bottom:5,left:0}}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+              <XAxis dataKey="mois" tick={{fontSize:11}} />
+              <YAxis unit="%" tick={{fontSize:11}} domain={[0,'auto']} />
+              <Tooltip content={<CT unit="%" />} />
+              <Area type="monotone" dataKey="tauxAbs" name="Taux absence" fill="#bbdefb" stroke="#1565c0" strokeWidth={2.5} dot={{r:4}} />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </ChartCard>
+        <ChartCard title={"Sanctions par type — " + d.annee}>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={sanctByType} layout="vertical" margin={{top:5,right:20,bottom:5,left:120}}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+              <XAxis type="number" tick={{fontSize:11}} allowDecimals={false} />
+              <YAxis dataKey="name" type="category" tick={{fontSize:10}} width={120} />
+              <Tooltip />
+              <Bar dataKey="val" name="Nombre" fill="#e65100" radius={[0,4,4,0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+      </div>
+
+      <ChartCard title={"Taux d'absence moyen par niveau — " + d.annee}>
+        <ResponsiveContainer width="100%" height={200}>
+          <BarChart data={absEns} margin={{top:5,right:20,bottom:5,left:0}}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+            <XAxis dataKey="niveau" tick={{fontSize:11}} />
+            <YAxis unit="%" tick={{fontSize:11}} />
+            <Tooltip content={<CT unit="%" />} />
+            <Bar dataKey="moy" name="Taux moyen" radius={[4,4,0,0]}>
+              {absEns.map(function(e, i) {
+                return <Cell key={i} fill={e.moy >= 20 ? '#c62828' : e.moy >= 15 ? '#e65100' : '#7b1fa2'} />;
+              })}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+        <div style={{fontSize:'.76rem',color:'#90a4ae',marginTop:6}}>Rouge ≥ 20% · Orange ≥ 15% · Violet &lt; 15%</div>
+      </ChartCard>
+    </div>
+  );
+}
+
+/* ══ ABSENCES MENSUELLES ══ */
+function TabMensuel(props) {
+  var d = props.d;
+  if (!d) return React.createElement(Empty, null);
+  var tm = d.tauxMensuel;
+  var view = props.view || 'taux';
+
+  return (
+    <div>
+      <div className="card" style={{marginBottom:14}}>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          {[
+            {id:'taux', lbl:'Taux global'},
+            {id:'just', lbl:'Just./Non just.'},
+            {id:'genre', lbl:'Par genre'},
+            {id:'duree', lbl:'Duree moy.'},
+          ].map(function(v) {
+            return (
+              <button key={v.id}
+                className={'btn ' + (view === v.id ? 'btn-primary' : 'btn-outline')}
+                onClick={function() { props.onView(v.id); }}>
+                {v.lbl}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {view === 'taux' && (
+        <ChartCard title={"Taux d'absence global mensuel — " + d.annee}>
+          <div className="alert alert-info">
+            Taux en demi-journees : moy. eleves absents / effectifs x 100. <strong>Valeur jaune dans le fichier Excel source.</strong>
+          </div>
+          <ResponsiveContainer width="100%" height={280}>
+            <ComposedChart data={tm} margin={{top:5,right:30,bottom:5,left:0}}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+              <XAxis dataKey="mois" tick={{fontSize:11}} />
+              <YAxis unit="%" tick={{fontSize:11}} domain={[0,'auto']} />
+              <Tooltip content={<CT unit="%" />} />
+              <Area type="monotone" dataKey="tauxAbs" name="Taux absence" fill="#bbdefb" stroke="#1565c0" strokeWidth={2.5} dot={{r:5}} />
+            </ComposedChart>
+          </ResponsiveContainer>
+          <div style={{overflowX:'auto',marginTop:14}}>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Mois</th><th>Effectifs</th><th>Demi-journees</th>
+                  <th>Abs. just.</th><th>Abs. non just.</th><th>Total abs. DJ</th>
+                  <th style={{background:'#0d47a1'}}>Taux (%)</th><th>Duree moy.</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tm.map(function(m, i) {
+                  return (
+                    <tr key={i}>
+                      <td><strong>{m.mois}</strong></td>
+                      <td>{m.effTot}</td>
+                      <td>{m.demiJ.toLocaleString('fr-FR')}</td>
+                      <td>{m.absJust.toLocaleString('fr-FR')}</td>
+                      <td>{m.absNonJ.toLocaleString('fr-FR')}</td>
+                      <td>{m.totAbsDJ.toLocaleString('fr-FR')}</td>
+                      <td style={{background:'#fff9c4',fontWeight:700,color:'#e65100'}}>{m.tauxAbs}%</td>
+                      <td>{m.dureeMoy} dj</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </ChartCard>
+      )}
+
+      {view === 'just' && (
+        <ChartCard title={"Absences justifiees vs non justifiees — " + d.annee}>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={tm} margin={{top:5,right:30,bottom:5,left:0}}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+              <XAxis dataKey="mois" tick={{fontSize:11}} />
+              <YAxis tick={{fontSize:11}} />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="absJust" name="Justifiees" fill="#2e7d32" stackId="a" />
+              <Bar dataKey="absNonJ" name="Non justifiees" fill="#c62828" stackId="a" radius={[4,4,0,0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+      )}
+
+      {view === 'genre' && (
+        <ChartCard title={"Absences par genre dans le mois — " + d.annee}>
+          <div className="alert alert-info">
+            % d'eleves (filles ou garcons) absents au moins une fois dans le mois / effectifs du genre.
+          </div>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={tm} margin={{top:5,right:30,bottom:5,left:0}}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+              <XAxis dataKey="mois" tick={{fontSize:11}} />
+              <YAxis unit="%" tick={{fontSize:11}} />
+              <Tooltip content={<CT unit="%" />} />
+              <Legend />
+              <Line type="monotone" dataKey="garPct" name="Garcons" stroke="#1565c0" strokeWidth={2.5} dot={{r:4}} />
+              <Line type="monotone" dataKey="filPct" name="Filles" stroke="#e91e63" strokeWidth={2.5} dot={{r:4}} />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartCard>
+      )}
+
+      {view === 'duree' && (
+        <ChartCard title={"Duree moyenne d'absence (demi-journees) — " + d.annee}>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={tm} margin={{top:5,right:30,bottom:5,left:0}}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+              <XAxis dataKey="mois" tick={{fontSize:11}} />
+              <YAxis tick={{fontSize:11}} />
+              <Tooltip />
+              <Bar dataKey="dureeMoy" name="Duree moy. (demi-j.)" fill="#00695c" radius={[4,4,0,0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+      )}
+    </div>
+  );
+}
+
+/* ══ ABSENCES PAR NIVEAU ══ */
+function TabNiveaux(props) {
+  var d = props.d;
+  if (!d) return React.createElement(Empty, null);
+  var absEns = d.absEns;
+  var absFil = d.absFil;
+  var absGar = d.absGar;
+  var tri = props.tri || 'moy';
+  var vue = props.vue || 'barre';
+
+  var merged = absEns.map(function(e) {
+    var f = absFil.find(function(x) { return x.niveau === e.niveau; }) || {};
+    var g = absGar.find(function(x) { return x.niveau === e.niveau; }) || {};
+    return { niveau: e.niveau, Ensemble: e[tri], Filles: f[tri] || null, Garcons: g[tri] || null };
+  });
+
+  return (
+    <div>
+      <div className="card" style={{marginBottom:14}}>
+        <div style={{display:'flex',gap:12,flexWrap:'wrap',alignItems:'center'}}>
+          <div style={{display:'flex',gap:6}}>
+            <button className={'btn ' + (vue === 'barre' ? 'btn-primary' : 'btn-outline')} onClick={function() { props.onVue('barre'); }}>Barres groupees</button>
+            <button className={'btn ' + (vue === 'ligne' ? 'btn-primary' : 'btn-outline')} onClick={function() { props.onVue('ligne'); }}>Lignes (trimestres)</button>
+          </div>
+          <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+            {[
+              {id:'tr1',lbl:'Trim. 1'},{id:'tr2',lbl:'Trim. 2'},
+              {id:'tr3',lbl:'Trim. 3'},{id:'moy',lbl:'Moyenne'},
+            ].map(function(t) {
+              return (
+                <button key={t.id}
+                  className={'btn btn-sm ' + (tri === t.id ? 'btn-primary' : 'btn-outline')}
+                  onClick={function() { props.onTri(t.id); }}>
+                  {t.lbl}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {vue === 'barre' && (
+        <ChartCard title={"Taux d'absence par niveau et genre — " + d.annee}>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={merged} margin={{top:5,right:30,bottom:5,left:0}}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+              <XAxis dataKey="niveau" tick={{fontSize:11}} />
+              <YAxis unit="%" tick={{fontSize:11}} domain={[0,'auto']} />
+              <Tooltip content={<CT unit="%" />} />
+              <Legend />
+              <Bar dataKey="Ensemble" fill="#7b1fa2" radius={[4,4,0,0]} />
+              <Bar dataKey="Filles" fill="#e91e63" radius={[4,4,0,0]} />
+              <Bar dataKey="Garcons" fill="#1565c0" radius={[4,4,0,0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+      )}
+
+      {vue === 'ligne' && (
+        <ChartCard title={"Evolution trimestrielle par niveau — " + d.annee + " (ensemble)"}>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={absEns} margin={{top:5,right:30,bottom:5,left:0}}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+              <XAxis dataKey="niveau" tick={{fontSize:11}} />
+              <YAxis unit="%" tick={{fontSize:11}} />
+              <Tooltip content={<CT unit="%" />} />
+              <Legend />
+              <Line type="monotone" dataKey="tr1" name="Trim. 1" stroke="#1565c0" strokeWidth={2} dot={{r:4}} />
+              <Line type="monotone" dataKey="tr2" name="Trim. 2" stroke="#e65100" strokeWidth={2} dot={{r:4}} />
+              <Line type="monotone" dataKey="tr3" name="Trim. 3" stroke="#2e7d32" strokeWidth={2} dot={{r:4}} />
+              <Line type="monotone" dataKey="moy" name="Moyenne" stroke="#7b1fa2" strokeWidth={2.5} strokeDasharray="5 5" dot={{r:5}} />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartCard>
+      )}
+
+      <div className="card">
+        <div className="card-title">Tableau detaille — Taux par niveau, trimestre et genre (%)</div>
+        <div style={{overflowX:'auto'}}>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th rowSpan={2}>Niveau</th>
+                <th colSpan={4} style={{textAlign:'center',background:'#6a1b9a'}}>Ensemble</th>
+                <th colSpan={4} style={{textAlign:'center',background:'#880e4f'}}>Filles</th>
+                <th colSpan={4} style={{textAlign:'center',background:'#0d47a1'}}>Garcons</th>
+              </tr>
+              <tr>
+                {['Tr.1','Tr.2','Tr.3','Moy.','Tr.1','Tr.2','Tr.3','Moy.','Tr.1','Tr.2','Tr.3','Moy.'].map(function(h, i) {
+                  return (
+                    <th key={i} style={{background: i < 4 ? '#7b1fa2' : i < 8 ? '#ad1457' : '#1565c0', fontWeight: h === 'Moy.' ? 800 : 500}}>{h}</th>
+                  );
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {absEns.map(function(e, i) {
+                var f = absFil.find(function(x) { return x.niveau === e.niveau; }) || {};
+                var g = absGar.find(function(x) { return x.niveau === e.niveau; }) || {};
+                return (
+                  <tr key={i}>
+                    <td><strong>{e.niveau}</strong></td>
+                    <td>{e.tr1}%</td><td>{e.tr2}%</td><td>{e.tr3}%</td>
+                    <td style={{background:'#ede7f6',fontWeight:700}}>{e.moy}%</td>
+                    <td>{f.tr1}%</td><td>{f.tr2}%</td><td>{f.tr3}%</td>
+                    <td style={{background:'#fce4ec',fontWeight:700}}>{f.moy}%</td>
+                    <td>{g.tr1}%</td><td>{g.tr2}%</td><td>{g.tr3}%</td>
+                    <td style={{background:'#e3f2fd',fontWeight:700}}>{g.moy}%</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ══ SANCTIONS ══ */
+function TabSanctions(props) {
+  var d = props.d;
+  if (!d) return React.createElement(Empty, null);
+  var sanctions = d.sanctions;
+  var sanctTotaux = d.sanctTotaux;
+  var totSanct = Object.values(sanctTotaux).reduce(function(s, v) { return s + v; }, 0);
+
+  /* Types présents dans ce fichier ET ayant au moins 1 sanction */
+  var activeKeys = d.sanctActiveKeys || SANCT_TYPES.map(function(t) { return t.k; });
+  var sanctByType = SANCT_TYPES
+    .filter(function(t) { return activeKeys.indexOf(t.k) !== -1 && (sanctTotaux[t.k] || 0) > 0; })
+    .map(function(t) { return { name: t.lbl, val: sanctTotaux[t.k] }; })
+    .sort(function(a, b) { return b.val - a.val; });
+
+  var top15 = sanctions.slice().sort(function(a, b) { return b.nbElev - a.nbElev; }).slice(0, 15).filter(function(s) { return s.nbElev > 0; });
+  var activeTypes = SANCT_TYPES.filter(function(t) { return activeKeys.indexOf(t.k) !== -1 && (sanctTotaux[t.k] || 0) > 0; });
+
+  return (
+    <div>
+      <div className="kpi-grid">
+        <div className="kpi-card" style={{borderLeftColor:'#e65100'}}>
+          <span className="kpi-label">Total sanctions</span>
+          <span className="kpi-value" style={{color:'#e65100'}}>{totSanct}</span>
+          <span className="kpi-sub">Toutes sanctions</span>
+        </div>
+        <div className="kpi-card" style={{borderLeftColor:'#c62828'}}>
+          <span className="kpi-label">Eleves concernes</span>
+          <span className="kpi-value" style={{color:'#c62828'}}>{d.elevesConc}</span>
+          <span className="kpi-sub">Au moins une sanction</span>
+        </div>
+        <div className="kpi-card" style={{borderLeftColor:'#7b1fa2'}}>
+          <span className="kpi-label">Sanction principale</span>
+          <span className="kpi-value" style={{color:'#7b1fa2',fontSize:'1.1rem'}}>{sanctByType[0] ? sanctByType[0].name : '-'}</span>
+          <span className="kpi-sub">{sanctByType[0] ? sanctByType[0].val : 0} prononcees</span>
+        </div>
+        <div className="kpi-card" style={{borderLeftColor:'#2e7d32'}}>
+          <span className="kpi-label">Classes impactees</span>
+          <span className="kpi-value" style={{color:'#2e7d32'}}>
+            {sanctions.filter(function(s) { return s.nbElev > 0; }).length}
+          </span>
+          <span className="kpi-sub">Classes avec eleve sanctionne</span>
+        </div>
+      </div>
+
+      <div className="grid-2">
+        <ChartCard title={"Repartition par type — " + d.annee}>
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={sanctByType} layout="vertical" margin={{top:5,right:20,bottom:5,left:120}}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+              <XAxis type="number" tick={{fontSize:11}} allowDecimals={false} />
+              <YAxis dataKey="name" type="category" tick={{fontSize:10}} width={120} />
+              <Tooltip />
+              <Bar dataKey="val" name="Nombre" radius={[0,4,4,0]}>
+                {sanctByType.map(function(_, i) { return <Cell key={i} fill={PALETTE[i % PALETTE.length]} />; })}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+        <ChartCard title={"Eleves sanctionnes par classe (top 15) — " + d.annee}>
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={top15} layout="vertical" margin={{top:5,right:20,bottom:5,left:90}}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+              <XAxis type="number" tick={{fontSize:11}} allowDecimals={false} />
+              <YAxis dataKey="classe" type="category" tick={{fontSize:11}} width={90} />
+              <Tooltip />
+              <Bar dataKey="nbElev" name="Eleves concernes" fill="#c62828" radius={[0,4,4,0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+      </div>
+
+      <div className="card">
+        <div className="card-title">Detail sanctions par classe — {d.annee}</div>
+        <div style={{overflowX:'auto'}}>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Classe</th>
+                {activeTypes.map(function(t) { return <th key={t.k}>{t.lbl}</th>; })}
+                <th style={{background:'#c62828'}}>Eleves conc.</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sanctions.slice().sort(function(a, b) { return b.nbElev - a.nbElev; }).map(function(s, i) {
+                return (
+                  <tr key={i}>
+                    <td><strong>{s.classe}</strong></td>
+                    {activeTypes.map(function(t) {
+                      return (
+                        <td key={t.k} style={{textAlign:'center'}}>
+                          {s.s[t.k] > 0
+                            ? <span className="chip" style={{background:'#fff3e0',color:'#e65100'}}>{s.s[t.k]}</span>
+                            : '-'}
+                        </td>
+                      );
+                    })}
+                    <td style={{fontWeight:700,color:'#c62828',textAlign:'center'}}>{s.nbElev || '-'}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ══ COMPARAISON ══ */
+function TabComparaison(props) {
+  var annees = props.annees;
+  var years = Object.keys(annees).sort();
+  if (years.length < 2) {
+    return (
+      <div className="card">
+        <div className="alert alert-warn">
+          La comparaison necessite au moins 2 annees. Importez un fichier Excel pour une autre annee scolaire.
+        </div>
+        <div className="empty" style={{padding:'30px 20px'}}>
+          <div className="icon">📊</div>
+          <h3>Donnees insuffisantes</h3>
+          <p>Importez une deuxieme annee pour activer les graphiques comparatifs.</p>
+        </div>
+      </div>
+    );
+  }
+
+  var resume = years.map(function(y, i) {
+    var a = annees[y];
+    return {
+      annee: y,
+      tauxMoy: a.tauxMensuel.length ? r1(a.tauxMensuel.reduce(function(s, m) { return s + m.tauxAbs; }, 0) / a.tauxMensuel.length) : 0,
+      totSanct: Object.values(a.sanctTotaux).reduce(function(s, v) { return s + v; }, 0),
+      elevesConc: a.elevesConc,
+      color: PALETTE[i % PALETTE.length],
+    };
+  });
+
+  var allMois = [];
+  years.forEach(function(y) {
+    annees[y].tauxMensuel.forEach(function(m) {
+      if (allMois.indexOf(m.mois) === -1) allMois.push(m.mois);
+    });
+  });
+  allMois.sort(function(a, b) { return MOIS_ORDER.indexOf(a) - MOIS_ORDER.indexOf(b); });
+
+  var mensuelComp = allMois.map(function(mois) {
+    var e = { mois: mois };
+    years.forEach(function(y) {
+      var f = annees[y].tauxMensuel.find(function(x) { return x.mois === mois; });
+      e[y] = f ? f.tauxAbs : null;
+    });
+    return e;
+  });
+
+  var allNiveaux = [];
+  years.forEach(function(y) {
+    annees[y].absEns.forEach(function(n) {
+      if (allNiveaux.indexOf(n.niveau) === -1) allNiveaux.push(n.niveau);
+    });
+  });
+  var niveauxComp = allNiveaux.map(function(niv) {
+    var e = { niveau: niv };
+    years.forEach(function(y) {
+      var f = annees[y].absEns.find(function(x) { return x.niveau === niv; });
+      e[y] = f ? f.moy : null;
+    });
+    return e;
+  });
+
+  return (
+    <div>
+      <div className="kpi-grid">
+        {resume.map(function(r) {
+          return (
+            <div key={r.annee} className="kpi-card" style={{borderLeftColor:r.color}}>
+              <span className="kpi-label">{r.annee}</span>
+              <span className="kpi-value" style={{color:r.color}}>{r.tauxMoy}%</span>
+              <span className="kpi-sub">Taux moy. | {r.totSanct} sanctions | {r.elevesConc} eleves conc.</span>
+            </div>
+          );
+        })}
+      </div>
+
+      <ChartCard title="Taux d'absence mensuel compare">
+        <ResponsiveContainer width="100%" height={280}>
+          <LineChart data={mensuelComp} margin={{top:5,right:30,bottom:5,left:0}}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+            <XAxis dataKey="mois" tick={{fontSize:11}} />
+            <YAxis unit="%" tick={{fontSize:11}} />
+            <Tooltip content={<CT unit="%" />} />
+            <Legend />
+            {years.map(function(y, i) {
+              return <Line key={y} type="monotone" dataKey={y} name={y} stroke={PALETTE[i % PALETTE.length]} strokeWidth={2.5} dot={{r:4}} connectNulls={true} />;
+            })}
+          </LineChart>
+        </ResponsiveContainer>
+      </ChartCard>
+
+      <div className="grid-2">
+        <ChartCard title="Taux par niveau compare (moy. annuelle)">
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={niveauxComp} margin={{top:5,right:30,bottom:5,left:0}}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+              <XAxis dataKey="niveau" tick={{fontSize:11}} />
+              <YAxis unit="%" tick={{fontSize:11}} />
+              <Tooltip content={<CT unit="%" />} />
+              <Legend />
+              {years.map(function(y, i) {
+                return <Bar key={y} dataKey={y} name={y} fill={PALETTE[i % PALETTE.length]} radius={[4,4,0,0]} />;
+              })}
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+        <ChartCard title="Sanctions comparees">
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={resume} margin={{top:5,right:30,bottom:5,left:0}}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+              <XAxis dataKey="annee" tick={{fontSize:11}} />
+              <YAxis tick={{fontSize:11}} />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="totSanct" name="Total sanctions" fill="#e65100" radius={[4,4,0,0]} />
+              <Bar dataKey="elevesConc" name="Eleves concernes" fill="#c62828" radius={[4,4,0,0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+      </div>
+    </div>
+  );
+}
+
+/* ══ GUIDE ══ */
+function TabGuide() {
+  var steps = [
+    { title: "Importer un fichier Excel", text: "Cliquez sur \"Importer Excel\" dans la barre d'outils. Selectionnez le fichier .xlsx de l'annee scolaire (ex : \"vie scolaire.xlsx\"). Le fichier doit contenir les feuilles TAUX, SANCTIONS et les feuilles d'absences par niveau. Les donnees sont extraites et affichees automatiquement." },
+    { title: "Naviguer entre les onglets", text: "\"Synthese\" = indicateurs cles. \"Absences mensuelles\" = taux mois par mois, just./non-just., genre, duree. \"Par niveau & genre\" = comparaison filles/garcons par niveau et trimestre. \"Sanctions\" = detail par type et par classe. \"Comparaison\" = evolution inter-annees. \"Guide\" = cette aide." },
+    { title: "Changer l'annee affichee", text: "Si plusieurs annees sont importees, des boutons apparaissent dans la barre d'outils. Cliquez sur l'annee souhaitee pour basculer la vue." },
+    { title: "Comparer les annees", text: "Importez un fichier Excel par annee scolaire. Rendez-vous dans l'onglet \"Comparaison\" pour les graphiques superposes. Au moins 2 annees sont necessaires." },
+    { title: "Sauvegarder les donnees", text: "Cliquez sur \"Sauvegarder\" pour telecharger un fichier .json contenant toutes les annees importees. Le navigateur conserve aussi une copie locale automatiquement." },
+    { title: "Charger une sauvegarde", text: "Cliquez sur \"Charger\" et selectionnez un fichier .json precedemment sauvegarde. Toutes les annees stockees sont restaurees instantanement." },
+    { title: "Supprimer une annee", text: "Dans la barre d'outils, cliquez sur le bouton \"x\" a droite du nom d'une annee pour la retirer du tableau de bord." },
+    { title: "Copier un graphique", text: "Sur chaque graphique, survolez la carte et cliquez sur le bouton \"Copier\" en haut a droite. L'image est copiee dans le presse-papiers et peut etre collee directement dans Word, PowerPoint ou tout autre logiciel (Ctrl+V). Si le navigateur ne supporte pas la copie, l'image est telechargee au format PNG." },
+    { title: "Exporter en PowerPoint (PPTX)", text: "Le bouton \"PPTX [annee]\" exporte une presentation complete pour l'annee active : couverture, taux mensuel, absences just./non-just., absences par genre et niveau, sanctions. Le bouton \"PPTX Comparatif\" (visible quand 2+ annees sont importees) cree une presentation multi-annees avec tableau de bord KPI, courbes comparatives et graphiques cotes a cotes. Les graphiques sont natifs PowerPoint (editables)." },
+  ];
+
+  var indicateurs = [
+    ["Taux d'absence global", "Moy. eleves absents par demi-journee / effectifs x 100. Valeur jaune dans l'Excel.", "Feuille TAUX — col. Eleves abs. par 1/2 j %"],
+    ["Absences just./non just.", "Total des demi-journees d'absence selon la nature du justificatif.", "Feuille TAUX — colonnes Justifiees et Non justifiees"],
+    ["Duree moyenne d'absence", "Nombre moyen de demi-journees consecutives par periode d'absence.", "Feuille TAUX — col. Duree moy. absence"],
+    ["Taux par niveau (trimestriel)", "Taux d'absence trimestriel par niveau et genre, issu de PRONOTE.", "Feuilles Absence Fille-Garcon, Fille, Garcon"],
+    ["Sanctions", "Nombre de chaque type de sanction par classe.", "Feuille SANCTIONS"],
+  ];
+
+  return (
+    <div>
+      <div className="card">
+        <div className="card-title">Guide d'utilisation — Tableau de Bord Vie Scolaire</div>
+        <p style={{marginBottom:18,color:'#555',lineHeight:1.6,fontSize:'.88rem'}}>
+          Ce tableau de bord vous permet de visualiser et comparer les indicateurs de vie scolaire sur une ou plusieurs annees scolaires. Aucune installation requise — ouvrez ce fichier dans votre navigateur.
+        </p>
+        {steps.map(function(s, i) {
+          return (
+            <div key={i} className="guide-step">
+              <div className="guide-num">{i + 1}</div>
+              <div className="guide-content">
+                <h4>{s.title}</h4>
+                <p>{s.text}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="card">
+        <div className="card-title">Description des indicateurs</div>
+        <table className="data-table">
+          <thead>
+            <tr><th>Indicateur</th><th>Description</th><th style={{width:220}}>Source dans le fichier Excel</th></tr>
+          </thead>
+          <tbody>
+            {indicateurs.map(function(row, i) {
+              return (
+                <tr key={i}>
+                  <td><strong>{row[0]}</strong></td>
+                  <td style={{fontSize:'.82rem'}}>{row[1]}</td>
+                  <td style={{fontSize:'.76rem',color:'#78909c'}}>{row[2]}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/* ══ APP PRINCIPALE ══ */
+function App() {
+  var saved = loadSt();
+  var initState = Object.assign({}, INIT);
+  if (saved && saved.annees) {
+    initState.annees = saved.annees;
+    initState.active = saved.active || Object.keys(saved.annees)[0] || null;
+  }
+
+  var stateResult = useReducer(reducer, initState);
+  var st = stateResult[0];
+  var dispatch = stateResult[1];
+
+  var toastResult = useState(null);
+  var toast = toastResult[0];
+  var setToast = toastResult[1];
+
+  var importingResult = useState(false);
+  var importing = importingResult[0];
+  var setImporting = importingResult[1];
+
+  /* Sous-etats des onglets */
+  var viewResult = useState('taux');
+  var mensuelView = viewResult[0];
+  var setMensuelView = viewResult[1];
+
+  var triResult = useState('moy');
+  var niveauxTri = triResult[0];
+  var setNiveauxTri = triResult[1];
+
+  var vueResult = useState('barre');
+  var niveauxVue = vueResult[0];
+  var setNiveauxVue = vueResult[1];
+
+  var years = Object.keys(st.annees).sort();
+  var data = st.active && st.annees[st.active] ? st.annees[st.active] : null;
+
+  function notify(msg, type) {
+    setToast({ msg: msg, type: type || 'info' });
+    setTimeout(function() { setToast(null); }, 3200);
+  }
+
+  function importExcel() {
+    var inp = document.getElementById('file-input');
+    inp.accept = '.xlsx';
+    inp.value = '';
+    inp.onchange = function(e) {
+      var f = e.target.files[0];
+      if (!f) return;
+      setImporting(true);
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        try {
+          var buf = new Uint8Array(ev.target.result);
+          var d = parseExcel(buf);
+          dispatch({ type: 'ADD', d: d });
+          notify('Annee ' + d.annee + ' importee avec succes', 'success');
+        } catch(err) {
+          notify('Erreur import : ' + err.message, 'error');
+          console.error(err);
+        }
+        setImporting(false);
+      };
+      reader.readAsArrayBuffer(f);
+    };
+    inp.click();
+  }
+
+  function loadJSON() {
+    var inp = document.getElementById('file-input');
+    inp.accept = '.json';
+    inp.value = '';
+    inp.onchange = function(e) {
+      var f = e.target.files[0];
+      if (!f) return;
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        try {
+          var d = JSON.parse(ev.target.result);
+          if (d && d.annees) {
+            dispatch({ type: 'LOAD', d: d });
+            notify(Object.keys(d.annees).length + ' annee(s) chargee(s)', 'success');
+          } else {
+            notify('Fichier JSON invalide', 'error');
+          }
+        } catch(err) {
+          notify('Erreur lors du chargement', 'error');
+        }
+      };
+      reader.readAsText(f);
+    };
+    inp.click();
+  }
+
+  function saveJSON() {
+    try {
+      var blob = new Blob(
+        [JSON.stringify({ annees: st.annees, active: st.active }, null, 2)],
+        { type: 'application/json' }
+      );
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      var today = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = 'vie-scolaire-elfort-' + today + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      notify('Sauvegarde telechargee', 'success');
+    } catch(err) {
+      notify('Erreur sauvegarde : ' + err.message, 'error');
+    }
+  }
+
+  /* ── EXPORT PPTX PAR ANNEE ── */
+  function exportPPTXAnnee() {
+    if (!data) return;
+    if (!window.PptxGenJS) { notify('PptxGenJS non charge (connexion requise)', 'error'); return; }
+    notify('Generation du PPTX...', 'info');
+    var pres = new PptxGenJS();
+    pres.layout = 'LAYOUT_16x9';
+    var BL = '1565C0', DBL = '1A237E', OR = 'E65100', RD = 'C62828', PU = '7B1FA2', GR = '2E7D32', PI = 'E91E63';
+    var tm = data.tauxMensuel;
+    var tauxMoy = tm.length ? r1(tm.reduce(function(s,m){return s+m.tauxAbs;},0)/tm.length) : 0;
+    var totSanct = Object.values(data.sanctTotaux).reduce(function(s,v){return s+v;},0);
+    var activeKeys = data.sanctActiveKeys || SANCT_TYPES.map(function(t){return t.k;});
+    var sanctByType = SANCT_TYPES
+      .filter(function(t){return activeKeys.indexOf(t.k)!==-1&&(data.sanctTotaux[t.k]||0)>0;})
+      .map(function(t){return {name:t.lbl,val:data.sanctTotaux[t.k]};})
+      .sort(function(a,b){return b.val-a.val;});
+
+    /* Slide 1 : Couverture */
+    var s1 = pres.addSlide();
+    s1.background = {color: DBL};
+    s1.addText('Tableau de Bord — Vie Scolaire', {x:0.5,y:1.3,w:9,h:1.1,fontSize:32,bold:true,color:'FFFFFF',align:'center'});
+    s1.addText('LPO Leopold Elfort — Mana, Guyane', {x:0.5,y:2.55,w:9,h:0.55,fontSize:18,color:'BBDEFB',align:'center'});
+    s1.addText('Annee scolaire '+data.annee, {x:0.5,y:3.3,w:9,h:0.8,fontSize:26,bold:true,color:'FFF9C4',align:'center'});
+    s1.addText('Taux moy. '+tauxMoy+'%  |  Total sanctions : '+totSanct+'  |  Eleves concernes : '+data.elevesConc, {x:0.5,y:4.5,w:9,h:0.45,fontSize:13,color:'E3F2FD',align:'center'});
+
+    /* Slide 2 : Taux mensuel */
+    if (tm.length > 0) {
+      var s2 = pres.addSlide();
+      s2.addText("Taux d'absence mensuel — "+data.annee, {x:0.3,y:0.15,w:9.4,h:0.6,fontSize:20,bold:true,color:DBL});
+      s2.addChart(pres.ChartType.line, [{name:"Taux d'absence (%)",labels:tm.map(function(m){return m.mois;}),values:tm.map(function(m){return m.tauxAbs;})}], {x:0.3,y:0.9,w:9.4,h:5.3,lineDataSymbol:'circle',lineDataSymbolSize:7,chartColors:[BL],showLegend:false,valAxisLabelFormatCode:'0.0"%"'});
+    }
+
+    /* Slide 3 : Just / Non-just */
+    if (tm.length > 0) {
+      var s3 = pres.addSlide();
+      s3.addText('Absences justifiees vs non justifiees — '+data.annee, {x:0.3,y:0.15,w:9.4,h:0.6,fontSize:20,bold:true,color:DBL});
+      s3.addChart(pres.ChartType.bar, [
+        {name:'Justifiees',labels:tm.map(function(m){return m.mois;}),values:tm.map(function(m){return m.absJust;})},
+        {name:'Non justifiees',labels:tm.map(function(m){return m.mois;}),values:tm.map(function(m){return m.absNonJ;})}
+      ], {x:0.3,y:0.9,w:9.4,h:5.3,barDir:'col',barGrouping:'stacked',chartColors:[GR,RD],showLegend:true,legendPos:'b'});
+    }
+
+    /* Slide 4 : Par genre */
+    if (tm.length > 0) {
+      var s4 = pres.addSlide();
+      s4.addText('Absences par genre — '+data.annee, {x:0.3,y:0.15,w:9.4,h:0.6,fontSize:20,bold:true,color:DBL});
+      s4.addChart(pres.ChartType.line, [
+        {name:'Garcons',labels:tm.map(function(m){return m.mois;}),values:tm.map(function(m){return m.garPct;})},
+        {name:'Filles',labels:tm.map(function(m){return m.mois;}),values:tm.map(function(m){return m.filPct;})}
+      ], {x:0.3,y:0.9,w:9.4,h:5.3,chartColors:[BL,PI],showLegend:true,legendPos:'b',valAxisLabelFormatCode:'0.0"%"'});
+    }
+
+    /* Slide 5 : Par niveau */
+    var absEns = data.absEns;
+    if (absEns.length > 0) {
+      var s5 = pres.addSlide();
+      s5.addText("Taux d'absence par niveau — "+data.annee, {x:0.3,y:0.15,w:9.4,h:0.6,fontSize:20,bold:true,color:DBL});
+      s5.addChart(pres.ChartType.bar, [
+        {name:'Ensemble',labels:absEns.map(function(n){return n.niveau;}),values:absEns.map(function(n){return n.moy;})},
+        {name:'Filles',labels:absEns.map(function(n){return n.niveau;}),values:data.absFil.map(function(n){return n.moy||0;})},
+        {name:'Garcons',labels:absEns.map(function(n){return n.niveau;}),values:data.absGar.map(function(n){return n.moy||0;})}
+      ], {x:0.3,y:0.9,w:9.4,h:5.3,barDir:'col',barGrouping:'clustered',chartColors:[PU,PI,BL],showLegend:true,legendPos:'b',valAxisLabelFormatCode:'0.0"%"'});
+    }
+
+    /* Slide 6 : Sanctions par type */
+    if (sanctByType.length > 0) {
+      var s6 = pres.addSlide();
+      s6.addText('Sanctions par type — '+data.annee, {x:0.3,y:0.15,w:9.4,h:0.6,fontSize:20,bold:true,color:DBL});
+      s6.addChart(pres.ChartType.bar, [{name:'Nombre',labels:sanctByType.map(function(t){return t.name;}),values:sanctByType.map(function(t){return t.val;})}], {x:0.3,y:0.9,w:9.4,h:5.3,barDir:'bar',chartColors:[OR],showLegend:false});
+    }
+
+    /* Slide 7 : Top classes */
+    var top10 = data.sanctions.slice().sort(function(a,b){return b.nbElev-a.nbElev;}).slice(0,10).filter(function(s){return s.nbElev>0;});
+    if (top10.length > 0) {
+      var s7 = pres.addSlide();
+      s7.addText('Eleves sanctionnes par classe (top 10) — '+data.annee, {x:0.3,y:0.15,w:9.4,h:0.6,fontSize:20,bold:true,color:DBL});
+      s7.addChart(pres.ChartType.bar, [{name:'Eleves concernes',labels:top10.map(function(s){return s.classe;}),values:top10.map(function(s){return s.nbElev;})}], {x:0.3,y:0.9,w:9.4,h:5.3,barDir:'bar',chartColors:[RD],showLegend:false});
+    }
+
+    pres.writeFile({fileName:'vie-scolaire-'+data.annee+'.pptx'})
+      .then(function(){ notify('PPTX '+data.annee+' telecharge !', 'success'); })
+      .catch(function(e){ notify('Erreur PPTX : '+(e.message||e), 'error'); });
+  }
+
+  /* ── EXPORT PPTX COMPARATIF ── */
+  function exportPPTXComparatif() {
+    var years = Object.keys(st.annees).sort();
+    if (years.length < 2) { notify('Importez au moins 2 annees pour le comparatif', 'error'); return; }
+    if (!window.PptxGenJS) { notify('PptxGenJS non charge (connexion requise)', 'error'); return; }
+    notify('Generation du PPTX comparatif...', 'info');
+    var pres = new PptxGenJS();
+    pres.layout = 'LAYOUT_16x9';
+    var DBL = '1A237E';
+    var colorMap = ['1565C0','E91E63','2E7D32','E65100','7B1FA2','00695C'];
+
+    /* Slide 1 : Couverture */
+    var sc = pres.addSlide();
+    sc.background = {color: DBL};
+    sc.addText('Tableau Comparatif — Vie Scolaire', {x:0.5,y:1.3,w:9,h:1.1,fontSize:32,bold:true,color:'FFFFFF',align:'center'});
+    sc.addText('LPO Leopold Elfort — Mana, Guyane', {x:0.5,y:2.55,w:9,h:0.55,fontSize:18,color:'BBDEFB',align:'center'});
+    sc.addText(years.join(' — '), {x:0.5,y:3.3,w:9,h:0.8,fontSize:26,bold:true,color:'FFF9C4',align:'center'});
+
+    /* Slide 2 : Resume KPI table */
+    var sk = pres.addSlide();
+    sk.addText('Indicateurs cles compares', {x:0.3,y:0.15,w:9.4,h:0.6,fontSize:20,bold:true,color:DBL});
+    var hOpts = {bold:true, fill:{color:'1565C0'}, color:'FFFFFF', fontSize:13, align:'center'};
+    var tableRows = [[
+      {text:'Annee scolaire', options:hOpts},{text:'Taux moy.',options:hOpts},
+      {text:'Total sanctions',options:hOpts},{text:'Eleves concernes',options:hOpts}
+    ]];
+    years.forEach(function(y,i){
+      var a = st.annees[y];
+      var tauxMoy = a.tauxMensuel.length ? r1(a.tauxMensuel.reduce(function(s,m){return s+m.tauxAbs;},0)/a.tauxMensuel.length) : 0;
+      var totSanct = Object.values(a.sanctTotaux).reduce(function(s,v){return s+v;},0);
+      var fOpts = {fontSize:13,align:'center',fill:{color:i%2===0?'F5F5F5':'FFFFFF'}};
+      tableRows.push([{text:y,options:Object.assign({},fOpts,{bold:true})},{text:tauxMoy+'%',options:fOpts},{text:String(totSanct),options:fOpts},{text:String(a.elevesConc),options:fOpts}]);
+    });
+    sk.addTable(tableRows, {x:1.0,y:1.2,w:8.0,colW:[2.5,2.0,1.8,1.7],rowH:0.55,border:{type:'solid',pt:0.5,color:'CCCCCC'}});
+
+    /* Precompute allMois */
+    var allMois = [];
+    years.forEach(function(y){ st.annees[y].tauxMensuel.forEach(function(m){ if(allMois.indexOf(m.mois)===-1) allMois.push(m.mois); }); });
+    allMois.sort(function(a,b){return MOIS_ORDER.indexOf(a)-MOIS_ORDER.indexOf(b);});
+
+    /* Slide 3 : Taux mensuel compare */
+    var sm = pres.addSlide();
+    sm.addText("Taux d'absence mensuel compare", {x:0.3,y:0.15,w:9.4,h:0.6,fontSize:20,bold:true,color:DBL});
+    sm.addChart(pres.ChartType.line, years.map(function(y,i){
+      return {name:y, labels:allMois, values:allMois.map(function(mois){
+        var f=st.annees[y].tauxMensuel.find(function(x){return x.mois===mois;});
+        return f?f.tauxAbs:0;
+      })};
+    }), {x:0.3,y:0.9,w:9.4,h:5.3,chartColors:colorMap.slice(0,years.length),showLegend:true,legendPos:'b',valAxisLabelFormatCode:'0.0"%"'});
+
+    /* Slide 4 : Par niveau compare */
+    var allNiv = [];
+    years.forEach(function(y){ st.annees[y].absEns.forEach(function(n){ if(allNiv.indexOf(n.niveau)===-1) allNiv.push(n.niveau); }); });
+    var sn = pres.addSlide();
+    sn.addText("Taux d'absence par niveau (moy. annuelle)", {x:0.3,y:0.15,w:9.4,h:0.6,fontSize:20,bold:true,color:DBL});
+    sn.addChart(pres.ChartType.bar, years.map(function(y,i){
+      return {name:y, labels:allNiv, values:allNiv.map(function(niv){
+        var f=st.annees[y].absEns.find(function(x){return x.niveau===niv;});
+        return f?f.moy:0;
+      })};
+    }), {x:0.3,y:0.9,w:9.4,h:5.3,barDir:'col',barGrouping:'clustered',chartColors:colorMap.slice(0,years.length),showLegend:true,legendPos:'b',valAxisLabelFormatCode:'0.0"%"'});
+
+    /* Slide 5 : Sanctions comparees */
+    var ss = pres.addSlide();
+    ss.addText('Sanctions comparees', {x:0.3,y:0.15,w:9.4,h:0.6,fontSize:20,bold:true,color:DBL});
+    var resumeComp = years.map(function(y){ var a=st.annees[y]; return {totSanct:Object.values(a.sanctTotaux).reduce(function(s,v){return s+v;},0), elevesConc:a.elevesConc}; });
+    ss.addChart(pres.ChartType.bar, [
+      {name:'Total sanctions',labels:years,values:resumeComp.map(function(r){return r.totSanct;})},
+      {name:'Eleves concernes',labels:years,values:resumeComp.map(function(r){return r.elevesConc;})}
+    ], {x:0.3,y:0.9,w:9.4,h:5.3,barDir:'col',barGrouping:'clustered',chartColors:['E65100','C62828'],showLegend:true,legendPos:'b'});
+
+    pres.writeFile({fileName:'vie-scolaire-comparatif-'+years.join('-')+'.pptx'})
+      .then(function(){ notify('PPTX comparatif telecharge !', 'success'); })
+      .catch(function(e){ notify('Erreur PPTX : '+(e.message||e), 'error'); });
+  }
+
+  var TABS = [
+    { id: 'synthese',    lbl: 'Synthese' },
+    { id: 'mensuel',     lbl: 'Absences mensuelles' },
+    { id: 'niveaux',     lbl: 'Par niveau & genre' },
+    { id: 'sanctions',   lbl: 'Sanctions' },
+    { id: 'comparaison', lbl: 'Comparaison' },
+    { id: 'guide',       lbl: 'Guide' },
+  ];
+
+  return (
+    <div>
+      {/* EN-TETE */}
+      <div className="header">
+        <div className="header-left">
+          <div className="logo">🏫</div>
+          <div>
+            <h1>Tableau de Bord — Vie Scolaire</h1>
+            <p>LPO Leopold Elfort — Mana, Guyane</p>
+          </div>
+        </div>
+        <div style={{textAlign:'right'}}>
+          {st.active
+            ? <span className="annee-badge">Annee {st.active}</span>
+            : <span style={{fontSize:'.82rem',opacity:.8}}>Importez un fichier Excel pour commencer</span>
+          }
+        </div>
+      </div>
+
+      {/* BARRE D'OUTILS */}
+      <div className="toolbar">
+        <button className="btn btn-primary" onClick={importExcel} disabled={importing}>
+          {importing ? 'Importation...' : 'Importer Excel'}
+        </button>
+        <button className="btn btn-outline" onClick={loadJSON}>Charger</button>
+        {years.length > 0 && (
+          <button className="btn btn-success" onClick={saveJSON}>Sauvegarder</button>
+        )}
+        {data && (
+          <button className="btn btn-outline" style={{borderColor:'#7b1fa2',color:'#7b1fa2'}} onClick={exportPPTXAnnee} title={'Exporter un PPTX pour ' + st.active}>
+            ▶ PPTX {st.active}
+          </button>
+        )}
+        {years.length >= 2 && (
+          <button className="btn btn-outline" style={{borderColor:'#e65100',color:'#e65100'}} onClick={exportPPTXComparatif} title="Exporter un PPTX comparatif toutes annees">
+            ▶ PPTX Comparatif
+          </button>
+        )}
+        {years.length > 0 && (
+          <span className="sep">|</span>
+        )}
+        {years.length > 0 && (
+          <span style={{fontSize:'.82rem',color:'#546e7a',fontWeight:600}}>Annees :</span>
+        )}
+        {years.map(function(y) {
+          return (
+            <span key={y} style={{display:'inline-flex',alignItems:'center',gap:3}}>
+              <button
+                className={'btn btn-sm ' + (st.active === y ? 'btn-primary' : 'btn-outline')}
+                onClick={function() { dispatch({ type: 'SET_ACTIVE', v: y }); }}>
+                {y}
+              </button>
+              <button
+                style={{background:'none',border:'none',cursor:'pointer',color:'#c62828',fontSize:'1rem',padding:'0 3px',lineHeight:1}}
+                title={'Supprimer ' + y}
+                onClick={function() {
+                  if (window.confirm('Supprimer l\'annee ' + y + ' du tableau de bord ?')) {
+                    dispatch({ type: 'DEL', v: y });
+                  }
+                }}>
+                x
+              </button>
+            </span>
+          );
+        })}
+      </div>
+
+      {/* ONGLETS */}
+      <div className="tabs">
+        {TABS.map(function(t) {
+          return (
+            <div key={t.id}
+              className={'tab ' + (st.tab === t.id ? 'active' : '')}
+              onClick={function() { dispatch({ type: 'SET_TAB', v: t.id }); }}>
+              {t.lbl}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* TOAST */}
+      {toast && (
+        <div className="toast" style={{
+          background: toast.type === 'error' ? '#c62828' : toast.type === 'success' ? '#2e7d32' : '#1565c0'
+        }}>
+          {toast.msg}
+        </div>
+      )}
+
+      {/* CONTENU */}
+      <div className="content">
+        {st.tab === 'synthese'    && <TabSynthese d={data} />}
+        {st.tab === 'mensuel'     && <TabMensuel d={data} view={mensuelView} onView={setMensuelView} />}
+        {st.tab === 'niveaux'     && <TabNiveaux d={data} tri={niveauxTri} onTri={setNiveauxTri} vue={niveauxVue} onVue={setNiveauxVue} />}
+        {st.tab === 'sanctions'   && <TabSanctions d={data} />}
+        {st.tab === 'comparaison' && <TabComparaison annees={st.annees} />}
+        {st.tab === 'guide'       && <TabGuide />}
+      </div>
+    </div>
+  );
+}
+
+/* ══ ERROR BOUNDARY ══ */
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error: error };
+  }
+  componentDidCatch(error, info) {
+    console.error('React error:', error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="err-box" style={{margin:20}}>
+          {'Erreur de rendu React :\n' + (this.state.error ? this.state.error.message : 'Erreur inconnue')}
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  React.createElement(ErrorBoundary, null, React.createElement(App, null))
+);
+</script>
+</body>
+</html>

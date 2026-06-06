@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tableau de Bord Parcoursup — Lycée Léopold Elfort</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0d1f3c;--navy-mid:#1a3260;--blue:#1e4fa0;--accent:#e8a020;
+    --accent2:#d43f3f;--teal:#1a8a8a;--mint:#27ae7a;--light:#f4f7fc;
+    --text:#0d1f3c;--muted:#6b7a99;--border:#dde4f0;
+    --shadow:0 4px 24px rgba(13,31,60,.10);--shadow-strong:0 8px 40px rgba(13,31,60,.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);min-height:100vh;}
+
+  /* HEADER */
+  header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 60%,var(--blue) 100%);color:white;position:relative;overflow:hidden;}
+  header::before{content:'';position:absolute;top:-60px;right:-60px;width:280px;height:280px;background:rgba(232,160,32,.12);border-radius:50%;}
+  header::after{content:'';position:absolute;bottom:-80px;left:30%;width:200px;height:200px;background:rgba(30,79,160,.25);border-radius:50%;}
+  .header-inner{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;padding:28px 40px 24px;gap:20px;}
+  .header-left{display:flex;align-items:center;gap:18px;}
+  .logo-badge{width:56px;height:56px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--navy);flex-shrink:0;box-shadow:0 4px 16px rgba(232,160,32,.4);}
+  .header-titles h1{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;letter-spacing:-.3px;line-height:1.1;}
+  .header-titles p{font-size:13px;color:rgba(255,255,255,.65);margin-top:3px;font-weight:300;}
+  .header-right{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+  .badge-rf{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:white;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;letter-spacing:.5px;}
+
+  /* NAV */
+  .nav-tabs{display:flex;background:white;border-bottom:2px solid var(--border);padding:0 40px;overflow-x:auto;}
+  .nav-tab{padding:14px 22px;font-size:13.5px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .2s;font-family:'DM Sans',sans-serif;background:none;border-top:none;border-left:none;border-right:none;}
+  .nav-tab:hover{color:var(--blue);}
+  .nav-tab.active{color:var(--blue);border-bottom-color:var(--accent);font-weight:600;}
+
+  main{padding:32px 40px;max-width:1400px;margin:0 auto;}
+  .section{display:none;}.section.active{display:block;}
+
+  /* UPLOAD */
+  .upload-section{display:flex;gap:24px;margin-bottom:32px;flex-wrap:wrap;}
+  .upload-card{flex:1;min-width:280px;background:white;border:2px dashed var(--border);border-radius:16px;padding:28px;text-align:center;transition:all .25s;cursor:pointer;position:relative;}
+  .upload-card:hover,.upload-card.drag-over{border-color:var(--blue);background:#f0f4ff;box-shadow:var(--shadow);}
+  .upload-card.has-file{border-color:var(--mint);border-style:solid;background:#f0fbf6;}
+  .upload-icon{font-size:36px;margin-bottom:10px;}
+  .upload-card h3{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--navy);margin-bottom:6px;}
+  .upload-card p{font-size:12.5px;color:var(--muted);margin-bottom:14px;}
+  .upload-card input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+  .file-info{display:none;font-size:12px;background:var(--navy);color:white;padding:6px 12px;border-radius:20px;margin-top:8px;font-weight:500;}
+  .upload-card.has-file .file-info{display:inline-block;}
+  .upload-controls{display:flex;gap:12px;margin-bottom:12px;align-items:center;flex-wrap:wrap;}
+  .ctrl-group{display:flex;flex-direction:column;gap:4px;}
+  .ctrl-group label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;}
+  .ctrl-group input,.ctrl-group select{padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);background:white;outline:none;transition:border .2s;}
+  .ctrl-group input:focus,.ctrl-group select:focus{border-color:var(--blue);}
+
+  .btn{padding:10px 22px;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .2s;}
+  .btn-primary{background:var(--blue);color:white;box-shadow:0 3px 12px rgba(30,79,160,.3);}
+  .btn-primary:hover{background:var(--navy);transform:translateY(-1px);}
+  .btn-danger{background:#fee;color:var(--accent2);border:1.5px solid #fcc;}
+  .btn-danger:hover{background:var(--accent2);color:white;}
+  .btn-print{background:var(--navy);color:white;box-shadow:0 3px 12px rgba(13,31,60,.25);}
+  .btn-print:hover{background:#000;transform:translateY(-1px);}
+  .btn-sm{padding:6px 14px;font-size:12px;border-radius:7px;}
+
+  /* DATASETS */
+  .datasets-list{display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+  .dataset-item{background:white;border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow);border-left:4px solid var(--blue);animation:slideIn .3s ease;}
+  @keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+  .dataset-color{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+  .dataset-name{font-weight:600;font-size:14px;color:var(--navy);flex:1;}
+  .dataset-meta{font-size:12px;color:var(--muted);}
+  .dataset-badge{padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;background:#eef3ff;color:var(--blue);}
+
+  /* KPI */
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px;}
+  .kpi-card{background:white;border-radius:16px;padding:22px 22px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:transform .2s;}
+  .kpi-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-strong);}
+  .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+  .kpi-card.blue::before{background:var(--blue);}.kpi-card.accent::before{background:var(--accent);}
+  .kpi-card.teal::before{background:var(--teal);}.kpi-card.mint::before{background:var(--mint);}
+  .kpi-card.red::before{background:var(--accent2);}
+  .kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);margin-bottom:8px;}
+  .kpi-value{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;line-height:1;color:var(--navy);}
+  .kpi-sub{font-size:12px;color:var(--muted);margin-top:6px;}
+  .kpi-icon{position:absolute;right:18px;top:18px;font-size:26px;opacity:.12;}
+
+  /* CHARTS */
+  .charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:22px;margin-bottom:28px;}
+  .chart-card{background:white;border-radius:16px;padding:24px;box-shadow:var(--shadow);}
+  .chart-card.wide{grid-column:1/-1;}
+  .chart-title{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--navy);margin-bottom:4px;}
+  .chart-subtitle{font-size:12px;color:var(--muted);margin-bottom:18px;}
+  .chart-wrap{position:relative;height:280px;}
+  .chart-wrap.tall{height:360px;}
+  .chart-wrap.xtall{height:420px;}
+
+  /* TABLE */
+  .table-card{background:white;border-radius:16px;padding:24px;box-shadow:var(--shadow);margin-bottom:24px;overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{background:var(--navy);color:white;padding:10px 14px;text-align:left;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;}
+  th:first-child{border-radius:8px 0 0 8px;}th:last-child{border-radius:0 8px 8px 0;}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:#f8faff;}
+  .td-bar-fill{display:inline-block;height:6px;background:var(--blue);border-radius:3px;margin-right:6px;vertical-align:middle;min-width:3px;}
+  .total-row td{font-weight:700;background:#f4f7fc;}
+
+  /* FILTERS */
+  .filter-bar{display:flex;gap:12px;align-items:center;background:white;border-radius:12px;padding:14px 18px;margin-bottom:22px;box-shadow:var(--shadow);flex-wrap:wrap;}
+  .filter-bar label{font-size:12px;font-weight:600;color:var(--muted);}
+  .filter-bar select,.filter-bar input{padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;transition:border .2s;}
+  .filter-bar select:focus,.filter-bar input:focus{border-color:var(--blue);}
+
+  /* EMPTY */
+  .empty-state{text-align:center;padding:60px 20px;color:var(--muted);}
+  .empty-state h3{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:var(--navy);margin-bottom:8px;}
+
+  /* COMPARE */
+  @media(max-width:800px){
+    .charts-grid{grid-template-columns:1fr;}
+    main{padding:20px 16px;}
+    .header-inner{padding:20px 16px;}
+    .nav-tabs{padding:0 16px;}
+  }
+
+  .section-title{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--navy);margin-bottom:4px;}
+  .section-desc{font-size:13px;color:var(--muted);margin-bottom:22px;}
+
+  /* SPECIALTY PILL */
+  .spec-pill{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11.5px;font-weight:600;margin:2px;background:#eef3ff;color:var(--blue);}
+  .spec-bar-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);}
+  .spec-bar-row:last-child{border-bottom:none;}
+  .spec-bar-label{font-size:12px;color:var(--text);flex:1;min-width:0;}
+  .spec-bar-track{width:140px;height:8px;background:#eef3ff;border-radius:4px;flex-shrink:0;}
+  .spec-bar-fill{height:8px;border-radius:4px;transition:width .4s;}
+  .spec-bar-val{font-size:12px;font-weight:700;color:var(--navy);min-width:24px;text-align:right;}
+
+  /* SECTION DIVIDER */
+  .sub-section{margin:28px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--border);}
+  .sub-section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--navy);}
+  .sub-section-label{display:inline-block;padding:3px 12px;border-radius:10px;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-left:10px;vertical-align:middle;}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:white;padding:12px 20px;border-radius:10px;font-size:13.5px;font-weight:500;box-shadow:var(--shadow-strong);transform:translateY(100px);opacity:0;transition:all .3s;z-index:999;}
+  .toast.show{transform:translateY(0);opacity:1;}
+  .toast.success{border-left:4px solid var(--mint);}
+  .toast.error{border-left:4px solid var(--accent2);}
+
+  ::-webkit-scrollbar{width:6px;height:6px;}
+  ::-webkit-scrollbar-thumb{background:#ccd4e8;border-radius:3px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="logo-badge">LE</div>
+      <div class="header-titles">
+        <h1>Tableau de Bord Parcoursup</h1>
+        <p>Lycée Polyvalent Léopold Elfort — Mana, Guyane Française</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="badge-rf">RNE 9730421V</span>
+      <span class="badge-rf" id="yearBadge">—</span>
+    </div>
+  </div>
+</header>
+
+<nav class="nav-tabs">
+  <button class="nav-tab active" onclick="showSection('import',this)">📂 Import &amp; Données</button>
+  <button class="nav-tab" onclick="showSection('overview',this)">📊 Vue Générale</button>
+  <button class="nav-tab" onclick="showSection('formations',this)">🎓 Par Formation</button>
+  <button class="nav-tab" onclick="showSection('compare',this)">🔄 Comparaison</button>
+  <button class="nav-tab" onclick="showSection('detail',this)">📋 Détail &amp; Spécialités</button>
+</nav>
+
+<main>
+
+<!-- IMPORT -->
+<div class="section active" id="section-import">
+  <div class="section-title">Importer des fichiers Parcoursup</div>
+  <div class="section-desc">Téléversez vos exports CSV Parcoursup. Chargez plusieurs fichiers pour comparer années ou formations.</div>
+  <div class="upload-section">
+    <div class="upload-card" id="dropZone1" ondragover="handleDrag(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event,'file1')">
+      <input type="file" id="file1" accept=".csv" onchange="handleFileSelect(this,'file1')">
+      <div class="upload-icon">📄</div>
+      <h3>Fichier CSV — Jeu 1</h3>
+      <p>Glissez-déposez ou cliquez<br>Export CSV Parcoursup (séparateur ;)</p>
+      <div class="upload-controls" onclick="event.stopPropagation()">
+        <div class="ctrl-group"><label>Année</label><input type="number" id="year1" value="2026" min="2018" max="2035" style="width:90px"></div>
+        <div class="ctrl-group"><label>Formation / Label</label><input type="text" id="label1" placeholder="ex: GTLA, BTS CI…" style="width:160px"></div>
+      </div>
+      <span class="file-info" id="fileInfo1">—</span>
+    </div>
+    <div class="upload-card" id="dropZone2" ondragover="handleDrag(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event,'file2')">
+      <input type="file" id="file2" accept=".csv" onchange="handleFileSelect(this,'file2')">
+      <div class="upload-icon">📄</div>
+      <h3>Fichier CSV — Jeu 2</h3>
+      <p>Glissez-déposez ou cliquez<br>Export CSV Parcoursup (séparateur ;)</p>
+      <div class="upload-controls" onclick="event.stopPropagation()">
+        <div class="ctrl-group"><label>Année</label><input type="number" id="year2" value="2025" min="2018" max="2035" style="width:90px"></div>
+        <div class="ctrl-group"><label>Formation / Label</label><input type="text" id="label2" placeholder="ex: GTLA, BTS CI…" style="width:160px"></div>
+      </div>
+      <span class="file-info" id="fileInfo2">—</span>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap;align-items:center;">
+    <button class="btn btn-primary" onclick="loadAllFiles()">▶ Charger et Analyser</button>
+    <button class="btn btn-danger" onclick="clearAll()">✕ Tout effacer</button>
+    <span style="font-size:12px;color:var(--muted)">Traitement 100% local — aucune donnée envoyée sur un serveur.</span>
+  </div>
+  <div class="section-title" style="font-size:16px;margin-bottom:12px;">Jeux de données chargés</div>
+  <div id="datasetsList" class="datasets-list">
+    <div class="empty-state" style="padding:30px"><div style="font-size:36px;margin-bottom:10px">📂</div><p>Aucun fichier chargé.</p></div>
+  </div>
+  <div id="demoBtn" style="text-align:center;padding:20px">
+    <button class="btn btn-primary" onclick="loadDemo()" style="background:var(--teal)">🎯 Charger les données de démonstration</button>
+    <p style="font-size:12px;color:var(--muted);margin-top:8px">Utilise les fichiers GTLA 2026 et CI 2026 pré-intégrés</p>
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="section" id="section-overview"><div id="overviewContent"></div></div>
+
+<!-- FORMATIONS -->
+<div class="section" id="section-formations"><div id="formationsContent"></div></div>
+
+<!-- COMPARE -->
+<div class="section" id="section-compare"><div id="compareContent"></div></div>
+
+<!-- DETAIL -->
+<div class="section" id="section-detail"><div id="detailContent"></div></div>
+
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+// =============================================================
+// DATA
+// =============================================================
+let datasets=[], charts={};
+const PALETTE=['#1e4fa0','#e8a020','#d43f3f','#1a8a8a','#7c3aed','#059669','#ea580c','#0284c7','#c2410c','#4f46e5','#0891b2','#b45309'];
+const SERIE_COLORS={'Bac Général':'#1e4fa0','Bac STMG':'#e8a020','Bac STI2D':'#1a8a8a','Bac ST2S':'#d43f3f','Bac STD2A':'#7c3aed','Bac Professionnel Agricole':'#059669'};
+const TECH_SERIES=['Bac STMG','Bac STI2D','Bac ST2S','Bac STD2A','Bac STL','Bac STHR'];
+
+const DEMO_GTLA=`Série de bac réformé;Combinaison des enseignements de spécialités de Terminale;Total des vœux de l'année N;Filles;Garçons;Boursiers certifiés des lycées;Non Boursiers certifiés des lycées
+Bac Général;Biologie/Ecologie | Physique-Chimie;1;1;0;0;1
+Bac Général;Histoire-Géographie, Géopolitique et Sciences politiques | Langues, littératures et cultures étrangères et régionales;3;1;2;3;0
+Bac Général;Histoire-Géographie, Géopolitique et Sciences politiques | Mathématiques;1;1;0;0;1
+Bac Général;Histoire-Géographie, Géopolitique et Sciences politiques | Musique;1;0;1;1;0
+Bac Général;Histoire-Géographie, Géopolitique et Sciences politiques | Physique-Chimie;1;1;0;0;1
+Bac Général;Histoire-Géographie, Géopolitique et Sciences politiques | Sciences de la vie et de la Terre;2;0;2;1;1
+Bac Général;Histoire-Géographie, Géopolitique et Sciences politiques | Sciences Economiques et Sociales;3;2;1;2;1
+Bac Général;Humanités, Littérature et Philosophie | Sciences Economiques et Sociales;3;2;1;0;3
+Bac Général;Langues, littératures et cultures étrangères et régionales | Sciences Economiques et Sociales;3;1;2;1;2
+Bac Général;Mathématiques | Physique-Chimie;2;0;2;2;0
+Bac Général;Mathématiques | Sciences de l'ingénieur et sciences physiques;1;0;1;1;0
+Bac Général;Mathématiques | Sciences Economiques et Sociales;4;2;2;1;3
+Bac Général;Numérique et Sciences Informatiques | Sciences Economiques et Sociales;1;0;1;1;0
+Bac Général;Physique-Chimie | Sciences de la vie et de la Terre;1;0;1;0;1
+Total Bac Général;;27;11;16;13;14
+Bac STI2D;Ingénierie, innovation et développement durable | Physique-Chimie et Mathématiques;1;0;1;0;1
+Total Bac STI2D;;1;0;1;0;1
+Bac STMG;Droit et Economie | Msgn/ Gestion et Finance;9;2;7;4;5
+Bac STMG;Droit et Economie | Msgn/ Mercatique;1;1;0;1;0
+Bac STMG;Droit et Economie | Msgn/ Ressources humaines et communication;5;2;3;1;4
+Bac STMG;Droit et Economie | Msgn/ Systèmes d'information et de Gestion;1;1;0;0;1
+Total Bac STMG;;16;6;10;6;10
+Bac Professionnel Agricole;Sans EDS;2;2;0;0;2
+Total Bac Professionnel Agricole;;2;2;0;0;2`;
+
+const DEMO_CI=`Série de bac réformé;Combinaison des enseignements de spécialités de Terminale;Total des vœux de l'année N;Filles;Garçons;Boursiers certifiés des lycées;Non Boursiers certifiés des lycées
+Bac Général;Arts Plastiques | Histoire-Géographie, Géopolitique et Sciences politiques;1;1;0;1;0
+Bac Général;Arts Plastiques | Langues, littératures et cultures étrangères et régionales;1;1;0;1;0
+Bac Général;Biologie/Ecologie | Physique-Chimie;1;0;1;0;1
+Bac Général;Cinéma-Audiovisuel | Sciences Economiques et Sociales;1;0;1;1;0
+Bac Général;Histoire-Géographie, Géopolitique et Sciences politiques | Humanités, Littérature et Philosophie;6;6;0;3;3
+Bac Général;Histoire-Géographie, Géopolitique et Sciences politiques | Langues, littératures et cultures étrangères et régionales;12;6;6;2;10
+Bac Général;Histoire-Géographie, Géopolitique et Sciences politiques | Mathématiques;1;1;0;0;1
+Bac Général;Histoire-Géographie, Géopolitique et Sciences politiques | Sciences de la vie et de la Terre;2;1;1;2;0
+Bac Général;Histoire-Géographie, Géopolitique et Sciences politiques | Sciences Economiques et Sociales;13;8;5;3;10
+Bac Général;Humanités, Littérature et Philosophie | Langues, littératures et cultures étrangères et régionales;2;2;0;0;2
+Bac Général;Humanités, Littérature et Philosophie | Sciences de la vie et de la Terre;1;1;0;1;0
+Bac Général;Humanités, Littérature et Philosophie | Sciences Economiques et Sociales;2;2;0;1;1
+Bac Général;Langues, littératures et cultures étrangères et régionales | Littérature et langues et cultures de l'Antiquité: Latin;1;1;0;1;0
+Bac Général;Langues, littératures et cultures étrangères et régionales | Mathématiques;5;3;2;3;2
+Bac Général;Langues, littératures et cultures étrangères et régionales | Sciences de la vie et de la Terre;4;2;2;0;4
+Bac Général;Langues, littératures et cultures étrangères et régionales | Sciences de l'ingénieur et sciences physiques;1;0;1;1;0
+Bac Général;Langues, littératures et cultures étrangères et régionales | Sciences Economiques et Sociales;14;8;6;4;10
+Bac Général;Mathématiques | Physique-Chimie;4;2;2;2;2
+Bac Général;Mathématiques | Sciences de l'ingénieur et sciences physiques;1;0;1;0;1
+Bac Général;Mathématiques | Sciences Economiques et Sociales;14;7;7;3;11
+Bac Général;Musique | Sciences Economiques et Sociales;1;0;1;0;1
+Bac Général;Physique-Chimie | Sciences de la vie et de la Terre;3;2;1;1;2
+Bac Général;Sciences de la vie et de la Terre | Éducation Physique, Pratiques Et Culture Sportives;1;0;1;0;1
+Bac Général;Sciences Economiques et Sociales | Sciences de la vie et de la Terre;4;2;2;1;3
+Total Bac Général;;96;56;40;31;65
+Bac STD2A;Analyse et méthodes en design | Conception et création en design et métiers d'art;1;0;1;1;0
+Total Bac STD2A;;1;0;1;1;0
+Bac STI2D;Ingénierie, innovation et développement durable | Physique-Chimie et Mathématiques;4;1;3;1;3
+Total Bac STI2D;;4;1;3;1;3
+Bac STMG;Droit et Economie | Msgn/ Gestion et Finance;12;5;7;6;6
+Bac STMG;Droit et Economie | Msgn/ Mercatique;30;19;11;10;20
+Bac STMG;Droit et Economie | Msgn/ Ressources humaines et communication;10;7;3;3;7
+Bac STMG;Droit et Economie | Msgn/ Systèmes d'information et de Gestion;3;3;0;0;3
+Total Bac STMG;;55;34;21;19;36
+Bac ST2S;Chimie, biologie et physiopathologie humaines | Sciences et techniques sanitaires et sociales;4;4;0;3;1
+Total Bac ST2S;;4;4;0;3;1
+Bac Professionnel Agricole;Sans EDS;12;9;3;2;10
+Total Bac Professionnel Agricole;;12;9;3;2;10`;
+
+// =============================================================
+// PARSER
+// =============================================================
+function parseCSV(text,label,year){
+  text=text.replace(/^\uFEFF/,'').trim();
+  const lines=text.split('\n').map(l=>l.trim()).filter(l=>l);
+  const rows=[];
+  for(let i=1;i<lines.length;i++){
+    const c=lines[i].split(';');
+    const serie=(c[0]||'').trim(), combi=(c[1]||'').trim();
+    const total=parseInt(c[2])||0, filles=parseInt(c[3])||0, garcons=parseInt(c[4])||0;
+    const boursiers=parseInt(c[5])||0, nonBoursiers=parseInt(c[6])||0;
+    const isTotal=serie.startsWith('Total');
+    rows.push({serie,combi,total,filles,garcons,boursiers,nonBoursiers,isTotal});
+  }
+  return{label,year:parseInt(year),rows,raw:rows.filter(r=>!r.isTotal)};
+}
+
+// Extract individual specialties from a combination string
+function extractSpecialties(combi){
+  if(!combi||combi==='Sans EDS') return [];
+  return combi.split(' | ').map(s=>s.trim()).filter(s=>s && !s.startsWith('Msgn/') && s!=='Droit et Economie');
+}
+
+// Build specialty frequency map {spec: {total, filles, garcons}}
+function buildSpecMap(rows){
+  const m={};
+  rows.forEach(r=>{
+    const specs=extractSpecialties(r.combi);
+    specs.forEach(s=>{
+      if(!m[s]) m[s]={total:0,filles:0,garcons:0};
+      m[s].total+=r.total; m[s].filles+=r.filles; m[s].garcons+=r.garcons;
+    });
+  });
+  return m;
+}
+
+// Short abbreviation for display
+function abbr(s){
+  return s
+    .replace('Histoire-Géographie, Géopolitique et Sciences politiques','HGGSP')
+    .replace('Mathématiques','Maths')
+    .replace('Sciences Economiques et Sociales','SES')
+    .replace('Sciences de la vie et de la Terre','SVT')
+    .replace('Langues, littératures et cultures étrangères et régionales','LLCER')
+    .replace('Humanités, Littérature et Philosophie','HLP')
+    .replace('Physique-Chimie','Phys-Chimie')
+    .replace('Numérique et Sciences Informatiques','NSI')
+    .replace("Sciences de l'ingénieur et sciences physiques",'SI')
+    .replace('Ingénierie, innovation et développement durable','I2D')
+    .replace('Physique-Chimie et Mathématiques','PC+Maths')
+    .replace('Biologie/Ecologie','Bio/Écologie')
+    .replace('Droit et Economie','D&E')
+    .replace('Msgn/ Gestion et Finance','G&F')
+    .replace('Msgn/ Mercatique','Mercatique')
+    .replace('Msgn/ Ressources humaines et communication','RHC')
+    .replace("Msgn/ Systèmes d'information et de Gestion",'SIG')
+    .replace('Chimie, biologie et physiopathologie humaines','Chim.Bio.Physiopath.')
+    .replace('Sciences et techniques sanitaires et sociales','STSS')
+    .replace('Analyse et méthodes en design','A&M Design')
+    .replace('Conception et création en design et métiers d\'art','CC Design')
+    .replace('Cinéma-Audiovisuel','Cinéma-AV')
+    .replace('Arts Plastiques','Arts Plastiques')
+    .replace('Éducation Physique, Pratiques Et Culture Sportives','EPS/EPCS')
+    .replace('Littérature et langues et cultures de l\'Antiquité: Latin','Lettres Antiques')
+    .replace('Musique','Musique')
+    .replace('Bac Général','Bac G')
+    .replace('Bac Professionnel Agricole','Bac Pro Agri')
+    .replace('Sans EDS','Sans EDS');
+}
+
+function getSC(s){return SERIE_COLORS[s]||'#6b7a99';}
+function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+
+// =============================================================
+// FILE HANDLING
+// =============================================================
+const pendingFiles={};
+
+function handleFileSelect(input,key){
+  const file=input.files[0]; if(!file) return;
+  pendingFiles[key]=file;
+  const n=key==='file1'?'1':'2';
+  document.getElementById('dropZone'+n).classList.add('has-file');
+  document.getElementById('fileInfo'+n).textContent='✓ '+file.name;
+}
+function handleDrag(e){e.preventDefault();e.currentTarget.classList.add('drag-over');}
+function handleDragLeave(e){e.currentTarget.classList.remove('drag-over');}
+function handleDrop(e,key){
+  e.preventDefault();e.currentTarget.classList.remove('drag-over');
+  const file=e.dataTransfer.files[0]; if(!file) return;
+  pendingFiles[key]=file;
+  const n=key==='file1'?'1':'2';
+  document.getElementById('dropZone'+n).classList.add('has-file');
+  document.getElementById('fileInfo'+n).textContent='✓ '+file.name;
+}
+
+function loadAllFiles(){
+  const keys=['file1','file2'];
+  const promises=[];
+  keys.forEach(key=>{
+    const file=pendingFiles[key]; if(!file) return;
+    const n=key==='file1'?'1':'2';
+    const year=document.getElementById('year'+n).value;
+    const label=document.getElementById('label'+n).value||file.name.replace('.csv','');
+    promises.push(new Promise(res=>{
+      const reader=new FileReader();
+      reader.onload=e=>{res(parseCSV(e.target.result,label,year));};
+      reader.readAsText(file,'UTF-8');
+    }));
+  });
+  if(!promises.length){showToast('Aucun fichier sélectionné.','error');return;}
+  Promise.all(promises).then(results=>{
+    results.forEach(ds=>{
+      if(!datasets.find(d=>d.label===ds.label&&d.year===ds.year)) datasets.push(ds);
+    });
+    renderDatasetsList(); renderAllSections();
+    showToast(results.length+' fichier(s) chargé(s) ✓','success');
+  });
+}
+
+function loadDemo(){
+  datasets=[parseCSV(DEMO_GTLA,'GTLA',2026),parseCSV(DEMO_CI,'CI',2026)];
+  renderDatasetsList(); renderAllSections();
+  showToast('Données de démonstration chargées ✓','success');
+  document.getElementById('demoBtn').style.display='none';
+}
+
+function clearAll(){
+  datasets=[];
+  ['1','2'].forEach(n=>{
+    document.getElementById('dropZone'+n).classList.remove('has-file');
+    document.getElementById('fileInfo'+n).textContent='—';
+    document.getElementById('file'+n).value='';
+    pendingFiles['file'+n]=null;
+  });
+  renderDatasetsList();
+  ['overviewContent','formationsContent','compareContent','detailContent'].forEach(id=>document.getElementById(id).innerHTML='');
+  document.getElementById('demoBtn').style.display='';
+  showToast('Données effacées','error');
+}
+
+function removeDataset(idx){
+  datasets.splice(idx,1); renderDatasetsList(); renderAllSections();
+}
+
+function editDataset(idx){
+  // Toggle edit mode on this item
+  const el=document.getElementById('dsItem'+idx);
+  if(!el) return;
+  const ds=datasets[idx];
+  el.innerHTML=`
+    <div class="dataset-color" style="background:${PALETTE[idx%PALETTE.length]};flex-shrink:0"></div>
+    <div style="display:flex;gap:10px;align-items:center;flex:1;flex-wrap:wrap">
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <label style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.7px">Formation / Label</label>
+        <input id="editLabel${idx}" type="text" value="${ds.label}"
+          style="padding:6px 10px;border:1.5px solid var(--blue);border-radius:7px;font-size:13px;font-family:'DM Sans',sans-serif;width:180px;outline:none;color:var(--text)">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <label style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.7px">Année</label>
+        <input id="editYear${idx}" type="number" value="${ds.year}" min="2018" max="2035"
+          style="padding:6px 10px;border:1.5px solid var(--blue);border-radius:7px;font-size:13px;font-family:'DM Sans',sans-serif;width:90px;outline:none;color:var(--text)"
+          onkeydown="if(event.key==='Enter') saveDataset(${idx})">
+      </div>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="saveDataset(${idx})" style="flex-shrink:0">✓ Valider</button>
+    <button class="btn btn-sm" onclick="renderDatasetsList()" style="background:#eee;color:var(--text);flex-shrink:0">Annuler</button>`;
+  // Focus year input
+  setTimeout(()=>document.getElementById('editYear'+idx)?.focus(),50);
+}
+
+function saveDataset(idx){
+  const newLabel=document.getElementById('editLabel'+idx)?.value.trim();
+  const newYear=parseInt(document.getElementById('editYear'+idx)?.value);
+  if(!newLabel){showToast('Le label ne peut pas être vide.','error');return;}
+  if(!newYear||newYear<2018||newYear>2035){showToast('Année invalide (2018–2035).','error');return;}
+  datasets[idx].label=newLabel;
+  datasets[idx].year=newYear;
+  renderDatasetsList();
+  renderAllSections();
+  showToast(`Modifié : ${newLabel} — ${newYear} ✓`,'success');
+}
+
+function renderDatasetsList(){
+  const el=document.getElementById('datasetsList');
+  if(!datasets.length){el.innerHTML='<div class="empty-state" style="padding:30px"><div style="font-size:36px;margin-bottom:10px">📂</div><p>Aucun fichier chargé.</p></div>';return;}
+  el.innerHTML=datasets.map((ds,i)=>{
+    const total=ds.raw.reduce((a,r)=>a+r.total,0);
+    const filles=ds.raw.reduce((a,r)=>a+r.filles,0);
+    const series=[...new Set(ds.raw.map(r=>r.serie))].length;
+    return `<div class="dataset-item" id="dsItem${i}">
+      <div class="dataset-color" style="background:${PALETTE[i%PALETTE.length]}"></div>
+      <div class="dataset-name">${ds.label} — ${ds.year}</div>
+      <div class="dataset-meta">${total} vœux · ${ds.raw.length} lignes · ${series} séries</div>
+      <span class="dataset-badge">${filles} F / ${total-filles} G</span>
+      <button class="btn btn-sm" onclick="editDataset(${i})" style="background:#eef3ff;color:var(--blue);border:1.5px solid #c8d8ff;flex-shrink:0" title="Modifier le label et l'année">✏ Modifier</button>
+      <button class="btn btn-danger btn-sm" onclick="removeDataset(${i})" style="flex-shrink:0">✕</button>
+    </div>`;
+  }).join('');
+  const years=[...new Set(datasets.map(d=>d.year))].sort();
+  document.getElementById('yearBadge').textContent=years.join(' · ');
+}
+
+function renderAllSections(){
+  if(!datasets.length) return;
+  renderOverview(); renderFormations(); renderCompare(); renderDetail();
+}
+
+// =============================================================
+// OVERVIEW
+// =============================================================
+function renderOverview(){
+  const all=datasets.flatMap(d=>d.raw);
+  const tv=all.reduce((a,r)=>a+r.total,0);
+  const tf=all.reduce((a,r)=>a+r.filles,0);
+  const tg=all.reduce((a,r)=>a+r.garcons,0);
+  const tb=all.reduce((a,r)=>a+r.boursiers,0);
+  const pctF=tv?Math.round(tf/tv*100):0;
+  const pctB=tv?Math.round(tb/tv*100):0;
+
+  const serieMap={};
+  all.forEach(r=>{
+    if(!serieMap[r.serie]) serieMap[r.serie]={total:0,filles:0,garcons:0,boursiers:0};
+    serieMap[r.serie].total+=r.total; serieMap[r.serie].filles+=r.filles;
+    serieMap[r.serie].garcons+=r.garcons; serieMap[r.serie].boursiers+=r.boursiers;
+  });
+  const sl=Object.keys(serieMap).sort((a,b)=>serieMap[b].total-serieMap[a].total);
+
+  document.getElementById('overviewContent').innerHTML=`
+    <div class="section-title">Vue Générale — Tous fichiers</div>
+    <div class="section-desc">Synthèse globale de l'ensemble des fichiers Parcoursup importés</div>
+    <div class="kpi-grid">
+      <div class="kpi-card blue"><div class="kpi-icon">📋</div><div class="kpi-label">Total des vœux</div><div class="kpi-value">${tv}</div><div class="kpi-sub">${datasets.map(d=>d.label+' '+d.year).join(' + ')}</div></div>
+      <div class="kpi-card accent"><div class="kpi-icon">👩</div><div class="kpi-label">Filles</div><div class="kpi-value">${tf}</div><div class="kpi-sub">${pctF}% des candidats</div></div>
+      <div class="kpi-card teal"><div class="kpi-icon">👨</div><div class="kpi-label">Garçons</div><div class="kpi-value">${tg}</div><div class="kpi-sub">${100-pctF}% des candidats</div></div>
+      <div class="kpi-card mint"><div class="kpi-icon">🏅</div><div class="kpi-label">Boursiers</div><div class="kpi-value">${tb}</div><div class="kpi-sub">${pctB}% des candidats</div></div>
+      <div class="kpi-card red"><div class="kpi-icon">📁</div><div class="kpi-label">Fichiers</div><div class="kpi-value">${datasets.length}</div><div class="kpi-sub">${[...new Set(datasets.map(d=>d.year))].length} année(s)</div></div>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card"><div class="chart-title">Répartition par Série de Bac</div><div class="chart-subtitle">Nombre de vœux par type de baccalauréat</div><div class="chart-wrap"><canvas id="chSerieBar"></canvas></div></div>
+      <div class="chart-card"><div class="chart-title">Profil Genre</div><div class="chart-subtitle">Filles vs Garçons — global</div><div class="chart-wrap"><canvas id="chGender"></canvas></div></div>
+      <div class="chart-card"><div class="chart-title">Boursiers vs Non-Boursiers</div><div class="chart-subtitle">Proportion de boursiers certifiés</div><div class="chart-wrap"><canvas id="chBoursiers"></canvas></div></div>
+      <div class="chart-card"><div class="chart-title">Genre par Série</div><div class="chart-subtitle">Filles / Garçons par type de bac</div><div class="chart-wrap"><canvas id="chGenderSerie"></canvas></div></div>
+    </div>`;
+
+  ['chSerieBar','chGender','chBoursiers','chGenderSerie'].forEach(destroyChart);
+
+  charts['chSerieBar']=new Chart(document.getElementById('chSerieBar'),{type:'bar',data:{labels:sl.map(s=>abbr(s)),datasets:[{data:sl.map(s=>serieMap[s].total),backgroundColor:sl.map(s=>getSC(s)),borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>sl[i[0].dataIndex]}}},scales:{y:{beginAtZero:true,grid:{color:'#eef'}},x:{grid:{display:false}}}}});
+  charts['chGender']=new Chart(document.getElementById('chGender'),{type:'doughnut',data:{labels:['Filles','Garçons'],datasets:[{data:[tf,tg],backgroundColor:['#e8a020','#1e4fa0'],borderWidth:0,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:i=>`${i.label}: ${i.raw} (${Math.round(i.raw/tv*100)}%)`}}}}});
+  charts['chBoursiers']=new Chart(document.getElementById('chBoursiers'),{type:'doughnut',data:{labels:['Boursiers','Non Boursiers'],datasets:[{data:[tb,tv-tb],backgroundColor:['#27ae7a','#dde4f0'],borderWidth:0,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:i=>`${i.label}: ${i.raw} (${Math.round(i.raw/tv*100)}%)`}}}}});
+  charts['chGenderSerie']=new Chart(document.getElementById('chGenderSerie'),{type:'bar',data:{labels:sl.map(s=>abbr(s)),datasets:[{label:'Filles',data:sl.map(s=>serieMap[s].filles),backgroundColor:'#e8a020',borderRadius:4},{label:'Garçons',data:sl.map(s=>serieMap[s].garcons),backgroundColor:'#1e4fa0',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},tooltip:{callbacks:{title:i=>sl[i[0].dataIndex]}}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:{color:'#eef'}}}}});
+}
+
+// =============================================================
+// FORMATIONS — with Bac G specialty charts + Bac Tech charts + Print
+// =============================================================
+function renderFormations(){
+  let html=`<div class="section-title">Analyse par Formation</div>
+  <div class="section-desc">Détail complet pour chaque fichier — spécialités Bac Général, filières technologiques, et impression PDF.</div>`;
+
+  datasets.forEach((ds,di)=>{
+    const color=PALETTE[di%PALETTE.length];
+    const total=ds.raw.reduce((a,r)=>a+r.total,0);
+    const filles=ds.raw.reduce((a,r)=>a+r.filles,0);
+    const boursiers=ds.raw.reduce((a,r)=>a+r.boursiers,0);
+
+    // Split by type
+    const bacGRows=ds.raw.filter(r=>r.serie==='Bac Général');
+    const bacTechRows=ds.raw.filter(r=>TECH_SERIES.includes(r.serie));
+    const bacAutreRows=ds.raw.filter(r=>r.serie!=='Bac Général'&&!TECH_SERIES.includes(r.serie));
+
+    const bacGTotal=bacGRows.reduce((a,r)=>a+r.total,0);
+    const bacTechTotal=bacTechRows.reduce((a,r)=>a+r.total,0);
+
+    // IDs
+    const pid=`f${di}`;
+
+    html+=`
+    <div class="chart-card" style="margin-bottom:28px;border-top:4px solid ${color}">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+        <div style="width:14px;height:14px;border-radius:4px;background:${color};flex-shrink:0"></div>
+        <div class="chart-title" style="margin:0;flex:1">${ds.label} — ${ds.year}</div>
+        <span class="dataset-badge" style="background:${color}20;color:${color}">${total} vœux totaux</span>
+        <span class="dataset-badge">${Math.round(filles/total*100)}% Filles</span>
+        <span class="dataset-badge">${Math.round(boursiers/total*100)}% Boursiers</span>
+        <button class="btn btn-print btn-sm" onclick="printFormation(${di})" style="margin-left:auto">🖨 Imprimer / PDF</button>
+      </div>
+
+      <!-- BAC GÉNÉRAL -->
+      ${bacGRows.length?`
+      <div class="sub-section">
+        <span class="sub-section-title">Bac Général</span>
+        <span class="sub-section-label" style="background:#eef3ff;color:#1e4fa0">${bacGTotal} vœux</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+        <div>
+          <div class="chart-subtitle">Top combinaisons de spécialités</div>
+          <div style="height:260px"><canvas id="${pid}_gcombi"></canvas></div>
+        </div>
+        <div>
+          <div class="chart-subtitle">Fréquence individuelle des spécialités (pondérée par vœux)</div>
+          <div style="height:260px"><canvas id="${pid}_gspec"></canvas></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+        <div>
+          <div class="chart-subtitle">Genre par combinaison de spécialités</div>
+          <div style="height:240px"><canvas id="${pid}_ggender"></canvas></div>
+        </div>
+        <div>
+          <div class="chart-subtitle">Boursiers par combinaison</div>
+          <div style="height:240px"><canvas id="${pid}_gbours"></canvas></div>
+        </div>
+      </div>
+      <table style="margin-bottom:20px">
+        <thead><tr><th>Combinaison de spécialités</th><th>Vœux</th><th>Filles</th><th>Garçons</th><th>Boursiers</th><th>%F</th></tr></thead>
+        <tbody>
+          ${bacGRows.sort((a,b)=>b.total-a.total).map(r=>`<tr>
+            <td style="font-size:12px">${r.combi||'—'}</td>
+            <td><strong>${r.total}</strong></td><td>${r.filles}</td><td>${r.garcons}</td><td>${r.boursiers}</td>
+            <td>${r.total?Math.round(r.filles/r.total*100)+'%':'—'}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`:''}
+
+      <!-- BAC TECHNOLOGIQUES -->
+      ${bacTechRows.length?`
+      <div class="sub-section">
+        <span class="sub-section-title">Bacs Technologiques</span>
+        <span class="sub-section-label" style="background:#fff7e6;color:#b45309">${bacTechTotal} vœux</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+        <div>
+          <div class="chart-subtitle">Vœux par filière technologique</div>
+          <div style="height:240px"><canvas id="${pid}_tfiliere"></canvas></div>
+        </div>
+        <div>
+          <div class="chart-subtitle">Options / Spécialités technologiques</div>
+          <div style="height:240px"><canvas id="${pid}_toption"></canvas></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+        <div>
+          <div class="chart-subtitle">Genre par filière technologique</div>
+          <div style="height:220px"><canvas id="${pid}_tgender"></canvas></div>
+        </div>
+        <div>
+          <div class="chart-subtitle">Boursiers par filière technologique</div>
+          <div style="height:220px"><canvas id="${pid}_tbours"></canvas></div>
+        </div>
+      </div>
+      <table style="margin-bottom:20px">
+        <thead><tr><th>Série</th><th>Option / Spécialité</th><th>Vœux</th><th>Filles</th><th>Garçons</th><th>Boursiers</th><th>%F</th></tr></thead>
+        <tbody>
+          ${bacTechRows.sort((a,b)=>b.total-a.total).map(r=>`<tr>
+            <td><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${getSC(r.serie)};margin-right:6px"></span>${abbr(r.serie)}</td>
+            <td style="font-size:12px">${r.combi||'—'}</td>
+            <td><strong>${r.total}</strong></td><td>${r.filles}</td><td>${r.garcons}</td><td>${r.boursiers}</td>
+            <td>${r.total?Math.round(r.filles/r.total*100)+'%':'—'}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`:''}
+
+      <!-- AUTRES -->
+      ${bacAutreRows.length?`
+      <div class="sub-section">
+        <span class="sub-section-title">Autres séries</span>
+      </div>
+      <table style="margin-bottom:10px">
+        <thead><tr><th>Série</th><th>Spécialité</th><th>Vœux</th><th>Filles</th><th>Garçons</th><th>Boursiers</th></tr></thead>
+        <tbody>${bacAutreRows.map(r=>`<tr>
+          <td>${abbr(r.serie)}</td><td style="font-size:12px">${r.combi||'—'}</td>
+          <td><strong>${r.total}</strong></td><td>${r.filles}</td><td>${r.garcons}</td><td>${r.boursiers}</td>
+        </tr>`).join('')}</tbody>
+      </table>`:''}
+    </div>`;
+  });
+
+  document.getElementById('formationsContent').innerHTML=html;
+
+  // Draw charts for each dataset
+  datasets.forEach((ds,di)=>{
+    const pid=`f${di}`;
+    const bacGRows=ds.raw.filter(r=>r.serie==='Bac Général');
+    const bacTechRows=ds.raw.filter(r=>TECH_SERIES.includes(r.serie));
+
+    // === BAC GÉNÉRAL CHARTS ===
+    if(bacGRows.length){
+      // Top combis
+      const topG=bacGRows.sort((a,b)=>b.total-a.total).slice(0,10);
+      destroyChart(pid+'_gcombi');
+      charts[pid+'_gcombi']=new Chart(document.getElementById(pid+'_gcombi'),{
+        type:'bar',
+        data:{labels:topG.map(r=>abbr(r.combi)),datasets:[{data:topG.map(r=>r.total),backgroundColor:PALETTE,borderRadius:5}]},
+        options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>topG[i[0].dataIndex].combi}}},scales:{x:{beginAtZero:true,grid:{color:'#eef'}},y:{grid:{display:false},ticks:{font:{size:10}}}}}
+      });
+
+      // Individual specialty frequency
+      const specMap=buildSpecMap(bacGRows);
+      const specSorted=Object.entries(specMap).sort((a,b)=>b[1].total-a[1].total).slice(0,12);
+      destroyChart(pid+'_gspec');
+      charts[pid+'_gspec']=new Chart(document.getElementById(pid+'_gspec'),{
+        type:'bar',
+        data:{labels:specSorted.map(([s])=>abbr(s)),datasets:[{data:specSorted.map(([,v])=>v.total),backgroundColor:specSorted.map((_,i)=>PALETTE[i%PALETTE.length]),borderRadius:5}]},
+        options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>specSorted[i[0].dataIndex][0]}}},scales:{x:{beginAtZero:true,grid:{color:'#eef'}},y:{grid:{display:false},ticks:{font:{size:10}}}}}
+      });
+
+      // Genre by combi (top 6)
+      const top6=bacGRows.sort((a,b)=>b.total-a.total).slice(0,6);
+      destroyChart(pid+'_ggender');
+      charts[pid+'_ggender']=new Chart(document.getElementById(pid+'_ggender'),{
+        type:'bar',
+        data:{labels:top6.map(r=>abbr(r.combi)),datasets:[{label:'Filles',data:top6.map(r=>r.filles),backgroundColor:'#e8a020',borderRadius:4},{label:'Garçons',data:top6.map(r=>r.garcons),backgroundColor:'#1e4fa0',borderRadius:4}]},
+        options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},tooltip:{callbacks:{title:i=>top6[i[0].dataIndex].combi}}},scales:{x:{beginAtZero:true,stacked:false,grid:{color:'#eef'}},y:{grid:{display:false},ticks:{font:{size:10}}}}}
+      });
+
+      // Boursiers by combi (top 6)
+      destroyChart(pid+'_gbours');
+      charts[pid+'_gbours']=new Chart(document.getElementById(pid+'_gbours'),{
+        type:'bar',
+        data:{labels:top6.map(r=>abbr(r.combi)),datasets:[{label:'Boursiers',data:top6.map(r=>r.boursiers),backgroundColor:'#27ae7a',borderRadius:4},{label:'Non Boursiers',data:top6.map(r=>r.nonBoursiers),backgroundColor:'#dde4f0',borderRadius:4}]},
+        options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},tooltip:{callbacks:{title:i=>top6[i[0].dataIndex].combi}}},scales:{x:{beginAtZero:true,stacked:false,grid:{color:'#eef'}},y:{grid:{display:false},ticks:{font:{size:10}}}}}
+      });
+    }
+
+    // === BAC TECH CHARTS ===
+    if(bacTechRows.length){
+      // By filiere
+      const filiereMap={};
+      bacTechRows.forEach(r=>{
+        if(!filiereMap[r.serie]) filiereMap[r.serie]={total:0,filles:0,garcons:0,boursiers:0,nonBoursiers:0};
+        filiereMap[r.serie].total+=r.total; filiereMap[r.serie].filles+=r.filles;
+        filiereMap[r.serie].garcons+=r.garcons; filiereMap[r.serie].boursiers+=r.boursiers;
+        filiereMap[r.serie].nonBoursiers+=r.nonBoursiers;
+      });
+      const fl=Object.keys(filiereMap).sort((a,b)=>filiereMap[b].total-filiereMap[a].total);
+
+      destroyChart(pid+'_tfiliere');
+      charts[pid+'_tfiliere']=new Chart(document.getElementById(pid+'_tfiliere'),{
+        type:'doughnut',
+        data:{labels:fl.map(s=>abbr(s)),datasets:[{data:fl.map(s=>filiereMap[s].total),backgroundColor:fl.map(s=>getSC(s)),borderWidth:0,hoverOffset:8}]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:i=>`${i.label}: ${i.raw} vœux`}}}}
+      });
+
+      // Options within tech
+      const optSorted=bacTechRows.sort((a,b)=>b.total-a.total);
+      destroyChart(pid+'_toption');
+      charts[pid+'_toption']=new Chart(document.getElementById(pid+'_toption'),{
+        type:'bar',
+        data:{labels:optSorted.map(r=>abbr(r.combi||r.serie)),datasets:[{data:optSorted.map(r=>r.total),backgroundColor:optSorted.map(r=>getSC(r.serie)),borderRadius:6}]},
+        options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>`${optSorted[i[0].dataIndex].serie} — ${optSorted[i[0].dataIndex].combi}`}}},scales:{x:{beginAtZero:true,grid:{color:'#eef'}},y:{grid:{display:false},ticks:{font:{size:10}}}}}
+      });
+
+      // Genre by filiere
+      destroyChart(pid+'_tgender');
+      charts[pid+'_tgender']=new Chart(document.getElementById(pid+'_tgender'),{
+        type:'bar',
+        data:{labels:fl.map(s=>abbr(s)),datasets:[{label:'Filles',data:fl.map(s=>filiereMap[s].filles),backgroundColor:'#e8a020',borderRadius:4},{label:'Garçons',data:fl.map(s=>filiereMap[s].garcons),backgroundColor:'#1e4fa0',borderRadius:4}]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:{color:'#eef'}}}}
+      });
+
+      // Boursiers by filiere
+      destroyChart(pid+'_tbours');
+      charts[pid+'_tbours']=new Chart(document.getElementById(pid+'_tbours'),{
+        type:'bar',
+        data:{labels:fl.map(s=>abbr(s)),datasets:[{label:'Boursiers',data:fl.map(s=>filiereMap[s].boursiers),backgroundColor:'#27ae7a',borderRadius:4},{label:'Non Boursiers',data:fl.map(s=>filiereMap[s].nonBoursiers),backgroundColor:'#dde4f0',borderRadius:4}]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:{color:'#eef'}}}}
+      });
+    }
+  });
+}
+
+// =============================================================
+// PRINT PDF par formation
+// =============================================================
+function printFormation(di){
+  const ds=datasets[di];
+  if(!ds){showToast('Formation introuvable','error');return;}
+
+  const bacGRows=ds.raw.filter(r=>r.serie==='Bac Général');
+  const bacTechRows=ds.raw.filter(r=>TECH_SERIES.includes(r.serie));
+  const bacAutreRows=ds.raw.filter(r=>r.serie!=='Bac Général'&&!TECH_SERIES.includes(r.serie));
+  const total=ds.raw.reduce((a,r)=>a+r.total,0);
+  const filles=ds.raw.reduce((a,r)=>a+r.filles,0);
+  const boursiers=ds.raw.reduce((a,r)=>a+r.boursiers,0);
+  const bacGTotal=bacGRows.reduce((a,r)=>a+r.total,0);
+  const bacTechTotal=bacTechRows.reduce((a,r)=>a+r.total,0);
+
+  // Build specialty map
+  const specMap=buildSpecMap(bacGRows);
+  const specSorted=Object.entries(specMap).sort((a,b)=>b[1].total-a[1].total);
+  const topG=bacGRows.sort((a,b)=>b.total-a.total).slice(0,15);
+
+  // Filiere map for tech
+  const filiereMap={};
+  bacTechRows.forEach(r=>{
+    if(!filiereMap[r.serie]) filiereMap[r.serie]={total:0,filles:0,garcons:0,boursiers:0};
+    filiereMap[r.serie].total+=r.total; filiereMap[r.serie].filles+=r.filles;
+    filiereMap[r.serie].garcons+=r.garcons; filiereMap[r.serie].boursiers+=r.boursiers;
+  });
+
+  const color=PALETTE[di%PALETTE.length];
+  const today=new Date().toLocaleDateString('fr-FR');
+
+  // Row helper
+  function tableRow(cells,bold=false){
+    return `<tr>${cells.map(c=>`<td${bold?' style="font-weight:700;background:#f4f7fc"':''}>${c}</td>`).join('')}</tr>`;
+  }
+
+  // Specialty bar HTML
+  function specBarHTML(entries,max){
+    return entries.map(([s,v])=>{
+      const w=Math.round(v.total/max*100);
+      return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #eee">
+        <div style="flex:1;font-size:11px;color:#333">${abbr(s)}</div>
+        <div style="width:120px;height:7px;background:#eef3ff;border-radius:3px;flex-shrink:0">
+          <div style="width:${w}%;height:7px;background:${color};border-radius:3px"></div>
+        </div>
+        <div style="font-size:11px;font-weight:700;color:#0d1f3c;min-width:20px;text-align:right">${v.total}</div>
+      </div>`;
+    }).join('');
+  }
+
+  const printWin=window.open('','_blank','width=900,height=700');
+  printWin.document.write(`<!DOCTYPE html><html lang="fr"><head>
+  <meta charset="UTF-8">
+  <title>Parcoursup — ${ds.label} ${ds.year}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    @page { size: A4 portrait; margin: 15mm 14mm 15mm 14mm; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; color: #0d1f3c; font-size: 11px; background: white; }
+
+    .page-header {
+      background: linear-gradient(135deg, #0d1f3c 0%, #1e4fa0 100%);
+      color: white; padding: 14px 18px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .ph-left { display: flex; align-items: center; gap: 12px; }
+    .ph-badge { width: 40px; height: 40px; background: ${color}; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 13px; color: #0d1f3c; }
+    .ph-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; }
+    .ph-sub { font-size: 10px; color: rgba(255,255,255,0.7); margin-top: 2px; }
+    .ph-right { font-size: 10px; color: rgba(255,255,255,0.7); text-align: right; }
+
+    .kpi-row { display: flex; gap: 10px; margin-bottom: 14px; }
+    .kpi { flex: 1; background: white; border: 1.5px solid #dde4f0; border-radius: 8px; padding: 10px 12px; border-top: 3px solid ${color}; }
+    .kpi-lbl { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.7px; color: #6b7a99; margin-bottom: 4px; }
+    .kpi-val { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; color: #0d1f3c; }
+    .kpi-s { font-size: 9px; color: #6b7a99; margin-top: 2px; }
+
+    .section-hdr {
+      display: flex; align-items: center; gap: 8px;
+      border-bottom: 2px solid #dde4f0; padding-bottom: 6px; margin: 14px 0 10px;
+      page-break-after: avoid;
+    }
+    .section-hdr h2 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; color: #0d1f3c; }
+    .s-badge { display: inline-block; padding: 2px 9px; border-radius: 8px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .col-box { background: #f8faff; border-radius: 8px; padding: 12px; page-break-inside: avoid; }
+    .col-box h3 { font-size: 10px; font-weight: 600; color: #6b7a99; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 10px; page-break-inside: avoid; }
+    th { background: #0d1f3c; color: white; padding: 6px 10px; text-align: left; font-weight: 600; font-size: 9px; text-transform: uppercase; letter-spacing: 0.4px; }
+    th:first-child { border-radius: 5px 0 0 5px; } th:last-child { border-radius: 0 5px 5px 0; }
+    td { padding: 6px 10px; border-bottom: 1px solid #eee; }
+    tr:last-child td { border-bottom: none; }
+    .tr-total td { font-weight: 700; background: #f4f7fc; }
+
+    .chart-placeholder { background: #f8faff; border-radius: 8px; padding: 10px; margin-bottom: 12px; page-break-inside: avoid; }
+    canvas { max-width: 100%; }
+
+    .footer { margin-top: 18px; padding-top: 8px; border-top: 1px solid #dde4f0; display: flex; justify-content: space-between; font-size: 9px; color: #6b7a99; }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .no-break { page-break-inside: avoid; }
+      .page-break { page-break-before: always; }
+      table { page-break-inside: auto; }
+      tr { page-break-inside: avoid; page-break-after: auto; }
+      thead { display: table-header-group; }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"><\/script>
+  </head><body>
+
+  <div class="page-header">
+    <div class="ph-left">
+      <div class="ph-badge">LE</div>
+      <div>
+        <div class="ph-title">Parcoursup — Formation : ${ds.label} — Année ${ds.year}</div>
+        <div class="ph-sub">Lycée Polyvalent Léopold Elfort · Mana, Guyane Française · RNE 9730421V</div>
+      </div>
+    </div>
+    <div class="ph-right">Édité le ${today}<br>Document confidentiel</div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-lbl">Total vœux</div><div class="kpi-val">${total}</div><div class="kpi-s">${ds.label} ${ds.year}</div></div>
+    <div class="kpi"><div class="kpi-lbl">Filles</div><div class="kpi-val">${filles}</div><div class="kpi-s">${Math.round(filles/total*100)}% des candidats</div></div>
+    <div class="kpi"><div class="kpi-lbl">Garçons</div><div class="kpi-val">${total-filles}</div><div class="kpi-s">${Math.round((total-filles)/total*100)}% des candidats</div></div>
+    <div class="kpi"><div class="kpi-lbl">Boursiers</div><div class="kpi-val">${boursiers}</div><div class="kpi-s">${Math.round(boursiers/total*100)}% des candidats</div></div>
+    <div class="kpi"><div class="kpi-lbl">Non-Boursiers</div><div class="kpi-val">${total-boursiers}</div><div class="kpi-s">${Math.round((total-boursiers)/total*100)}%</div></div>
+  </div>
+
+  ${bacGRows.length?`
+  <div class="section-hdr no-break">
+    <h2>Bac Général</h2>
+    <span class="s-badge" style="background:#eef3ff;color:#1e4fa0">${bacGTotal} vœux</span>
+    <span class="s-badge" style="background:#f0fbf6;color:#27ae7a">${bacGRows.length} combinaisons</span>
+  </div>
+
+  <div class="two-col no-break">
+    <div class="col-box">
+      <h3>Fréquence des spécialités individuelles</h3>
+      ${specBarHTML(specSorted.slice(0,12), specSorted[0]?specSorted[0][1].total:1)}
+    </div>
+    <div class="col-box">
+      <h3>Graphique — Spécialités individuelles</h3>
+      <canvas id="pSpecChart" height="200"></canvas>
+    </div>
+  </div>
+
+  <div class="no-break" style="margin-bottom:12px">
+    <div class="col-box">
+      <h3>Répartition Genre &amp; Boursiers — Top combinaisons</h3>
+      <canvas id="pGenderChart" height="120"></canvas>
+    </div>
+  </div>
+
+  <div class="no-break">
+    <h3 style="font-size:10px;font-weight:600;color:#6b7a99;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px">Détail — Toutes les combinaisons Bac Général</h3>
+    <table>
+      <thead><tr><th>Combinaison de spécialités</th><th>Vœux</th><th>Filles</th><th>Garçons</th><th>Boursiers</th><th>Non-Bours.</th><th>%F</th></tr></thead>
+      <tbody>
+        ${bacGRows.sort((a,b)=>b.total-a.total).map(r=>`<tr>
+          <td>${r.combi||'—'}</td>
+          <td><strong>${r.total}</strong></td><td>${r.filles}</td><td>${r.garcons}</td><td>${r.boursiers}</td><td>${r.nonBoursiers}</td>
+          <td>${r.total?Math.round(r.filles/r.total*100)+'%':'—'}</td>
+        </tr>`).join('')}
+        <tr class="tr-total"><td><strong>TOTAL Bac Général</strong></td><td><strong>${bacGTotal}</strong></td><td><strong>${bacGRows.reduce((a,r)=>a+r.filles,0)}</strong></td><td><strong>${bacGRows.reduce((a,r)=>a+r.garcons,0)}</strong></td><td><strong>${bacGRows.reduce((a,r)=>a+r.boursiers,0)}</strong></td><td><strong>${bacGRows.reduce((a,r)=>a+r.nonBoursiers,0)}</strong></td><td><strong>${bacGTotal?Math.round(bacGRows.reduce((a,r)=>a+r.filles,0)/bacGTotal*100)+'%':'—'}</strong></td></tr>
+      </tbody>
+    </table>
+  </div>`:''}
+
+  ${bacTechRows.length?`
+  <div class="section-hdr no-break" style="margin-top:18px">
+    <h2>Bacs Technologiques</h2>
+    <span class="s-badge" style="background:#fff7e6;color:#b45309">${bacTechTotal} vœux</span>
+  </div>
+
+  <div class="two-col no-break">
+    <div class="col-box">
+      <h3>Répartition par filière</h3>
+      <canvas id="pTechPie" height="200"></canvas>
+    </div>
+    <div class="col-box">
+      <h3>Vœux par option / spécialité</h3>
+      <canvas id="pTechBar" height="200"></canvas>
+    </div>
+  </div>
+
+  <div class="no-break">
+    <h3 style="font-size:10px;font-weight:600;color:#6b7a99;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px">Détail — Bacs Technologiques</h3>
+    <table>
+      <thead><tr><th>Filière</th><th>Option / Spécialité</th><th>Vœux</th><th>Filles</th><th>Garçons</th><th>Boursiers</th><th>Non-Bours.</th><th>%F</th></tr></thead>
+      <tbody>
+        ${bacTechRows.sort((a,b)=>b.total-a.total).map(r=>`<tr>
+          <td>${abbr(r.serie)}</td><td>${r.combi||'—'}</td>
+          <td><strong>${r.total}</strong></td><td>${r.filles}</td><td>${r.garcons}</td><td>${r.boursiers}</td><td>${r.nonBoursiers}</td>
+          <td>${r.total?Math.round(r.filles/r.total*100)+'%':'—'}</td>
+        </tr>`).join('')}
+        <tr class="tr-total"><td colspan="2"><strong>TOTAL Bac Technologiques</strong></td><td><strong>${bacTechTotal}</strong></td><td><strong>${bacTechRows.reduce((a,r)=>a+r.filles,0)}</strong></td><td><strong>${bacTechRows.reduce((a,r)=>a+r.garcons,0)}</strong></td><td><strong>${bacTechRows.reduce((a,r)=>a+r.boursiers,0)}</strong></td><td><strong>${bacTechRows.reduce((a,r)=>a+r.nonBoursiers,0)}</strong></td><td></td></tr>
+      </tbody>
+    </table>
+  </div>`:''}
+
+  ${bacAutreRows.length?`
+  <div class="section-hdr no-break" style="margin-top:18px"><h2>Autres séries</h2></div>
+  <div class="no-break">
+    <table>
+      <thead><tr><th>Série</th><th>Spécialité</th><th>Vœux</th><th>Filles</th><th>Garçons</th><th>Boursiers</th></tr></thead>
+      <tbody>${bacAutreRows.map(r=>`<tr><td>${abbr(r.serie)}</td><td>${r.combi||'—'}</td><td><strong>${r.total}</strong></td><td>${r.filles}</td><td>${r.garcons}</td><td>${r.boursiers}</td></tr>`).join('')}</tbody>
+    </table>
+  </div>`:''}
+
+  <div class="footer">
+    <span>Lycée Polyvalent Léopold Elfort — Mana, Guyane Française — RNE 9730421V</span>
+    <span>Formation : ${ds.label} · Année ${ds.year} · Édité le ${today}</span>
+  </div>
+
+  <script>
+  window.onload=function(){
+    ${specSorted.length?`
+    const specSorted=${JSON.stringify(specSorted.slice(0,10))};
+    const specChart=document.getElementById('pSpecChart');
+    if(specChart){
+      new Chart(specChart,{type:'bar',data:{
+        labels:specSorted.map(([s])=>'${`abbr(s)`}'.replace(/abbr\\(.*?\\)/g,s=>s)),
+        datasets:[{data:specSorted.map(([,v])=>v.total),backgroundColor:${JSON.stringify(PALETTE.slice(0,10))},borderRadius:4}]
+      },options:{indexAxis:'y',responsive:true,animation:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true},y:{ticks:{font:{size:9}}}}}});
+    }`:''}
+
+    ${bacGRows.length?`
+    const topRows=${JSON.stringify(bacGRows.sort((a,b)=>b.total-a.total).slice(0,6).map(r=>({c:abbr(r.combi),f:r.filles,g:r.garcons,b:r.boursiers,nb:r.nonBoursiers})))};
+    const gchart=document.getElementById('pGenderChart');
+    if(gchart){
+      new Chart(gchart,{type:'bar',data:{
+        labels:topRows.map(r=>r.c),
+        datasets:[
+          {label:'Filles',data:topRows.map(r=>r.f),backgroundColor:'#e8a020',borderRadius:3},
+          {label:'Garçons',data:topRows.map(r=>r.g),backgroundColor:'#1e4fa0',borderRadius:3},
+          {label:'Boursiers',data:topRows.map(r=>r.b),backgroundColor:'#27ae7a',borderRadius:3}
+        ]
+      },options:{indexAxis:'y',responsive:true,animation:false,plugins:{legend:{position:'right'}},scales:{x:{beginAtZero:true},y:{ticks:{font:{size:9}}}}}}); 
+    }`:''}
+
+    ${bacTechRows.length?`
+    const fl=${JSON.stringify(Object.keys(filiereMap).map(s=>({s:abbr(s),t:filiereMap[s].total,f:filiereMap[s].filles,g:filiereMap[s].garcons})))};
+    const fc=document.getElementById('pTechPie');
+    if(fc){
+      new Chart(fc,{type:'doughnut',data:{labels:fl.map(x=>x.s),datasets:[{data:fl.map(x=>x.t),backgroundColor:${JSON.stringify(TECH_SERIES.map(s=>SERIE_COLORS[s]||'#999'))},borderWidth:0}]},options:{responsive:true,animation:false,plugins:{legend:{position:'bottom',labels:{font:{size:9}}}}}});
+    }
+    const tb=document.getElementById('pTechBar');
+    const optR=${JSON.stringify(bacTechRows.sort((a,b)=>b.total-a.total).map(r=>({c:abbr(r.combi||r.serie),t:r.total,col:getSC(r.serie)})))};
+    if(tb){
+      new Chart(tb,{type:'bar',data:{labels:optR.map(r=>r.c),datasets:[{data:optR.map(r=>r.t),backgroundColor:optR.map(r=>r.col),borderRadius:4}]},options:{indexAxis:'y',responsive:true,animation:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true},y:{ticks:{font:{size:9}}}}}});
+    }`:''}
+
+    setTimeout(()=>window.print(),1200);
+  };
+  function getSC(s){return ${JSON.stringify(SERIE_COLORS)}[s]||'#6b7a99';}
+  <\/script>
+  </body></html>`);
+  printWin.document.close();
+  showToast('Fenêtre d\'impression ouverte ✓','success');
+}
+
+// =============================================================
+// COMPARE
+// =============================================================
+function renderCompare(){
+  if(datasets.length<2){
+    document.getElementById('compareContent').innerHTML=`<div class="empty-state"><div style="font-size:56px;margin-bottom:16px;opacity:.4">🔄</div><h3>Comparaison multi-datasets</h3><p>Chargez au moins 2 fichiers CSV pour activer la comparaison.</p></div>`;
+    return;
+  }
+  const allSeries=[...new Set(datasets.flatMap(d=>d.raw.map(r=>r.serie)))].sort();
+  const totals=datasets.map(ds=>({label:ds.label+' '+ds.year,total:ds.raw.reduce((a,r)=>a+r.total,0),filles:ds.raw.reduce((a,r)=>a+r.filles,0),boursiers:ds.raw.reduce((a,r)=>a+r.boursiers,0)}));
+  const serieByDs=datasets.map(ds=>{const m={};ds.raw.forEach(r=>{if(!m[r.serie])m[r.serie]=0;m[r.serie]+=r.total;});return m;});
+
+  document.getElementById('compareContent').innerHTML=`
+    <div class="section-title">Comparaison inter-fichiers</div>
+    <div class="section-desc">Analyse comparative entre les formations / années importées</div>
+    <div class="kpi-grid" style="margin-bottom:24px">
+      ${totals.map((t,i)=>`<div class="kpi-card" style="border-top-color:${PALETTE[i%PALETTE.length]}"><div class="kpi-icon">📊</div><div class="kpi-label">${t.label}</div><div class="kpi-value" style="color:${PALETTE[i%PALETTE.length]}">${t.total}</div><div class="kpi-sub">${Math.round(t.filles/t.total*100)}% F · ${Math.round(t.boursiers/t.total*100)}% bours.</div></div>`).join('')}
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card"><div class="chart-title">Volume total par formation</div><div class="chart-subtitle">Comparaison globale des vœux</div><div class="chart-wrap"><canvas id="chCmpTotal"></canvas></div></div>
+      <div class="chart-card"><div class="chart-title">Genre par formation</div><div class="chart-subtitle">Filles vs Garçons</div><div class="chart-wrap"><canvas id="chCmpGender"></canvas></div></div>
+      <div class="chart-card wide"><div class="chart-title">Vœux par série — Comparaison</div><div class="chart-subtitle">Chaque série pour chaque fichier importé</div><div class="chart-wrap tall"><canvas id="chCmpSerie"></canvas></div></div>
+    </div>
+    <div class="table-card">
+      <div class="chart-title" style="margin-bottom:14px">Tableau comparatif par série</div>
+      <table><thead><tr><th>Série de Bac</th>${datasets.map((ds,i)=>`<th style="background:${PALETTE[i%PALETTE.length]}">${ds.label} ${ds.year}</th>`).join('')}<th>Total</th></tr></thead>
+      <tbody>${allSeries.map(s=>{const vals=serieByDs.map(m=>m[s]||0);const rt=vals.reduce((a,b)=>a+b,0);const mx=Math.max(...vals,1);return`<tr><td>${s}</td>${vals.map(v=>`<td><span class="td-bar-fill" style="width:${Math.round(v/mx*70)}px;background:var(--blue)"></span>${v||'—'}</td>`).join('')}<td><strong>${rt}</strong></td></tr>`;}).join('')}</tbody>
+      <tfoot><tr class="total-row"><td>TOTAL</td>${totals.map(t=>`<td><strong>${t.total}</strong></td>`).join('')}<td><strong>${totals.reduce((a,t)=>a+t.total,0)}</strong></td></tr></tfoot>
+      </table>
+    </div>`;
+
+  ['chCmpTotal','chCmpGender','chCmpSerie'].forEach(destroyChart);
+  charts['chCmpTotal']=new Chart(document.getElementById('chCmpTotal'),{type:'bar',data:{labels:totals.map(t=>t.label),datasets:[{data:totals.map(t=>t.total),backgroundColor:datasets.map((_,i)=>PALETTE[i%PALETTE.length]),borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'#eef'}},x:{grid:{display:false}}}}});
+  charts['chCmpGender']=new Chart(document.getElementById('chCmpGender'),{type:'bar',data:{labels:totals.map(t=>t.label),datasets:[{label:'Filles',data:totals.map(t=>t.filles),backgroundColor:'#e8a020',borderRadius:4},{label:'Garçons',data:totals.map(t=>t.total-t.filles),backgroundColor:'#1e4fa0',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:{color:'#eef'}}}}});
+  charts['chCmpSerie']=new Chart(document.getElementById('chCmpSerie'),{type:'bar',data:{labels:allSeries.map(s=>abbr(s)),datasets:datasets.map((ds,i)=>({label:ds.label+' '+ds.year,data:allSeries.map(s=>{const m=serieByDs[i];return m[s]||0;}),backgroundColor:PALETTE[i%PALETTE.length],borderRadius:4}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},tooltip:{callbacks:{title:i=>allSeries[i[0].dataIndex]}}},scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:{color:'#eef'}}}}});
+}
+
+// =============================================================
+// DETAIL + SPECIALTY ANALYSIS
+// =============================================================
+function renderDetail(){
+  const all=datasets.flatMap(ds=>ds.raw.map(r=>({...r,dataset:ds.label+' '+ds.year})));
+  all.sort((a,b)=>b.total-a.total);
+  const allSeries=[...new Set(all.map(r=>r.serie))].sort();
+  const allDs=[...new Set(all.map(r=>r.dataset))];
+
+  // Global specialty map across all datasets
+  const globalSpecMap=buildSpecMap(all);
+  const globalSpecSorted=Object.entries(globalSpecMap).sort((a,b)=>b[1].total-a[1].total);
+  const maxSpecVal=globalSpecSorted.length?globalSpecSorted[0][1].total:1;
+
+  // Specialty by serie (Bac G only)
+  const bacGAll=all.filter(r=>r.serie==='Bac Général');
+  const bacGSpecMap=buildSpecMap(bacGAll);
+  const bacGSpecSorted=Object.entries(bacGSpecMap).sort((a,b)=>b[1].total-a[1].total);
+
+  // Specialty by dataset comparison
+  const specByDs={};
+  datasets.forEach((ds,di)=>{
+    const m=buildSpecMap(ds.raw.filter(r=>r.serie==='Bac Général'));
+    Object.entries(m).forEach(([s,v])=>{
+      if(!specByDs[s]) specByDs[s]=datasets.map(()=>0);
+      specByDs[s][di]+=v.total;
+    });
+  });
+  const specByDsSorted=Object.entries(specByDs).sort((a,b)=>b[1].reduce((x,y)=>x+y,0)-a[1].reduce((x,y)=>x+y,0));
+
+  document.getElementById('detailContent').innerHTML=`
+    <div class="section-title">Détail &amp; Analyse des Spécialités</div>
+    <div class="section-desc">Données exhaustives, analyse par enseignement de spécialité, et filtres avancés.</div>
+
+    <!-- SPEC ANALYSIS -->
+    <div class="sub-section"><span class="sub-section-title">Analyse des Enseignements de Spécialité</span></div>
+    <div class="charts-grid" style="margin-bottom:22px">
+      <div class="chart-card">
+        <div class="chart-title">Fréquence des spécialités — Tous fichiers</div>
+        <div class="chart-subtitle">Pondérée par le nombre de vœux (Bac Général)</div>
+        <div class="chart-wrap tall"><canvas id="chSpecAll"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Genre par spécialité</div>
+        <div class="chart-subtitle">Filles vs Garçons pour chaque spécialité (top 10)</div>
+        <div class="chart-wrap tall"><canvas id="chSpecGender"></canvas></div>
+      </div>
+    </div>
+
+    ${datasets.length>=2?`
+    <div class="chart-card wide" style="margin-bottom:22px">
+      <div class="chart-title">Spécialités par formation — Comparaison</div>
+      <div class="chart-subtitle">Présence de chaque spécialité dans les différentes formations (Bac Général)</div>
+      <div class="chart-wrap xtall"><canvas id="chSpecCompare"></canvas></div>
+    </div>`:''}
+
+    <div class="table-card" style="margin-bottom:22px">
+      <div class="chart-title" style="margin-bottom:14px">Tableau des spécialités — Bac Général</div>
+      <table>
+        <thead><tr><th>Spécialité</th><th>Total vœux</th><th>Filles</th><th>Garçons</th><th>%F</th><th>Présence</th></tr></thead>
+        <tbody>
+          ${bacGSpecSorted.map(([s,v])=>{
+            const w=Math.round(v.total/maxSpecVal*120);
+            return`<tr>
+              <td>${s}</td>
+              <td><strong>${v.total}</strong></td>
+              <td>${v.filles}</td><td>${v.garcons}</td>
+              <td>${v.total?Math.round(v.filles/v.total*100)+'%':'—'}</td>
+              <td><span class="td-bar-fill" style="width:${w}px"></span>${Math.round(v.total/maxSpecVal*100)}%</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- DETAIL TABLE -->
+    <div class="sub-section"><span class="sub-section-title">Données Brutes complètes</span></div>
+    <div class="filter-bar">
+      <label>Formation :</label>
+      <select id="filterDs" onchange="applyFilters()">
+        <option value="">Toutes</option>${allDs.map(d=>`<option>${d}</option>`).join('')}
+      </select>
+      <label>Série :</label>
+      <select id="filterSerie" onchange="applyFilters()">
+        <option value="">Toutes</option>${allSeries.map(s=>`<option>${s}</option>`).join('')}
+      </select>
+      <label>Spécialité :</label>
+      <input type="text" id="filterSearch" placeholder="Rechercher une spécialité…" oninput="applyFilters()" style="width:220px">
+      <button class="btn btn-primary btn-sm" onclick="exportCSV()">⬇ Exporter CSV</button>
+    </div>
+    <div class="table-card" style="margin-bottom:0">
+      <div id="detailTable"></div>
+    </div>`;
+
+  window._detailAll=all;
+  applyFilters();
+
+  // Draw specialty charts
+  destroyChart('chSpecAll'); destroyChart('chSpecGender'); destroyChart('chSpecCompare');
+
+  if(bacGSpecSorted.length){
+    const top12=bacGSpecSorted.slice(0,12);
+    charts['chSpecAll']=new Chart(document.getElementById('chSpecAll'),{
+      type:'bar',
+      data:{labels:top12.map(([s])=>abbr(s)),datasets:[{data:top12.map(([,v])=>v.total),backgroundColor:top12.map((_,i)=>PALETTE[i%PALETTE.length]),borderRadius:6}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>top12[i[0].dataIndex][0]}}},scales:{x:{beginAtZero:true,grid:{color:'#eef'}},y:{grid:{display:false},ticks:{font:{size:11}}}}}
+    });
+    charts['chSpecGender']=new Chart(document.getElementById('chSpecGender'),{
+      type:'bar',
+      data:{labels:top12.map(([s])=>abbr(s)),datasets:[{label:'Filles',data:top12.map(([,v])=>v.filles),backgroundColor:'#e8a020',borderRadius:4},{label:'Garçons',data:top12.map(([,v])=>v.garcons),backgroundColor:'#1e4fa0',borderRadius:4}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},tooltip:{callbacks:{title:i=>top12[i[0].dataIndex][0]}}},scales:{x:{beginAtZero:true,stacked:false,grid:{color:'#eef'}},y:{grid:{display:false},ticks:{font:{size:11}}}}}
+    });
+  }
+
+  if(datasets.length>=2&&specByDsSorted.length){
+    const top10spec=specByDsSorted.slice(0,10);
+    charts['chSpecCompare']=new Chart(document.getElementById('chSpecCompare'),{
+      type:'bar',
+      data:{
+        labels:top10spec.map(([s])=>abbr(s)),
+        datasets:datasets.map((ds,i)=>({label:ds.label+' '+ds.year,data:top10spec.map(([,vals])=>vals[i]),backgroundColor:PALETTE[i%PALETTE.length],borderRadius:4}))
+      },
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},tooltip:{callbacks:{title:i=>top10spec[i[0].dataIndex][0]}}},scales:{x:{beginAtZero:true,grid:{color:'#eef'}},y:{grid:{display:false},ticks:{font:{size:11}}}}}
+    });
+  }
+}
+
+function applyFilters(){
+  const ds=document.getElementById('filterDs')?.value||'';
+  const serie=document.getElementById('filterSerie')?.value||'';
+  const search=document.getElementById('filterSearch')?.value.toLowerCase()||'';
+  const data=window._detailAll||[];
+  const filtered=data.filter(r=>(!ds||r.dataset===ds)&&(!serie||r.serie===serie)&&(!search||r.combi.toLowerCase().includes(search)||r.serie.toLowerCase().includes(search)));
+  const total=filtered.reduce((a,r)=>a+r.total,0);
+  const filles=filtered.reduce((a,r)=>a+r.filles,0);
+
+  document.getElementById('detailTable').innerHTML=`
+    <div style="display:flex;gap:16px;margin-bottom:14px;font-size:13px;color:var(--muted);align-items:center;">
+      <strong style="color:var(--navy)">${filtered.length} lignes</strong>
+      <span>· Total : <strong>${total}</strong></span>
+      <span>· Filles : <strong>${filles} (${total?Math.round(filles/total*100):0}%)</strong></span>
+    </div>
+    <table>
+      <thead><tr><th>Formation</th><th>Série</th><th>Spécialités / Options</th><th>Total</th><th>Filles</th><th>Garçons</th><th>Boursiers</th><th>Non Bours.</th></tr></thead>
+      <tbody>${filtered.map(r=>`<tr>
+        <td>${r.dataset}</td>
+        <td><span style="display:inline-block;width:7px;height:7px;border-radius:2px;background:${getSC(r.serie)};margin-right:5px"></span>${abbr(r.serie)}</td>
+        <td style="font-size:12px;color:var(--muted);max-width:280px">${r.combi||'—'}</td>
+        <td><strong>${r.total}</strong></td><td>${r.filles}</td><td>${r.garcons}</td><td>${r.boursiers}</td><td>${r.nonBoursiers}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+}
+
+function exportCSV(){
+  const data=window._detailAll||[];
+  const header='Formation;Série;Spécialités;Total;Filles;Garçons;Boursiers;Non Boursiers';
+  const rows=data.map(r=>[r.dataset,r.serie,r.combi,r.total,r.filles,r.garcons,r.boursiers,r.nonBoursiers].join(';'));
+  const blob=new Blob(['\uFEFF'+[header,...rows].join('\n')],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='parcoursup_export.csv';a.click();
+  URL.revokeObjectURL(url);
+  showToast('Export CSV téléchargé ✓','success');
+}
+
+function showSection(name,tab){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('section-'+name).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  if(tab) tab.classList.add('active');
+}
+
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast '+type+' show';
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// Auto-load demo
+setTimeout(()=>{
+  loadDemo();
+  const tabs=document.querySelectorAll('.nav-tab');
+  tabs[0].classList.remove('active'); tabs[1].classList.add('active');
+  showSection('overview');
+},300);
+</script>
+</body>
+</html>

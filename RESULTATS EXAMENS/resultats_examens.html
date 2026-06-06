@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Résultats aux Examens — LPO MANA</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --cap-color: #2563eb;
+    --bacpro-color: #16a34a;
+    --bacg-color: #9333ea;
+    --bts-color: #ea580c;
+    --cs-color: #0891b2;
+  }
+  body { background: #f0f4f8; font-family: 'Segoe UI', Arial, sans-serif; }
+  .app-header {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2d6a9f 100%);
+    color: white; padding: 1.5rem 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .app-header h1 { font-size: 1.8rem; font-weight: 700; margin: 0; letter-spacing: 0.5px; }
+  .app-header p { margin: 0.25rem 0 0; opacity: 0.85; font-size: 0.95rem; }
+
+  /* Tabs */
+  .diploma-tabs { background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .nav-diploma .nav-link {
+    font-weight: 600; font-size: 0.95rem; padding: 1rem 1.5rem;
+    border: none; border-bottom: 3px solid transparent; color: #64748b;
+    border-radius: 0; transition: all 0.2s;
+  }
+  .nav-diploma .nav-link:hover { color: #1e293b; background: #f8fafc; }
+  .nav-diploma .nav-link.active { color: white; border-bottom: none; }
+  .nav-diploma .nav-link[data-tab="cap"].active       { background: var(--cap-color); }
+  .nav-diploma .nav-link[data-tab="bacpro"].active    { background: var(--bacpro-color); }
+  .nav-diploma .nav-link[data-tab="bacg"].active      { background: var(--bacg-color); }
+  .nav-diploma .nav-link[data-tab="bts"].active       { background: var(--bts-color); }
+  .nav-diploma .nav-link[data-tab="cs"].active        { background: var(--cs-color); }
+
+  .tab-badge {
+    font-size: 0.7rem; padding: 0.15rem 0.45rem; border-radius: 999px;
+    margin-left: 0.4rem; background: rgba(255,255,255,0.25); font-weight: 700;
+  }
+  .nav-link:not(.active) .tab-badge { background: #e2e8f0; color: #475569; }
+
+  /* Cards */
+  .stat-card { border-radius: 12px; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .stat-card .card-body { padding: 1.25rem; }
+  .stat-number { font-size: 2rem; font-weight: 800; line-height: 1; }
+  .stat-label { font-size: 0.78rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.25rem; }
+  .taux-badge {
+    display: inline-block; font-size: 1.1rem; font-weight: 700;
+    padding: 0.3rem 0.8rem; border-radius: 8px; margin-top: 0.3rem;
+  }
+
+  /* Table */
+  .results-table { font-size: 0.9rem; }
+  .results-table th { background: #1e293b; color: white; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; }
+  .results-table td { vertical-align: middle; }
+  .sector-header td { background: #f1f5f9; font-weight: 700; font-size: 0.8rem; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.4rem 0.75rem; }
+  .taux-cell { font-weight: 700; }
+  .taux-high   { color: #15803d; }
+  .taux-mid    { color: #b45309; }
+  .taux-low    { color: #dc2626; }
+
+  /* Year selector */
+  .year-pills .btn { font-size: 0.82rem; padding: 0.35rem 0.85rem; border-radius: 999px; font-weight: 600; }
+
+  /* Chart container */
+  .chart-card { background: white; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 1.5rem; }
+
+  /* Mentions */
+  .mention-tb  { background: #fef9c3; color: #713f12; }
+  .mention-b   { background: #dcfce7; color: #14532d; }
+  .mention-ab  { background: #dbeafe; color: #1e3a8a; }
+  .mention-pill { padding: 0.25rem 0.7rem; border-radius: 999px; font-weight: 700; font-size: 0.85rem; margin: 0 0.2rem; }
+
+  /* Modal */
+  .modal-header { color: white; }
+  .modal-cap    .modal-header { background: var(--cap-color); }
+  .modal-bacpro .modal-header { background: var(--bacpro-color); }
+  .modal-bacg   .modal-header { background: var(--bacg-color); }
+  .modal-bts    .modal-header { background: var(--bts-color); }
+  .modal-cs     .modal-header { background: var(--cs-color); }
+
+  /* Colors per diploma */
+  .accent-cap    { color: var(--cap-color); }
+  .accent-bacpro { color: var(--bacpro-color); }
+  .accent-bacg   { color: var(--bacg-color); }
+  .accent-bts    { color: var(--bts-color); }
+  .accent-cs     { color: var(--cs-color); }
+
+  .btn-cap    { background: var(--cap-color);    border-color: var(--cap-color);    color: white; }
+  .btn-bacpro { background: var(--bacpro-color); border-color: var(--bacpro-color); color: white; }
+  .btn-bacg   { background: var(--bacg-color);   border-color: var(--bacg-color);   color: white; }
+  .btn-bts    { background: var(--bts-color);    border-color: var(--bts-color);    color: white; }
+  .btn-cs     { background: var(--cs-color);     border-color: var(--cs-color);     color: white; }
+  .btn-cap:hover,.btn-bacpro:hover,.btn-bacg:hover,.btn-bts:hover,.btn-cs:hover { opacity:0.88; color:white; }
+
+  .no-data { text-align: center; padding: 3rem; color: #94a3b8; }
+  .no-data i { font-size: 3rem; display: block; margin-bottom: 0.75rem; }
+
+  @media(max-width:768px){
+    .app-header h1{font-size:1.3rem;}
+    .nav-diploma .nav-link{padding:.7rem .9rem;font-size:.85rem;}
+  }
+
+  /* Settings offcanvas */
+  .offcanvas-header { background: linear-gradient(135deg,#1e3a5f,#2d6a9f); color:white; }
+  .settings-section { border-left: 3px solid #e2e8f0; padding-left: 1rem; margin-bottom: 1.5rem; }
+  .settings-section h6 { color: #475569; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.6px; margin-bottom: 0.75rem; }
+  .btn-settings-action { width:100%; text-align:left; margin-bottom:0.5rem; }
+
+  /* Print */
+  @media print {
+    .app-header .btn,
+    .app-header .d-flex.gap-2,
+    .diploma-tabs,
+    .year-pills,
+    .card-footer,
+    .modal,
+    .offcanvas,
+    button { display: none !important; }
+
+    body { background: white !important; }
+    .container-fluid { max-width: 100% !important; padding: 0 !important; }
+
+    .tab-pane-content { display: none !important; }
+    .tab-pane-content.print-active { display: block !important; }
+
+    .stat-card, .chart-card { box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid; }
+    .chart-card { page-break-inside: avoid; }
+    .row { break-inside: avoid; }
+    .app-header { background: #1e3a5f !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .results-table th { background: #1e293b !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .sector-header td { background: #f1f5f9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .print-title { display: block !important; font-size: 1rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem; }
+  }
+  .print-title { display: none; }
+</style>
+</head>
+<body>
+
+<div class="app-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+  <div>
+    <h1><i class="bi bi-mortarboard-fill me-2"></i>Résultats aux Examens</h1>
+    <p class="opacity-75" id="header-school-name">LPO MANA — Tableau de bord des résultats par diplôme</p>
+  </div>
+  <div class="d-flex gap-2">
+    <button class="btn btn-outline-light btn-sm" onclick="printCurrentTab()" title="Imprimer l'onglet actif">
+      <i class="bi bi-printer me-1"></i>Imprimer
+    </button>
+    <button class="btn btn-light btn-sm" data-bs-toggle="offcanvas" data-bs-target="#settingsPanel" title="Paramètres">
+      <i class="bi bi-gear-fill me-1"></i>Paramètres
+    </button>
+  </div>
+</div>
+
+<!-- Tab Navigation -->
+<div class="diploma-tabs sticky-top">
+  <ul class="nav nav-diploma d-flex flex-nowrap overflow-auto" id="mainTabs">
+    <li class="nav-item">
+      <button class="nav-link active" data-tab="cap" onclick="switchTab('cap',this)">
+        <i class="bi bi-tools me-1"></i>CAP<span class="tab-badge" id="badge-cap">—</span>
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" data-tab="bacpro" onclick="switchTab('bacpro',this)">
+        <i class="bi bi-briefcase me-1"></i>BAC PRO<span class="tab-badge" id="badge-bacpro">—</span>
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" data-tab="bacg" onclick="switchTab('bacg',this)">
+        <i class="bi bi-book me-1"></i>BAC G/T<span class="tab-badge" id="badge-bacg">—</span>
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" data-tab="bts" onclick="switchTab('bts',this)">
+        <i class="bi bi-award me-1"></i>BTS<span class="tab-badge" id="badge-bts">—</span>
+      </button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" data-tab="cs" onclick="switchTab('cs',this)">
+        <i class="bi bi-star me-1"></i>CS<span class="tab-badge" id="badge-cs">—</span>
+      </button>
+    </li>
+  </ul>
+</div>
+
+<!-- Print header (visible only when printing) -->
+<div id="print-header"></div>
+
+<!-- Tab Content -->
+<div class="container-fluid px-3 py-4" style="max-width:1400px;margin:auto;">
+  <div id="tab-cap"    class="tab-pane-content"></div>
+  <div id="tab-bacpro" class="tab-pane-content d-none"></div>
+  <div id="tab-bacg"   class="tab-pane-content d-none"></div>
+  <div id="tab-bts"    class="tab-pane-content d-none"></div>
+  <div id="tab-cs"     class="tab-pane-content d-none"></div>
+</div>
+
+<!-- Settings Offcanvas -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="settingsPanel" style="width:360px">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title"><i class="bi bi-gear-fill me-2"></i>Paramètres</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body">
+
+    <!-- Établissement -->
+    <div class="settings-section">
+      <h6><i class="bi bi-building me-1"></i>Établissement</h6>
+      <label class="form-label small">Nom du lycée</label>
+      <input type="text" class="form-control mb-2" id="settings-school-name" placeholder="ex: LPO MANA">
+      <label class="form-label small">Sous-titre</label>
+      <input type="text" class="form-control mb-3" id="settings-school-subtitle" placeholder="ex: Tableau de bord des résultats">
+      <button class="btn btn-primary btn-sm w-100" onclick="saveSettings()">
+        <i class="bi bi-check-lg me-1"></i>Enregistrer le nom
+      </button>
+    </div>
+
+    <!-- Données -->
+    <div class="settings-section">
+      <h6><i class="bi bi-database me-1"></i>Données</h6>
+      <button class="btn btn-outline-success btn-sm btn-settings-action" onclick="exportData()">
+        <i class="bi bi-download me-2"></i>Sauvegarder les données (JSON)
+      </button>
+      <button class="btn btn-outline-warning btn-sm btn-settings-action" onclick="importData()">
+        <i class="bi bi-upload me-2"></i>Charger des données (JSON)
+      </button>
+      <button class="btn btn-outline-danger btn-sm btn-settings-action" onclick="resetData()">
+        <i class="bi bi-arrow-counterclockwise me-2"></i>Réinitialiser toutes les données
+      </button>
+    </div>
+
+    <!-- Impression -->
+    <div class="settings-section">
+      <h6><i class="bi bi-printer me-1"></i>Impression</h6>
+      <p class="text-muted small mb-2">Imprime l'onglet sélectionné avec tableau et graphiques.</p>
+      <div class="d-grid gap-2">
+        <button class="btn btn-outline-secondary btn-sm" onclick="printTab('cap')">
+          <i class="bi bi-tools me-1"></i>Imprimer CAP
+        </button>
+        <button class="btn btn-outline-secondary btn-sm" onclick="printTab('bacpro')">
+          <i class="bi bi-briefcase me-1"></i>Imprimer BAC PRO
+        </button>
+        <button class="btn btn-outline-secondary btn-sm" onclick="printTab('bacg')">
+          <i class="bi bi-book me-1"></i>Imprimer BAC G/T
+        </button>
+        <button class="btn btn-outline-secondary btn-sm" onclick="printTab('bts')">
+          <i class="bi bi-award me-1"></i>Imprimer BTS
+        </button>
+        <button class="btn btn-outline-secondary btn-sm" onclick="printTab('cs')">
+          <i class="bi bi-star me-1"></i>Imprimer CS
+        </button>
+        <button class="btn btn-dark btn-sm mt-1" onclick="printCurrentTab()">
+          <i class="bi bi-printer-fill me-1"></i>Imprimer l'onglet actif
+        </button>
+      </div>
+    </div>
+
+    <!-- À propos -->
+    <div class="settings-section">
+      <h6><i class="bi bi-info-circle me-1"></i>À propos</h6>
+      <p class="text-muted small mb-0">Application de suivi des résultats aux examens.<br>
+      Les données sont sauvegardées localement dans le navigateur.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- Add Year Modal -->
+<div class="modal fade" id="addModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content" id="addModalContent">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addModalTitle">Ajouter une année</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="addModalBody"></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button class="btn" id="saveBtn" onclick="saveYear()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Row Modal -->
+<div class="modal fade" id="editModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content" id="editModalContent">
+      <div class="modal-header">
+        <h5 class="modal-title">Modifier la spécialité</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="editModalBody"></div>
+      <div class="modal-footer">
+        <button class="btn btn-danger me-auto" onclick="deleteSpecialty()"><i class="bi bi-trash me-1"></i>Supprimer</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button class="btn" id="editSaveBtn" onclick="saveEdit()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ==================== DATA ====================
+const TABS = {
+  cap:    { label:'CAP',    color:'#2563eb', icon:'bi-tools' },
+  bacpro: { label:'BAC PRO',color:'#16a34a', icon:'bi-briefcase' },
+  bacg:   { label:'BAC G/T',color:'#9333ea', icon:'bi-book' },
+  bts:    { label:'BTS',    color:'#ea580c', icon:'bi-award' },
+  cs:     { label:'CS',     color:'#0891b2', icon:'bi-star' },
+};
+
+// Columns configuration per diploma type
+const COLS = {
+  cap:    ['Inscrits','Admis','Taux (%)'],
+  bacpro: ['Inscrits','Admis 1er','Oral','Refusés','Admis 2nd','Taux (%)'],
+  bacg:   ['Inscrits','Admis 1er','Oral','Refusés','Admis 2nd','Taux (%)'],
+  bts:    ['Présents','Admis 1er','Oral','Refusés','Admis 2nd','Taux (%)'],
+  cs:     ['Inscrits','Admis','Taux (%)'],
+};
+
+// Columns for forms (no Taux — always computed)
+const FORM_COLS = {
+  cap:    ['Inscrits','Admis'],
+  bacpro: ['Inscrits','Admis 1er','Oral','Refusés','Admis 2nd'],
+  bacg:   ['Inscrits','Admis 1er','Oral','Refusés','Admis 2nd'],
+  bts:    ['Présents','Admis 1er','Oral','Refusés','Admis 2nd'],
+  cs:     ['Inscrits','Admis'],
+};
+
+function calcTaux(tab, v) {
+  const inscrits = v[0] || 0;
+  if (inscrits === 0) return 0;
+  let admis = v[1] || 0;
+  if (tab === 'bacpro' || tab === 'bacg' || tab === 'bts') admis += v[4] || 0;
+  return parseFloat((admis / inscrits * 100).toFixed(1));
+}
+
+const DEFAULT_SECTORS = {
+  cap:    ['Service','Alimentation','Production'],
+  bacpro: ['Service','Alimentation','Production'],
+  bacg:   ['Général','Technologique','BTS'],
+  bts:    ['Tertiaire','Industriel'],
+  cs:     ['Service','Production'],
+};
+
+// Initial data from 2025 Excel file
+let DB = {
+  cap: {
+    2025: {
+      rows: [
+        { name:'CAP ADAL AFAT', sector:'Service',      v:[10,0,0] },
+        { name:'CAP ADAL TOUR', sector:'Service',      v:[12,0,0] },
+        { name:'CAP EPC',       sector:'Service',      v:[29,13,44.8] },
+        { name:'CAP BOU',       sector:'Alimentation', v:[15,9,60] },
+        { name:'CAP POI',       sector:'Alimentation', v:[14,6,42.9] },
+        { name:'CAP PAT',       sector:'Alimentation', v:[10,8,80] },
+        { name:'CAP MMVF',      sector:'Production',   v:[10,8,80] },
+        { name:'CAP MMVT',      sector:'Production',   v:[11,8,72.7] },
+      ],
+      mentions: { TB:1, B:8, AB:25 },
+    }
+  },
+  bacpro: {
+    2025: {
+      rows: [
+        { name:'TP MA',       sector:'Service',      v:[26,15,4,7,0,57.7] },
+        { name:'TP COMMERCE', sector:'Service',      v:[28,17,3,8,0,60.7] },
+        { name:'TP BOU',      sector:'Alimentation', v:[12,4,1,7,0,33.3] },
+        { name:'TP POI',      sector:'Alimentation', v:[13,5,4,4,0,38.5] },
+        { name:'TP MMV',      sector:'Production',   v:[9,7,0,2,4,77.8] },
+        { name:'TP MET',      sector:'Production',   v:[4,4,0,0,1,100] },
+      ],
+      mentions: { TB:1, B:8, AB:18 },
+    }
+  },
+  bacg: {
+    2025: {
+      rows: [
+        { name:'TG 1',   sector:'Général',       v:[29,0,0,29,0,0] },
+        { name:'TG 2',   sector:'Général',       v:[25,0,0,25,0,0] },
+        { name:'T STMG', sector:'Technologique', v:[30,0,0,30,0,0] },
+      ],
+      mentions: { TB:0, B:0, AB:0 },
+    }
+  },
+  bts: {
+    2025: {
+      rows: [
+        { name:'BTS Comm. Intern.', sector:'Tertiaire', v:[12,12,0,0,0,75] },
+        { name:'BTS GTLA',          sector:'Tertiaire', v:[12,6,1,5,1,58.3] },
+        { name:'BTS TOURISME',      sector:'Tertiaire', v:[7,1,0,6,0,14.3] },
+      ],
+      mentions: { TB:0, B:0, AB:0 },
+    }
+  },
+  cs: {
+    2025: {
+      rows: [
+        { name:'CS ERV', sector:'Service',    v:[8,0,0] },
+        { name:'CS OR',  sector:'Production', v:[12,0,0] },
+      ],
+      mentions: null,
+    }
+  },
+};
+
+// ==================== STATE ====================
+let currentTab = 'cap';
+let editCtx = null;
+let addCtx  = null;
+let charts  = {};
+let addModalObj  = null;
+let editModalObj = null;
+
+// ==================== INIT ====================
+window.addEventListener('DOMContentLoaded', () => {
+  loadSettings();
+  loadFromStorage();
+  renderTab('cap');
+  updateBadges();
+
+  // Sync settings fields when offcanvas opens
+  document.getElementById('settingsPanel').addEventListener('show.bs.offcanvas', applySettings);
+});
+
+function loadFromStorage() {
+  const saved = localStorage.getItem('lpo_mana_db');
+  if (saved) {
+    try { DB = JSON.parse(saved); } catch(e) {}
+  }
+}
+function saveToStorage() {
+  localStorage.setItem('lpo_mana_db', JSON.stringify(DB));
+}
+
+// ==================== TAB SWITCHING ====================
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-pane-content').forEach(el => el.classList.add('d-none'));
+  document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.remove('d-none');
+  btn.classList.add('active');
+  currentTab = tab;
+  renderTab(tab);
+}
+
+// ==================== RENDER TAB ====================
+function renderTab(tab) {
+  const el = document.getElementById('tab-' + tab);
+  const cfg = TABS[tab];
+  const years = Object.keys(DB[tab] || {}).map(Number).sort((a,b) => b-a);
+  const latestYear = years[0] || null;
+
+  let html = `
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+    <div>
+      <h2 class="mb-0 fw-bold" style="color:${cfg.color}"><i class="bi ${cfg.icon} me-2"></i>${cfg.label}</h2>
+      <span class="text-muted small">${years.length} année(s) disponible(s)</span>
+    </div>
+    <button class="btn btn-${tab}" onclick="openAddModal('${tab}')">
+      <i class="bi bi-plus-lg me-1"></i>Ajouter une année
+    </button>
+  </div>`;
+
+  if (!years.length) {
+    html += `<div class="no-data"><i class="bi bi-inbox"></i><div>Aucune donnée.<br>Cliquez sur <strong>Ajouter une année</strong> pour commencer.</div></div>`;
+    el.innerHTML = html;
+    return;
+  }
+
+  // Year pills
+  html += `<div class="year-pills d-flex flex-wrap gap-2 mb-4" id="pills-${tab}">`;
+  years.forEach(y => {
+    html += `<button class="btn ${y===latestYear ? 'btn-'+tab : 'btn-outline-secondary'}"
+      id="pill-${tab}-${y}" onclick="selectYear('${tab}',${y})">${y}</button>`;
+  });
+  html += `</div>`;
+
+  // Placeholder for year content
+  html += `<div id="year-content-${tab}"></div>`;
+
+  // Chart section
+  html += `
+  <div class="row g-3 mt-1">
+    <div class="col-lg-8">
+      <div class="chart-card">
+        <h6 class="fw-bold mb-3" style="color:${cfg.color}"><i class="bi bi-bar-chart-fill me-2"></i>Taux de réussite par année</h6>
+        <canvas id="chart-main-${tab}" height="120"></canvas>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="chart-card h-100">
+        <h6 class="fw-bold mb-3" style="color:${cfg.color}"><i class="bi bi-pie-chart-fill me-2"></i>Répartition ${latestYear||''}</h6>
+        <canvas id="chart-pie-${tab}" height="200"></canvas>
+      </div>
+    </div>
+  </div>`;
+
+  el.innerHTML = html;
+  renderYearContent(tab, latestYear);
+  renderCharts(tab);
+}
+
+function selectYear(tab, year) {
+  const years = Object.keys(DB[tab]).map(Number).sort((a,b) => b-a);
+  years.forEach(y => {
+    const pill = document.getElementById(`pill-${tab}-${y}`);
+    if (pill) {
+      pill.className = y===year ? `btn btn-${tab}` : 'btn btn-outline-secondary';
+    }
+  });
+  renderYearContent(tab, year);
+}
+
+// ==================== RENDER YEAR CONTENT ====================
+function renderYearContent(tab, year) {
+  const container = document.getElementById(`year-content-${tab}`);
+  if (!container || !year || !DB[tab][year]) return;
+  const cfg  = TABS[tab];
+  const data = DB[tab][year];
+  const cols = COLS[tab];
+  const hasMentions = !!data.mentions;
+
+  // Compute totals
+  const totals = computeTotals(tab, data.rows);
+
+  // Stats cards
+  let html = `<div class="row g-3 mb-3">`;
+  html += statCard('Inscrits / Présents', totals.inscrits, '#1e293b', 'bi-people-fill');
+  html += statCard('Admis total', totals.admis, cfg.color, 'bi-patch-check-fill');
+  html += statCard('Taux de réussite', fmtTaux(totals.taux) + '%', tauxColor(totals.taux), 'bi-percent');
+  if (hasMentions && data.mentions) {
+    const totalM = (data.mentions.TB||0)+(data.mentions.B||0)+(data.mentions.AB||0);
+    html += statCard('Total mentions', totalM, '#7c3aed', 'bi-stars');
+  }
+  html += `</div>`;
+
+  // Mentions row
+  if (hasMentions && data.mentions && ((data.mentions.TB||0)+(data.mentions.B||0)+(data.mentions.AB||0)) > 0) {
+    html += `<div class="mb-3 d-flex align-items-center gap-2 flex-wrap">
+      <span class="fw-semibold text-secondary small">MENTIONS :</span>
+      <span class="mention-pill mention-tb">TB : ${data.mentions.TB||0}</span>
+      <span class="mention-pill mention-b">B : ${data.mentions.B||0}</span>
+      <span class="mention-pill mention-ab">AB : ${data.mentions.AB||0}</span>
+    </div>`;
+  }
+
+  // Table
+  html += `<div class="card border-0 shadow-sm mb-3"><div class="table-responsive">
+  <table class="table results-table mb-0">
+  <thead><tr>
+    <th>Spécialité</th><th>Secteur</th>`;
+  cols.forEach(c => html += `<th class="text-center">${c}</th>`);
+  html += `<th class="text-center">Actions</th></tr></thead><tbody>`;
+
+  const sectors = [...new Set(data.rows.map(r => r.sector))];
+  sectors.forEach(sec => {
+    const rows = data.rows.filter(r => r.sector === sec);
+    html += `<tr class="sector-header"><td colspan="${cols.length+3}"><i class="bi bi-chevron-right me-1"></i>${sec}</td></tr>`;
+    rows.forEach((row, idx) => {
+      const globalIdx = data.rows.indexOf(row);
+      const taux = row.v[row.v.length-1];
+      html += `<tr>
+        <td class="fw-semibold">${row.name}</td>
+        <td><span class="badge bg-light text-dark">${row.sector}</span></td>`;
+      row.v.forEach((val, vi) => {
+        const isTaux = vi === row.v.length-1;
+        const cls = isTaux ? `taux-cell ${tauxClass(val)}` : '';
+        html += `<td class="text-center ${cls}">${isTaux ? fmtTaux(val)+'%' : (val===0&&vi>0?'—':val)}</td>`;
+      });
+      html += `<td class="text-center">
+        <button class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="openEditModal('${tab}',${year},${globalIdx})">
+          <i class="bi bi-pencil"></i>
+        </button></td></tr>`;
+    });
+  });
+
+  // Total row
+  html += `<tr class="fw-bold table-light">
+    <td>TOTAL</td><td></td>
+    <td class="text-center">${totals.inscrits}</td>
+    <td class="text-center">${totals.admis}</td>`;
+  if (cols.length > 3) {
+    for(let i=2;i<cols.length-2;i++) html += `<td></td>`;
+    html += `<td></td>`;
+  }
+  html += `<td class="text-center taux-cell ${tauxClass(totals.taux)}">${fmtTaux(totals.taux)}%</td>
+    <td></td></tr>`;
+
+  html += `</tbody></table></div>
+  <div class="card-footer bg-transparent d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <small class="text-muted">Année ${year}</small>
+    <div class="d-flex gap-2">
+      <button class="btn btn-sm btn-outline-primary" onclick="duplicateYear('${tab}',${year})">
+        <i class="bi bi-copy me-1"></i>Dupliquer vers ${year+1}
+      </button>
+      <button class="btn btn-sm btn-outline-danger" onclick="deleteYear('${tab}',${year})">
+        <i class="bi bi-trash me-1"></i>Supprimer
+      </button>
+    </div>
+  </div></div>`;
+
+  container.innerHTML = html;
+}
+
+function computeTotals(tab, rows) {
+  let inscrits=0, admis=0;
+  rows.forEach(r => {
+    inscrits += r.v[0]||0;
+    admis    += r.v[1]||0;
+    if (tab==='bacpro'||tab==='bacg'||tab==='bts') admis += r.v[4]||0; // +admis2nd
+  });
+  const taux = inscrits>0 ? (admis/inscrits*100) : 0;
+  return { inscrits, admis, taux };
+}
+
+function statCard(label, value, color, icon) {
+  return `<div class="col-6 col-md-3">
+    <div class="stat-card card h-100">
+      <div class="card-body text-center">
+        <i class="bi ${icon} fs-3 mb-1" style="color:${color}"></i>
+        <div class="stat-number" style="color:${color}">${value}</div>
+        <div class="stat-label">${label}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ==================== CHARTS ====================
+function renderCharts(tab) {
+  if (charts[tab+'_main']) { charts[tab+'_main'].destroy(); }
+  if (charts[tab+'_pie'])  { charts[tab+'_pie'].destroy();  }
+
+  const cfg = TABS[tab];
+  const years = Object.keys(DB[tab]).map(Number).sort();
+  if (!years.length) return;
+
+  // Main bar: taux by year + specialties grouped
+  const yearLabels = years.map(String);
+  const tauxByYear = years.map(y => {
+    const t = computeTotals(tab, DB[tab][y].rows);
+    return parseFloat(fmtTaux(t.taux));
+  });
+
+  // Specialty lines (top 6)
+  const allSpecNames = [...new Set(
+    years.flatMap(y => DB[tab][y].rows.map(r=>r.name))
+  )].slice(0,6);
+
+  const specColors = ['#2563eb','#16a34a','#ea580c','#9333ea','#0891b2','#be123c'];
+  const datasets = [
+    {
+      label: 'Taux global (%)',
+      data: tauxByYear,
+      backgroundColor: cfg.color + '33',
+      borderColor: cfg.color,
+      borderWidth: 2,
+      type: 'bar',
+      yAxisID: 'y',
+      order: 2,
+    },
+    ...allSpecNames.map((name, i) => ({
+      label: name,
+      data: years.map(y => {
+        const row = (DB[tab][y].rows||[]).find(r=>r.name===name);
+        return row ? parseFloat(fmtTaux(row.v[row.v.length-1])) : null;
+      }),
+      borderColor: specColors[i % specColors.length],
+      backgroundColor: specColors[i % specColors.length],
+      type: 'line',
+      yAxisID: 'y',
+      tension: 0.3,
+      spanGaps: true,
+      pointRadius: 5,
+      borderWidth: 2,
+      order: 1,
+    }))
+  ];
+
+  const ctxMain = document.getElementById(`chart-main-${tab}`);
+  if (ctxMain) {
+    charts[tab+'_main'] = new Chart(ctxMain, {
+      data: { labels: yearLabels, datasets },
+      options: {
+        responsive: true, interaction: { mode:'index', intersect:false },
+        plugins: { legend:{ position:'bottom', labels:{ boxWidth:12, font:{size:11} } } },
+        scales: {
+          y: { beginAtZero:true, max:100, ticks:{ callback: v=>v+'%' }, title:{ display:true, text:'Taux de réussite' } }
+        }
+      }
+    });
+  }
+
+  // Pie: latest year admitted vs refused
+  const latestYear = years[years.length-1];
+  const rows = DB[tab][latestYear].rows;
+  let admitted=0, refused=0, oral=0;
+  rows.forEach(r => {
+    admitted += (r.v[1]||0)+(r.v[4]||0);
+    if (r.v.length > 3) {
+      oral    += r.v[2]||0;
+      refused += r.v[3]||0;
+    } else {
+      refused += (r.v[0]||0)-(r.v[1]||0);
+    }
+  });
+
+  const ctxPie = document.getElementById(`chart-pie-${tab}`);
+  if (ctxPie) {
+    charts[tab+'_pie'] = new Chart(ctxPie, {
+      type: 'doughnut',
+      data: {
+        labels: ['Admis','Oral de contrôle','Refusés'],
+        datasets:[{ data:[admitted,oral,refused],
+          backgroundColor:['#22c55e','#f59e0b','#ef4444'],
+          borderWidth:2, borderColor:'white' }]
+      },
+      options: {
+        responsive:true, cutout:'65%',
+        plugins:{ legend:{ position:'bottom', labels:{ boxWidth:12, font:{size:11} } } }
+      }
+    });
+  }
+}
+
+// ==================== ADD MODAL ====================
+function openAddModal(tab) {
+  addCtx = { tab };
+  const modal = document.getElementById('addModal');
+  modal.className = `modal fade modal-${tab}`;
+  document.getElementById('saveBtn').className = `btn btn-${tab}`;
+
+  const existingYears = Object.keys(DB[tab]).map(Number);
+  const nextYear = existingYears.length ? Math.max(...existingYears) + 1 : new Date().getFullYear();
+
+  const html = `
+  <div class="mb-3">
+    <label class="form-label fw-semibold">Année</label>
+    <input type="number" class="form-control" id="modal-year" value="${nextYear}" min="2000" max="2100"
+      onchange="reloadModalYear('${tab}')">
+    <div id="modal-year-notice" class="form-text mt-1"></div>
+  </div>
+  <hr>
+  <h6 class="fw-bold mb-2">Spécialités</h6>
+  <div id="specialty-rows"></div>
+  <button class="btn btn-outline-secondary btn-sm mt-2" onclick="addSpecialtyRow('${tab}')">
+    <i class="bi bi-plus-lg me-1"></i>Ajouter une spécialité
+  </button>
+  <hr>
+  <div class="row g-2">
+    <div class="col-12"><strong class="small">Mentions</strong></div>
+    <div class="col-4"><label class="form-label small">Très Bien</label>
+      <input type="number" class="form-control form-control-sm" id="men-tb" value="0" min="0"></div>
+    <div class="col-4"><label class="form-label small">Bien</label>
+      <input type="number" class="form-control form-control-sm" id="men-b" value="0" min="0"></div>
+    <div class="col-4"><label class="form-label small">Assez Bien</label>
+      <input type="number" class="form-control form-control-sm" id="men-ab" value="0" min="0"></div>
+  </div>`;
+
+  document.getElementById('addModalBody').innerHTML = html;
+  fillModalForYear(tab, nextYear);
+  addModalObj = bootstrap.Modal.getOrCreateInstance(modal);
+  addModalObj.show();
+}
+
+function reloadModalYear(tab) {
+  const year = parseInt(document.getElementById('modal-year').value);
+  if (year >= 2000) fillModalForYear(tab, year);
+}
+
+function fillModalForYear(tab, year) {
+  const cfg      = TABS[tab];
+  const yearData = DB[tab] && DB[tab][year];
+  const notice   = document.getElementById('modal-year-notice');
+  const title    = document.getElementById('addModalTitle');
+
+  if (yearData) {
+    notice.innerHTML = `<span class="text-warning fw-semibold"><i class="bi bi-pencil-fill me-1"></i>
+      Année ${year} existante — les données sont pré-chargées. Vous pouvez modifier ou ajouter des spécialités.</span>`;
+    title.textContent = `Modifier ${year} — ${cfg.label}`;
+  } else {
+    notice.innerHTML = `<span class="text-muted"><i class="bi bi-plus-circle me-1"></i>Nouvelle année ${year}</span>`;
+    title.textContent = `Ajouter une année — ${cfg.label}`;
+  }
+
+  fillModalRows(tab, yearData || null);
+}
+
+function fillModalRows(tab, yearData) {
+  const container = document.getElementById('specialty-rows');
+  container.innerHTML = '';
+  if (yearData && yearData.rows.length) {
+    yearData.rows.forEach(row => {
+      container.insertAdjacentHTML('beforeend', buildSpecialtyInputRow(tab, row));
+    });
+    document.getElementById('men-tb').value = yearData.mentions?.TB || 0;
+    document.getElementById('men-b').value  = yearData.mentions?.B  || 0;
+    document.getElementById('men-ab').value = yearData.mentions?.AB || 0;
+  } else {
+    container.insertAdjacentHTML('beforeend', buildSpecialtyInputRow(tab, null));
+    document.getElementById('men-tb').value = 0;
+    document.getElementById('men-b').value  = 0;
+    document.getElementById('men-ab').value = 0;
+  }
+}
+
+function duplicateYear(tab, srcYear) {
+  addCtx = { tab };
+  const cfg    = TABS[tab];
+  const modal  = document.getElementById('addModal');
+  modal.className = `modal fade modal-${tab}`;
+  document.getElementById('saveBtn').className = `btn btn-${tab}`;
+
+  const existingYears = Object.keys(DB[tab]).map(Number);
+  const targetYear    = Math.max(...existingYears) + 1;
+
+  const html = `
+  <div class="alert alert-info py-2 small mb-3">
+    <i class="bi bi-copy me-1"></i>Copie de <strong>${srcYear}</strong> vers <strong>${targetYear}</strong>.
+    Mettez à jour les valeurs puis enregistrez.
+  </div>
+  <div class="mb-3">
+    <label class="form-label fw-semibold">Année cible</label>
+    <input type="number" class="form-control" id="modal-year" value="${targetYear}" min="2000" max="2100"
+      onchange="reloadModalYear('${tab}')">
+    <div id="modal-year-notice" class="form-text mt-1"></div>
+  </div>
+  <hr>
+  <h6 class="fw-bold mb-2">Spécialités</h6>
+  <div id="specialty-rows"></div>
+  <button class="btn btn-outline-secondary btn-sm mt-2" onclick="addSpecialtyRow('${tab}')">
+    <i class="bi bi-plus-lg me-1"></i>Ajouter une spécialité
+  </button>
+  <hr>
+  <div class="row g-2">
+    <div class="col-12"><strong class="small">Mentions</strong></div>
+    <div class="col-4"><label class="form-label small">Très Bien</label>
+      <input type="number" class="form-control form-control-sm" id="men-tb" value="0" min="0"></div>
+    <div class="col-4"><label class="form-label small">Bien</label>
+      <input type="number" class="form-control form-control-sm" id="men-b" value="0" min="0"></div>
+    <div class="col-4"><label class="form-label small">Assez Bien</label>
+      <input type="number" class="form-control form-control-sm" id="men-ab" value="0" min="0"></div>
+  </div>`;
+
+  document.getElementById('addModalTitle').textContent = `Dupliquer ${srcYear} → ${targetYear} — ${cfg.label}`;
+  document.getElementById('addModalBody').innerHTML = html;
+  fillModalRows(tab, DB[tab][srcYear]);
+
+  addModalObj = bootstrap.Modal.getOrCreateInstance(modal);
+  addModalObj.show();
+}
+
+function buildSpecialtyInputRow(tab, row) {
+  const sectors = DEFAULT_SECTORS[tab];
+  const fcols   = FORM_COLS[tab];
+  const vals    = row ? row.v : fcols.map(() => 0);
+  const name    = row ? row.name   : '';
+  const sector  = row ? row.sector : sectors[0];
+
+  // Ligne 1 : Nom + Secteur + bouton supprimer
+  let html = `<div class="specialty-row border rounded p-3 mb-3 bg-light">
+    <div class="row g-2 align-items-end mb-2">
+      <div class="col">
+        <label class="form-label small fw-semibold mb-1">Nom de la spécialité</label>
+        <input type="text" class="form-control sp-name" value="${name}" placeholder="ex: CAP BOU">
+      </div>
+      <div class="col-auto" style="min-width:170px">
+        <label class="form-label small fw-semibold mb-1">Secteur</label>
+        <select class="form-select sp-sector">
+          ${sectors.map(s => `<option ${s===sector?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="col-auto d-flex align-items-end">
+        <button class="btn btn-outline-danger" onclick="this.closest('.specialty-row').remove()" title="Supprimer">
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>
+    </div>`;
+
+  // Ligne 2 : champs numériques — taille normale, répartis uniformément
+  html += `<div class="row g-3">`;
+  fcols.forEach((c, i) => {
+    html += `<div class="col">
+      <label class="form-label small fw-semibold mb-1 text-center d-block">${c}</label>
+      <input type="number" class="form-control text-center sp-val" value="${vals[i]||0}" min="0"
+        oninput="updateRowTaux(this,'${tab}')">
+    </div>`;
+  });
+  // Champ taux calculé en lecture seule
+  const taux = calcTaux(tab, vals);
+  html += `<div class="col">
+    <label class="form-label small fw-semibold mb-1 text-center d-block text-muted">Taux</label>
+    <div class="form-control text-center fw-bold bg-white ${tauxClass(taux)} sp-taux-preview">${fmtTaux(taux)} %</div>
+  </div>`;
+  html += `</div></div>`;
+  return html;
+}
+
+function updateRowTaux(inputEl, tab) {
+  const row  = inputEl.closest('.specialty-row');
+  const vals = [...row.querySelectorAll('.sp-val')].map(i => parseFloat(i.value)||0);
+  const taux = calcTaux(tab, vals);
+  const preview = row.querySelector('.sp-taux-preview');
+  if (preview) {
+    preview.textContent = fmtTaux(taux) + ' %';
+    preview.className = `form-control text-center fw-bold bg-white sp-taux-preview ${tauxClass(taux)}`;
+  }
+}
+
+function addSpecialtyRow(tab) {
+  const container = document.getElementById('specialty-rows');
+  container.insertAdjacentHTML('beforeend', buildSpecialtyInputRow(tab, null));
+}
+
+function saveYear() {
+  const tab  = addCtx.tab;
+  const year = parseInt(document.getElementById('modal-year').value);
+  if (!year || year < 2000) { alert('Année invalide.'); return; }
+
+  const rows = [];
+  document.querySelectorAll('#specialty-rows .specialty-row').forEach(rowEl => {
+    const name   = rowEl.querySelector('.sp-name').value.trim();
+    const sector = rowEl.querySelector('.sp-sector').value;
+    const vals   = [...rowEl.querySelectorAll('.sp-val')].map(i => parseFloat(i.value)||0);
+    if (!name) return;
+    const taux = calcTaux(tab, vals);
+    rows.push({ name, sector, v: [...vals, taux] });
+  });
+
+  if (!rows.length) { alert('Ajoutez au moins une spécialité.'); return; }
+
+  const TB = parseInt(document.getElementById('men-tb').value)||0;
+  const B  = parseInt(document.getElementById('men-b').value)||0;
+  const AB = parseInt(document.getElementById('men-ab').value)||0;
+
+  if (!DB[tab]) DB[tab] = {};
+  DB[tab][year] = { rows, mentions: { TB, B, AB } };
+  saveToStorage();
+  if (addModalObj) addModalObj.hide();
+  renderTab(tab);
+  updateBadges();
+}
+
+// ==================== EDIT MODAL ====================
+function openEditModal(tab, year, rowIndex) {
+  editCtx = { tab, year, rowIndex };
+  const fcols = FORM_COLS[tab];
+  const row   = DB[tab][year].rows[rowIndex];
+  const modal = document.getElementById('editModal');
+  modal.className = `modal fade modal-${tab}`;
+  document.getElementById('editSaveBtn').className = `btn btn-${tab}`;
+
+  const sectors = DEFAULT_SECTORS[tab];
+  const taux = calcTaux(tab, row.v);
+  let html = `<div class="row g-2">
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">Nom</label>
+      <input type="text" class="form-control" id="edit-name" value="${row.name}">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label fw-semibold">Secteur</label>
+      <select class="form-select" id="edit-sector">
+        ${sectors.map(s=>`<option ${s===row.sector?'selected':''}>${s}</option>`).join('')}
+      </select>
+    </div>`;
+
+  fcols.forEach((c, i) => {
+    html += `<div class="col-6 col-md-4">
+      <label class="form-label fw-semibold">${c}</label>
+      <input type="number" class="form-control" id="edit-v${i}" value="${row.v[i]||0}" min="0">
+    </div>`;
+  });
+  html += `<div class="col-6 col-md-4">
+    <label class="form-label fw-semibold text-muted">Taux (calculé)</label>
+    <div class="form-control bg-light fw-bold ${tauxClass(taux)}">${fmtTaux(taux)} %</div>
+  </div></div>`;
+
+  document.getElementById('editModalBody').innerHTML = html;
+  editModalObj = bootstrap.Modal.getOrCreateInstance(modal);
+  editModalObj.show();
+}
+
+function saveEdit() {
+  const { tab, year, rowIndex } = editCtx;
+  const fcols = FORM_COLS[tab];
+  const row   = DB[tab][year].rows[rowIndex];
+  row.name    = document.getElementById('edit-name').value.trim();
+  row.sector  = document.getElementById('edit-sector').value;
+  const vals  = fcols.map((_, i) => parseFloat(document.getElementById(`edit-v${i}`).value)||0);
+  const taux  = calcTaux(tab, vals);
+  row.v = [...vals, taux];
+  saveToStorage();
+  if (editModalObj) editModalObj.hide();
+  renderYearContent(tab, year);
+  renderCharts(tab);
+}
+
+function deleteSpecialty() {
+  if (!confirm('Supprimer cette spécialité ?')) return;
+  const { tab, year, rowIndex } = editCtx;
+  DB[tab][year].rows.splice(rowIndex, 1);
+  saveToStorage();
+  if (editModalObj) editModalObj.hide();
+  renderYearContent(tab, year);
+  renderCharts(tab);
+}
+
+function deleteYear(tab, year) {
+  if (!confirm(`Supprimer toute l'année ${year} pour ${TABS[tab].label} ?`)) return;
+  delete DB[tab][year];
+  saveToStorage();
+  renderTab(tab);
+  updateBadges();
+}
+
+// ==================== BADGES ====================
+function updateBadges() {
+  Object.keys(TABS).forEach(tab => {
+    const years = Object.keys(DB[tab]||{});
+    document.getElementById(`badge-${tab}`).textContent = years.length || '—';
+  });
+}
+
+// ==================== UTILS ====================
+function fmtTaux(v) { return (Math.round(v*10)/10).toFixed(1); }
+function tauxColor(v) { return v>=70?'#15803d':v>=50?'#b45309':'#dc2626'; }
+function tauxClass(v) { return v>=70?'taux-high':v>=50?'taux-mid':'taux-low'; }
+
+// ==================== SETTINGS ====================
+let schoolSettings = { name: 'LPO MANA', subtitle: 'Tableau de bord des résultats par diplôme' };
+
+function loadSettings() {
+  const saved = localStorage.getItem('lpo_mana_settings');
+  if (saved) try { schoolSettings = JSON.parse(saved); } catch(e) {}
+  applySettings();
+}
+
+function applySettings() {
+  const headerEl = document.getElementById('header-school-name');
+  if (headerEl) headerEl.textContent = `${schoolSettings.name} — ${schoolSettings.subtitle}`;
+  const nameEl = document.getElementById('settings-school-name');
+  const subEl  = document.getElementById('settings-school-subtitle');
+  if (nameEl) nameEl.value = schoolSettings.name;
+  if (subEl)  subEl.value  = schoolSettings.subtitle;
+}
+
+function saveSettings() {
+  const name     = document.getElementById('settings-school-name').value.trim() || 'LPO MANA';
+  const subtitle = document.getElementById('settings-school-subtitle').value.trim() || 'Tableau de bord des résultats par diplôme';
+  schoolSettings = { name, subtitle };
+  localStorage.setItem('lpo_mana_settings', JSON.stringify(schoolSettings));
+  applySettings();
+  const btn = document.querySelector('#settingsPanel .btn-primary');
+  if (btn) { btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Enregistré !'; setTimeout(() => { btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Enregistrer le nom'; }, 1500); }
+}
+
+// ==================== PRINT ====================
+function printCurrentTab() { printTab(currentTab); }
+
+function printTab(tab) {
+  // Ensure tab content is rendered
+  const tabEl = document.getElementById('tab-' + tab);
+  if (!tabEl) return;
+
+  // Mark active tab for print CSS
+  document.querySelectorAll('.tab-pane-content').forEach(el => el.classList.remove('print-active'));
+  tabEl.classList.add('print-active');
+
+  // Add print header
+  const printHeader = document.getElementById('print-header');
+  printHeader.innerHTML = `
+    <div style="text-align:center;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:2px solid #1e293b;">
+      <h2 style="margin:0;font-size:1.3rem;color:#1e293b;">${schoolSettings.name}</h2>
+      <p style="margin:0.25rem 0 0;color:#64748b;font-size:0.9rem;">
+        Résultats aux examens — ${TABS[tab].label} — Imprimé le ${new Date().toLocaleDateString('fr-FR')}
+      </p>
+    </div>`;
+
+  window.print();
+
+  // Cleanup
+  tabEl.classList.remove('print-active');
+  printHeader.innerHTML = '';
+}
+
+// ==================== EXPORT / IMPORT / RESET ====================
+function exportData() {
+  const payload = { settings: schoolSettings, db: DB };
+  const json = JSON.stringify(payload, null, 2);
+  const blob = new Blob([json], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const slug = schoolSettings.name.replace(/\s+/g,'-').toLowerCase();
+  a.download = `${slug}_resultats_${new Date().getFullYear()}.json`;
+  a.click();
+}
+
+function importData() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const imported = JSON.parse(ev.target.result);
+        if (!confirm('Remplacer toutes les données actuelles par les données importées ?')) return;
+        // Support both new format {settings, db} and legacy {cap, bacpro, ...}
+        if (imported.db) {
+          DB = imported.db;
+          if (imported.settings) { schoolSettings = imported.settings; localStorage.setItem('lpo_mana_settings', JSON.stringify(schoolSettings)); }
+        } else {
+          DB = imported;
+        }
+        saveToStorage();
+        applySettings();
+        renderTab(currentTab);
+        updateBadges();
+      } catch { alert('Fichier JSON invalide.'); }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function resetData() {
+  if (!confirm('Réinitialiser TOUTES les données ? Cette action est irréversible.')) return;
+  if (!confirm('Confirmez-vous la suppression de toutes les données ?')) return;
+  localStorage.removeItem('lpo_mana_db');
+  location.reload();
+}
+</script>
+</body>
+</html>

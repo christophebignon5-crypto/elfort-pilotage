@@ -1,0 +1,15 @@
+# Fichiers de données — ne pas versionner
+*.xlsx
+*.xls
+*.csv
+*.json
+*.pdf
+
+# Système macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# OneDrive
+desktop.ini
+Thumbs.db

@@ -1,0 +1,2400 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TABLEAU GESTION PROJETS - Lycée Léopold Elfort</title>
+    <style>
+        /* --- CSS STANDARD --- */
+        :root { --pri:#2c3e50; --acc:#e67e22; --ok:#27ae60; --err:#c0392b; --bg:#f4f6f8; --card:#ffffff; --txt:#333; }
+        * { box-sizing: border-box; }
+        body { font-family:'Segoe UI', sans-serif; margin:0; background:var(--bg); color:var(--txt); font-size:13px; line-height: 1.4; }
+        .container { max-width:1700px; margin:0 auto; padding:20px; }
+        
+        header { background:var(--card); border-top:4px solid var(--pri); padding:15px 30px; box-shadow:0 2px 10px rgba(0,0,0,0.05); display:flex; justify-content:space-between; align-items:center; }
+        h1 { margin:0; font-size:1.6rem; color:var(--pri); } h1 span { color:var(--acc); font-weight:bold; }
+        nav { display: flex; gap: 10px; align-items:center; }
+        
+        .card { background:var(--card); padding:20px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05); margin-bottom:20px; border:1px solid #eee; }
+        .hidden { display:none !important; }
+        
+        /* BOUTONS */
+        .btn { padding:10px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold; color:#fff; background:var(--pri); transition:0.2s; }
+        .btn:hover { opacity:0.9; transform:translateY(-1px); }
+        .btn-o { background:white; border:1px solid #ccc; color:#555; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px; transition:0.2s; }
+        .btn-o:hover { background: #f0f0f0; border-color:#bbb; color:#000; }
+        .btn-xl { background: #217346; color: white; border: none; padding: 6px 12px; }
+
+        /* --- TABLEAU COMPACT & STICKY --- */
+        .table-scroll-wrapper { max-height: 70vh; overflow-y: auto; border-bottom: 1px solid #eee; }
+        table { width:100%; border-collapse:collapse; table-layout: fixed; } 
+        th { position: sticky; top: 0; z-index: 10; background:#f1f2f6; text-align:left; padding:10px; border-bottom:2px solid #ddd; color:#555; font-weight:600; text-transform:uppercase; font-size:11px; box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1); } 
+        td { padding: 6px 10px; border-bottom:1px solid #eee; vertical-align: middle; word-wrap: break-word; font-size: 12px; }
+        tr:nth-child(even) { background-color: #fafafa; }
+        tr:hover { background-color: #f0f7ff; }
+
+        .link-icon { text-decoration: none; font-size: 14px; margin-left: 5px; opacity: 0.7; } .link-icon:hover { opacity: 1; }
+
+        /* FORMULAIRES */
+        fieldset { border:1px solid #e0e0e0; border-radius:6px; padding:15px; margin-bottom:15px; background:#fff; }
+        legend { font-weight:bold; color:var(--pri); padding:0 10px; background:#fff; border:1px solid #e0e0e0; border-radius:4px; }
+        input, select, textarea { width:100%; padding:8px 10px; border:1px solid #ccc; border-radius:4px; font-family: inherit; font-size:13px; }
+        input:focus, select:focus, textarea:focus { border-color:var(--acc); outline:none; box-shadow:0 0 0 2px rgba(230,126,34,0.1); }
+        textarea { resize: vertical; min-height: 60px; }
+        
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        .type-group { border-bottom: 1px dashed #ccc; padding-bottom: 10px; margin-bottom: 10px; }
+        .type-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .type-group strong { display: block; margin-bottom: 8px; color: var(--pri); font-size: 12px; }
+        .type-group label { cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-size: 13px; white-space: nowrap; margin: 0; }
+
+        /* BILAN & BUDGET */
+        .progress-bg { background: #eee; border-radius: 4px; height: 12px; width: 100%; margin-top: 5px; overflow: hidden; }
+        .progress-fill { height: 100%; transition: width 0.3s; }
+        .fill-ok { background: var(--ok); } .fill-warn { background: var(--acc); } .fill-err { background: var(--err); }
+        .detail-row { background: #fdfdfd; border-left: 4px solid var(--pri); }
+        .detail-table { width: 100%; font-size: 11px; color: #555; margin-top: 5px; } .detail-table td { border-bottom: 1px solid #eee; padding: 4px; }
+        .budget-cols { display: flex; gap: 20px; } .budget-col { flex: 1; background: rgba(0,0,0,0.02); padding: 10px; border-radius: 4px; border: 1px solid #eee; }
+
+        /* BILAN TABS */
+        .bilan-tab { transition: all .2s; }
+        .bilan-tab:hover { background: #f0f7ff !important; color: var(--acc) !important; }
+        .bilan-tab.active { background: white !important; color: var(--acc) !important; border-bottom-color: var(--acc) !important; }
+        .bilan-tab-content { border-top:none; border-radius: 0 0 8px 8px !important; }
+
+        /* JAUGE SOURCE - grand format */
+        .src-card { background:#fff; border:1px solid #e0e0e0; border-radius:8px; padding:14px 16px; margin-bottom:10px; transition:.2s; }
+        .src-card:hover { box-shadow:0 3px 10px rgba(0,0,0,.08); }
+        .src-bar-bg { background:#e8e8e8; border-radius:6px; height:18px; width:100%; overflow:hidden; position:relative; margin-top:6px; }
+        .src-bar-fill { height:100%; border-radius:6px; transition:width .4s ease; display:flex; align-items:center; justify-content:flex-end; padding-right:6px; font-size:10px; font-weight:bold; color:white; white-space:nowrap; }
+        .src-bar-ok   { background:linear-gradient(90deg,#27ae60,#2ecc71); }
+        .src-bar-warn { background:linear-gradient(90deg,#e67e22,#f39c12); }
+        .src-bar-err  { background:linear-gradient(90deg,#c0392b,#e74c3c); }
+        .kpi-card { background:white; border:1px solid #e0e0e0; border-radius:8px; padding:14px 16px; text-align:center; }
+        .kpi-card .kpi-val { font-size:22px; font-weight:800; margin-bottom:3px; }
+        .kpi-card .kpi-lbl { font-size:10px; color:#888; text-transform:uppercase; letter-spacing:.5px; }
+
+        /* GANTT */
+        .gantt-wrapper { overflow-x: auto; position: relative; border:1px solid #ccc; border-radius:4px; }
+        .gantt-grid { display: grid; grid-template-columns: 250px repeat(12, 1fr); gap: 1px; background: #ddd; min-width: 1000px; }
+        .gantt-head { background: #f8f9fa; font-weight: bold; text-align: center; padding: 10px 0; color: #555; font-size: 11px; }
+        .gantt-row-label { background: white; padding: 10px; font-size: 12px; border-bottom: 1px solid #eee; display:flex; align-items:center; }
+        .gantt-row-bar { grid-column: 2 / span 12; background: white; border-bottom: 1px solid #eee; position: relative; display: grid; grid-template-columns: repeat(12, 1fr); align-items: center; }
+        .gantt-bar { height: 20px; border-radius: 4px; color: white; font-size: 10px; padding-left: 5px; line-height: 20px; cursor: pointer; opacity: 0.9; position:relative; z-index: 2; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        .st-brouillon { background: #95a5a6; } .st-soumis { background: #e67e22; } .st-valide { background: #27ae60; } .st-termine { background: #2980b9; } .st-annule { background: #c0392b; }
+        .today-line { position: absolute; top: 40px; bottom: 0; width: 2px; background: red; z-index: 1; opacity: 0.5; pointer-events: none; }
+
+        /* MODAL */
+        #modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:none; justify-content:center; align-items:center; z-index:9999; backdrop-filter: blur(2px); }
+        .modal-box { background:white; padding:30px; width:950px; border-radius:10px; max-height:90vh; overflow-y:auto; position:relative; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        
+        /* IMPRESSION DOC ADMIN */
+        .doc-box { border: 2px solid #333; padding: 15px; margin-bottom: 20px; word-wrap: break-word; }
+        .doc-box h3 { border-bottom: 1px solid #333; padding-bottom: 5px; margin-top: 0; background: #eee; font-size:14px; text-transform: uppercase; }
+        .info-row { display: flex; justify-content: space-between; border-bottom: 1px dotted #ccc; padding: 4px 0; word-wrap: break-word; }
+        .doc-budget-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; border: 1px solid #000; }
+        .doc-budget-table th, .doc-budget-table td { border: 1px solid #000; padding: 5px; }
+        .doc-budget-table th { background: #eee; text-align: center; }
+        .print-long-text { white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; font-size: 12px; margin-top: 5px; color: #333; }
+
+        /* --- CSS EDD IMPORT --- */
+        .badge-edd { display:inline-block; background:#1a6b4a; color:#fff; font-size:9px; font-weight:bold; padding:1px 5px; border-radius:3px; vertical-align:middle; margin-left:4px; }
+        .edd-panel { background:#e8f5ef; border:1px solid #a8d5bb; border-radius:6px; padding:10px 14px; margin-bottom:10px; font-size:12px; }
+        .edd-panel h4 { color:#1a6b4a; margin:0 0 6px 0; font-size:12px; }
+        .edd-section { background:#f0f8f4; border-left:3px solid #1a6b4a; padding:8px 12px; border-radius:0 4px 4px 0; margin-bottom:8px; }
+        .edd-section strong { color:#1a6b4a; display:block; margin-bottom:3px; font-size:11px; text-transform:uppercase; }
+        .odd-badge { display:inline-flex; align-items:center; gap:3px; background:#eee; border-radius:4px; padding:2px 6px; font-size:11px; margin:2px; }
+        .edd-collapse-btn { background:none; border:none; cursor:pointer; color:#1a6b4a; font-weight:bold; font-size:11px; padding:0; }
+
+        @media print { 
+            header, nav, .no-print, #modal { display:none !important; } 
+            #view-print { display:block !important; border:none; margin:0; width:100%; box-shadow: none; padding: 0; } 
+            body { background:white; } 
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .table-scroll-wrapper { max-height: none; overflow: visible; }
+        }
+
+        /* ── AIDE MODAL ── */
+        #aide-modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.65); display:none; justify-content:center; align-items:center; z-index:99999; backdrop-filter:blur(3px); }
+        .aide-box { background:#fff; width:860px; max-width:95vw; max-height:92vh; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+        .aide-header { background:linear-gradient(135deg,var(--pri),#3d5a7a); color:white; padding:18px 24px; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+        .aide-header h2 { margin:0; font-size:1.2rem; display:flex; align-items:center; gap:10px; }
+        .aide-close { background:none; border:none; color:white; font-size:22px; cursor:pointer; opacity:0.8; line-height:1; padding:0 4px; }
+        .aide-close:hover { opacity:1; }
+        .aide-body { display:flex; flex:1; overflow:hidden; }
+        .aide-nav { width:210px; flex-shrink:0; background:#f8f9fa; border-right:1px solid #e0e0e0; overflow-y:auto; padding:10px 0; }
+        .aide-nav-item { display:flex; align-items:center; gap:10px; padding:10px 16px; cursor:pointer; font-size:12px; font-weight:600; color:#555; border-left:3px solid transparent; transition:.15s; }
+        .aide-nav-item:hover { background:#f0f0f0; color:var(--pri); }
+        .aide-nav-item.active { color:var(--acc); border-left-color:var(--acc); background:#fff5ec; }
+        .aide-nav-item .aide-ico { font-size:16px; width:22px; text-align:center; }
+        .aide-content { flex:1; overflow-y:auto; padding:24px 28px; }
+        .aide-section { display:none; }
+        .aide-section.active { display:block; }
+        .aide-section h3 { color:var(--pri); font-size:1rem; margin:0 0 14px 0; padding-bottom:8px; border-bottom:2px solid var(--acc); display:flex; align-items:center; gap:8px; }
+        .aide-section h4 { color:var(--pri); font-size:0.85rem; margin:18px 0 8px 0; }
+        .aide-tip { background:#f0f7ff; border-left:3px solid #3498db; border-radius:0 6px 6px 0; padding:8px 12px; font-size:12px; margin-bottom:10px; color:#2c3e50; }
+        .aide-tip strong { color:#2980b9; }
+        .aide-warn { background:#fff8e6; border-left:3px solid var(--acc); border-radius:0 6px 6px 0; padding:8px 12px; font-size:12px; margin-bottom:10px; color:#7d5d1a; }
+        .aide-step { display:flex; gap:12px; margin-bottom:10px; align-items:flex-start; font-size:12px; }
+        .aide-step-num { background:var(--pri); color:white; border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:bold; flex-shrink:0; margin-top:1px; }
+        .aide-badge { display:inline-block; font-size:10px; font-weight:bold; padding:2px 7px; border-radius:3px; vertical-align:middle; margin:0 2px; }
+        .aide-badge-pri { background:var(--pri); color:white; }
+        .aide-badge-acc { background:var(--acc); color:white; }
+        .aide-badge-ok { background:var(--ok); color:white; }
+        .aide-badge-purple { background:#8e44ad; color:white; }
+        .aide-badge-green { background:#1a6b4a; color:white; }
+        .aide-badge-blue { background:#2980b9; color:white; }
+        .aide-shortcut { display:inline-flex; align-items:center; gap:6px; background:#f4f4f4; border:1px solid #ccc; border-radius:4px; padding:2px 8px; font-size:11px; font-family:monospace; }
+        .aide-table { width:100%; border-collapse:collapse; font-size:12px; margin-bottom:12px; }
+        .aide-table th { background:#f1f2f6; padding:7px 10px; text-align:left; font-weight:600; color:#555; border-bottom:2px solid #ddd; }
+        .aide-table td { padding:7px 10px; border-bottom:1px solid #eee; vertical-align:top; }
+        .aide-table tr:hover td { background:#fafafa; }
+        .aide-search-bar { width:100%; padding:8px 12px; border:1px solid #ddd; border-radius:6px; font-size:12px; margin-bottom:16px; }
+        .aide-search-bar:focus { border-color:var(--acc); outline:none; }
+        .aide-faq-item { border:1px solid #eee; border-radius:6px; margin-bottom:8px; overflow:hidden; }
+        .aide-faq-q { padding:10px 14px; font-size:12px; font-weight:600; cursor:pointer; background:#fafafa; display:flex; justify-content:space-between; align-items:center; color:var(--pri); }
+        .aide-faq-q:hover { background:#f0f0f0; }
+        .aide-faq-a { padding:10px 14px; font-size:12px; color:#444; border-top:1px solid #eee; display:none; line-height:1.6; }
+        .aide-faq-item.open .aide-faq-a { display:block; }
+        .aide-faq-item.open .aide-faq-q { background:#fff5ec; color:var(--acc); }
+        .aide-statut-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+        .aide-statut-card { border-radius:6px; padding:10px 12px; font-size:12px; }
+    </style>
+</head>
+<body ondragover="event.preventDefault()" ondrop="dataManager.importProjectJSON(event)">
+
+<div id="modal">
+    <div class="modal-box">
+        <button onclick="document.getElementById('modal').style.display='none'" style="float:right; border:none; background:none; font-size:24px; cursor:pointer; color:#999;">&times;</button>
+        <h2 style="margin-top:0; color:var(--pri); border-bottom:2px solid var(--acc); padding-bottom:10px;">⚙ Paramètres de l'établissement</h2>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:25px; margin-top:20px;">
+            <div>
+                <fieldset><legend>Identité</legend><input id="s-etab" placeholder="Nom Établissement"><input id="s-ville" placeholder="Ville" style="margin:5px 0"><input id="s-chef" placeholder="Signature (Proviseur)"></fieldset>
+                <fieldset><legend>Structure</legend><div id="struct-list"></div><button class="btn-o" onclick="conf.addLvl()">+ Ajouter Niveau</button></fieldset>
+                <fieldset><legend>Enveloppes Budgétaires</legend>
+                    <div id="s-list" style="max-height:180px; overflow-y:auto; margin-bottom:8px;"></div>
+                    <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                        <button class="btn-o" onclick="conf.addSrc()">+ Ajouter</button>
+                        <button class="btn-o" onclick="dataManager.dlTemplate('src')">📄 Modèle CSV</button>
+                        <button class="btn-o" onclick="document.getElementById('file-src-csv').click()">📥 Import CSV</button>
+                    </div>
+                    <input type="file" id="file-src-csv" hidden accept=".csv,.txt" onchange="dataManager.importSrcs(this)">
+                    <div style="font-size:10px; color:#888; margin-top:5px;">Format CSV : <code>Code;Libellé;Montant</code></div>
+                </fieldset>
+            </div>
+            
+            <div>
+                <fieldset style="background:#f9fcf9; margin-bottom:15px;"><legend>👥 Référents (Professeurs)</legend>
+                    <div id="refs-list" style="max-height:120px; overflow-y:auto; margin-bottom:10px; border:1px solid #ddd; background:white; padding:5px;"></div>
+                    <button class="btn-o" onclick="conf.addRef()">+ Ajout Manuel</button>
+                    <div style="display:flex; gap:5px; margin-top:5px;"><button class="btn-o" onclick="dataManager.dlTemplate('ref')">📄 Modèle CSV</button><button class="btn-o" onclick="document.getElementById('file-ref-csv').click()">📥 Import CSV</button></div>
+                    <input type="file" id="file-ref-csv" hidden accept=".csv,.txt" onchange="dataManager.importRefs(this)">
+                </fieldset>
+
+                <fieldset style="background:#fffcf9; margin-bottom:15px;"><legend>🧑‍🤝‍🧑 Base Accompagnateurs</legend>
+                    <div id="accs-conf-list" style="max-height:120px; overflow-y:auto; margin-bottom:10px; border:1px solid #ddd; background:white; padding:5px;"></div>
+                    <button class="btn-o" onclick="conf.addAccDef()">+ Ajout Manuel</button>
+                    <div style="display:flex; gap:5px; margin-top:5px;"><button class="btn-o" onclick="dataManager.dlTemplate('acc')">📄 Modèle CSV</button><button class="btn-o" onclick="document.getElementById('file-acc-csv').click()">📥 Import CSV</button></div>
+                    <input type="file" id="file-acc-csv" hidden accept=".csv,.txt" onchange="dataManager.importAccs(this)">
+                </fieldset>
+
+                <fieldset style="background:#fcf9f9;"><legend>🎯 Axes du Projet d'Établissement</legend>
+                    <div id="axes-conf-list" style="max-height:120px; overflow-y:auto; margin-bottom:10px; border:1px solid #ddd; background:white; padding:5px;"></div>
+                    <button class="btn-o" onclick="conf.addAxe()">+ Ajouter un Axe</button>
+                </fieldset>
+            </div>
+        </div>
+        
+        <button class="btn" style="background:var(--ok); width:100%; margin-top:15px; margin-bottom: 10px;" onclick="conf.close()">💾 ENREGISTRER TOUS LES PARAMÈTRES</button>
+        <button class="btn-o" style="color:var(--err); border-color:var(--err); width:100%; padding: 10px; font-weight: bold;" onclick="conf.hardReset()">⚠️ TOUT EFFACER (REMISE À ZÉRO DE L'APPLICATION)</button>
+    </div>
+</div>
+
+<!-- ══════════════ MODAL AIDE ══════════════ -->
+<div id="aide-modal">
+  <div class="aide-box">
+    <div class="aide-header">
+      <h2>📖 Guide d'utilisation — Tableau Gestion Projets</h2>
+      <button class="aide-close" onclick="aideModal.close()">✕</button>
+    </div>
+    <div class="aide-body">
+      <!-- NAVIGATION LATÉRALE -->
+      <div class="aide-nav">
+        <div class="aide-nav-item active" onclick="aideModal.show('demarrage')" data-tab="demarrage"><span class="aide-ico">🚀</span> Démarrage</div>
+        <div class="aide-nav-item" onclick="aideModal.show('navigation')" data-tab="navigation"><span class="aide-ico">🗺️</span> Navigation</div>
+        <div class="aide-nav-item" onclick="aideModal.show('projets')" data-tab="projets"><span class="aide-ico">📁</span> Gestion des Projets</div>
+        <div class="aide-nav-item" onclick="aideModal.show('statuts')" data-tab="statuts"><span class="aide-ico">🔖</span> Statuts & Workflow</div>
+        <div class="aide-nav-item" onclick="aideModal.show('budget')" data-tab="budget"><span class="aide-ico">💶</span> Budget & Finances</div>
+        <div class="aide-nav-item" onclick="aideModal.show('documents')" data-tab="documents"><span class="aide-ico">📄</span> Documents & Imports</div>
+        <div class="aide-nav-item" onclick="aideModal.show('bilan')" data-tab="bilan"><span class="aide-ico">📊</span> Bilan & Calendrier</div>
+        <div class="aide-nav-item" onclick="aideModal.show('parametres')" data-tab="parametres"><span class="aide-ico">⚙️</span> Paramètres</div>
+        <div class="aide-nav-item" onclick="aideModal.show('sauvegarde')" data-tab="sauvegarde"><span class="aide-ico">💾</span> Sauvegarde</div>
+        <div class="aide-nav-item" onclick="aideModal.show('faq')" data-tab="faq"><span class="aide-ico">❓</span> FAQ</div>
+      </div>
+
+      <!-- CONTENU -->
+      <div class="aide-content">
+
+        <!-- DÉMARRAGE -->
+        <div class="aide-section active" id="aide-demarrage">
+          <h3>🚀 Bienvenue dans le Tableau de Gestion des Projets</h3>
+          <p style="font-size:12px; color:#555; margin-bottom:16px;">Cette application vous permet de gérer l'ensemble des projets pédagogiques, sorties scolaires et voyages de votre établissement.</p>
+
+          <h4>Première utilisation — 3 étapes essentielles</h4>
+          <div class="aide-step"><div class="aide-step-num">1</div><div><strong>Configurer l'établissement</strong><br>Cliquez sur <span class="aide-badge aide-badge-pri">⚙ Paramètres</span> en haut à droite pour renseigner le nom de l'établissement, la signature du chef d'établissement, les niveaux de classe, les enveloppes budgétaires et les référents.</div></div>
+          <div class="aide-step"><div class="aide-step-num">2</div><div><strong>Créer votre premier projet</strong><br>Cliquez sur <span class="aide-badge aide-badge-acc">+ Nouveau</span> pour ouvrir le formulaire de saisie. Remplissez au minimum le titre, le référent et le type de projet.</div></div>
+          <div class="aide-step"><div class="aide-step-num">3</div><div><strong>Sauvegarder vos données</strong><br>Cliquez régulièrement sur <span class="aide-badge aide-badge-pri">💾 Export</span> pour télécharger une copie de sauvegarde. Ce fichier vous permettra de restaurer vos données à tout moment.</div></div>
+
+          <div class="aide-warn">⚠️ <strong>Important :</strong> L'application fonctionne entièrement dans votre navigateur. Vos données sont sauvegardées localement. Pensez à exporter régulièrement un fichier de sauvegarde pour ne rien perdre.</div>
+
+          <h4>Concept général</h4>
+          <div class="aide-tip">Chaque <strong>projet</strong> passe par plusieurs étapes : création → soumission → validation CA → accord proviseur → terminé. Le tableau de bord vous donne une vue d'ensemble en temps réel.</div>
+        </div>
+
+        <!-- NAVIGATION -->
+        <div class="aide-section" id="aide-navigation">
+          <h3>🗺️ Navigation dans l'application</h3>
+          <table class="aide-table">
+            <thead><tr><th>Bouton</th><th>Vue</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><span class="aide-badge aide-badge-pri">📋 Liste</span></td><td>Tableau de bord</td><td>Vue principale avec tous les projets, filtres et actions rapides.</td></tr>
+              <tr><td><span class="aide-badge aide-badge-pri">📅 Calendrier</span></td><td>Planning Gantt</td><td>Diagramme de Gantt annuel. Visualisez les projets sur 12 mois avec une ligne rouge indiquant le jour actuel.</td></tr>
+              <tr><td><span class="aide-badge aide-badge-pri">✍️ Modèles</span></td><td>Documents types</td><td>Générez des accusés de réception, autorisations et fiches intendance à imprimer.</td></tr>
+              <tr><td><span class="aide-badge aide-badge-pri">📊 Bilan</span></td><td>Bilan global</td><td>Synthèse financière, suivi des fiches projet, ordres de mission et bilan pédagogique.</td></tr>
+            </tbody>
+          </table>
+
+          <h4>Barre de recherche et filtres</h4>
+          <div class="aide-tip">La barre de <strong>recherche</strong> (🔍) filtre instantanément les projets par titre, professeur référent, destination ou classe. Vous pouvez également utiliser la liste déroulante de <strong>niveau</strong> pour filtrer par classe.</div>
+
+          <h4>Calendrier Gantt</h4>
+          <div class="aide-tip">Le diagramme de Gantt affiche tous les projets répartis sur l'année scolaire. Chaque barre est colorée selon le <strong>statut</strong> du projet. Cliquez sur une barre pour voir le détail. La <strong>ligne rouge</strong> indique la date du jour.</div>
+        </div>
+
+        <!-- PROJETS -->
+        <div class="aide-section" id="aide-projets">
+          <h3>📁 Créer et gérer les projets</h3>
+
+          <h4>Créer un nouveau projet</h4>
+          <div class="aide-step"><div class="aide-step-num">1</div><div>Cliquez sur <span class="aide-badge aide-badge-acc">+ Nouveau</span> dans la barre de navigation.</div></div>
+          <div class="aide-step"><div class="aide-step-num">2</div><div>Remplissez les <strong>4 sections</strong> du formulaire : Identification, Logistique, Budget, Validation.</div></div>
+          <div class="aide-step"><div class="aide-step-num">3</div><div>Cliquez sur <strong>Enregistrer</strong> en bas du formulaire pour sauvegarder le projet.</div></div>
+
+          <h4>Types de projets disponibles</h4>
+          <table class="aide-table">
+            <thead><tr><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td>✈️ Voyage en France</td><td>Séjour avec nuitée(s) sur le territoire national</td></tr>
+              <tr><td>✈️ Voyage hors France</td><td>Séjour avec nuitée(s) à l'étranger</td></tr>
+              <tr><td>🏫 Sortie temps scolaire</td><td>Sortie dans la journée, sur le temps de cours</td></tr>
+              <tr><td>🏫 Sortie hors temps scolaire</td><td>Sortie dans la journée, en dehors des cours</td></tr>
+              <tr><td>📅 Projet ponctuel</td><td>Événement unique sur une seule date</td></tr>
+              <tr><td>📅 Projet multi-dates</td><td>Projet avec plusieurs séances planifiées</td></tr>
+            </tbody>
+          </table>
+
+          <h4>Actions disponibles sur chaque projet</h4>
+          <table class="aide-table">
+            <thead><tr><th>Icône</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td>✏️</td><td>Modifier le projet</td></tr>
+              <tr><td>📋</td><td>Dupliquer le projet (pratique pour des sorties récurrentes)</td></tr>
+              <tr><td>🖨️</td><td>Imprimer la fiche administrative</td></tr>
+              <tr><td>💾</td><td>Exporter le projet en JSON (pour partage ou archivage)</td></tr>
+              <tr><td>🗑️</td><td>Supprimer le projet (action irréversible)</td></tr>
+            </tbody>
+          </table>
+
+          <h4>Accompagnateurs</h4>
+          <div class="aide-tip">Dans la section <strong>Logistique</strong>, vous pouvez ajouter des accompagnateurs un par un. Si vous avez configuré une base d'accompagnateurs dans les Paramètres, leurs noms apparaîtront en suggestion automatique lors de la saisie.</div>
+        </div>
+
+        <!-- STATUTS -->
+        <div class="aide-section" id="aide-statuts">
+          <h3>🔖 Statuts et workflow de validation</h3>
+          <p style="font-size:12px; color:#555; margin-bottom:14px;">Chaque projet suit un cycle de vie avec 5 statuts possibles. Modifiez le statut directement dans le formulaire de chaque projet (section IV).</p>
+          <div class="aide-statut-grid">
+            <div class="aide-statut-card" style="background:#f0f0f0; border-left:4px solid #95a5a6;"><strong>⚪ Brouillon</strong><br><span style="font-size:11px; color:#666;">Projet en cours de rédaction, non soumis à validation.</span></div>
+            <div class="aide-statut-card" style="background:#fff5eb; border-left:4px solid #e67e22;"><strong>🟠 Soumis</strong><br><span style="font-size:11px; color:#666;">Dossier complet transmis, en attente d'examen par le CA.</span></div>
+            <div class="aide-statut-card" style="background:#eafaf1; border-left:4px solid #27ae60;"><strong>🟢 Validé</strong><br><span style="font-size:11px; color:#666;">Accordé par le CA et le chef d'établissement. Projet confirmé.</span></div>
+            <div class="aide-statut-card" style="background:#eaf3fb; border-left:4px solid #2980b9;"><strong>🔵 Terminé</strong><br><span style="font-size:11px; color:#666;">Projet réalisé et clôturé. Archivé dans les bilans.</span></div>
+            <div class="aide-statut-card" style="background:#fdedec; border-left:4px solid #c0392b;"><strong>🔴 Annulé</strong><br><span style="font-size:11px; color:#666;">Projet annulé. Conservé dans la liste pour traçabilité.</span></div>
+          </div>
+
+          <h4>Validation CA et accord du Proviseur</h4>
+          <div class="aide-tip">Dans la section <strong>IV. Validation</strong> du formulaire, cochez les cases <strong>Validation CA</strong> et <strong>Accord Chef d'Établissement</strong> et saisissez les dates correspondantes. Ces informations apparaissent dans le tableau principal.</div>
+
+          <h4>Notes internes</h4>
+          <div class="aide-tip">Trois zones de texte vous permettent de laisser des commentaires internes : <strong>Note AR</strong> (accusé de réception), <strong>Note Accord</strong> (conditions de l'autorisation), et <strong>Note Gestion</strong> (instructions pour l'intendance).</div>
+        </div>
+
+        <!-- BUDGET -->
+        <div class="aide-section" id="aide-budget">
+          <h3>💶 Gestion du budget</h3>
+
+          <h4>Structure budgétaire</h4>
+          <p style="font-size:12px; color:#555; margin-bottom:12px;">Chaque projet dispose d'un budget prévisionnel avec deux colonnes : <strong>Dépenses</strong> (en rouge) et <strong>Recettes/Financement</strong> (en vert). Le solde affiché en haut doit tendre vers 0 pour un budget équilibré.</p>
+
+          <div class="aide-step"><div class="aide-step-num">1</div><div>Cliquez sur <strong>+ Ajouter une Dépense</strong> pour saisir un poste de dépense (libellé + montant).</div></div>
+          <div class="aide-step"><div class="aide-step-num">2</div><div>Cliquez sur <strong>+ Ajouter une Source</strong> pour indiquer les financements (participation familles, subventions, fonds AP/VE…).</div></div>
+          <div class="aide-step"><div class="aide-step-num">3</div><div>Si vous avez configuré des <strong>Enveloppes Budgétaires</strong> dans les Paramètres, leur code apparaît en suggestion lors de la saisie d'une source.</div></div>
+
+          <h4>Bilan financier global (vue 📊 Bilan)</h4>
+          <div class="aide-tip">La vue <strong>Bilan Financier Général</strong> consolide toutes les enveloppes budgétaires. Chaque source affiche sa <strong>capacité totale</strong>, le montant <strong>engagé</strong> par les projets en cours, et le <strong>reste disponible</strong> avec une jauge colorée (vert / orange / rouge).</div>
+
+          <h4>Export financier</h4>
+          <div class="aide-tip">Depuis la vue Liste ou la vue Bilan, cliquez sur <span class="aide-badge aide-badge-ok">💾 Excel</span> pour exporter un tableau CSV compatible Excel avec tous les projets et leurs données budgétaires.</div>
+        </div>
+
+        <!-- DOCUMENTS -->
+        <div class="aide-section" id="aide-documents">
+          <h3>📄 Documents, imports et exports</h3>
+
+          <h4>Documents administratifs (vue ✍️ Modèles)</h4>
+          <table class="aide-table">
+            <thead><tr><th>Document</th><th>Utilisation</th></tr></thead>
+            <tbody>
+              <tr><td>📩 Accusé de Réception</td><td>Envoyé au professeur pour confirmer la réception du dossier, avec éventuelles remarques.</td></tr>
+              <tr><td>✅ Lettre d'Autorisation</td><td>Document officiel d'accord du chef d'établissement.</td></tr>
+              <tr><td>🧾 Fiche Intendance</td><td>Récapitulatif budgétaire et instructions pour le service de gestion.</td></tr>
+            </tbody>
+          </table>
+          <div class="aide-tip">Ces documents utilisent automatiquement les informations saisies dans le projet et dans les Paramètres (nom établissement, signature proviseur…). Utilisez <strong>🖨️ Imprimer</strong> ou <strong>Ctrl+P</strong> pour générer le PDF.</div>
+
+          <h4>Importer des projets</h4>
+          <table class="aide-table">
+            <thead><tr><th>Bouton</th><th>Format</th><th>Usage</th></tr></thead>
+            <tbody>
+              <tr><td><span class="aide-badge aide-badge-purple">📥 Importer (OM / Projet)</span></td><td>JSON</td><td>Importer un projet exporté depuis cette application ou un Ordre de Mission.</td></tr>
+              <tr><td><span class="aide-badge aide-badge-green">🗂️ Fiche Projet</span></td><td>JSON</td><td>Importer une fiche EDD générée par l'application Fiche Projet.</td></tr>
+              <tr><td><span class="aide-badge aide-badge-blue">📋 Ordre de Mission</span></td><td>JSON</td><td>Importer un ordre de mission pour associer la décision à un projet existant.</td></tr>
+              <tr><td>📥 CSV (liste)</td><td>CSV</td><td>Import en masse depuis un tableau Excel (voir modèle téléchargeable).</td></tr>
+            </tbody>
+          </table>
+
+          <div class="aide-tip">💡 Vous pouvez aussi <strong>glisser-déposer</strong> un fichier JSON directement sur la fenêtre de l'application pour l'importer rapidement.</div>
+
+          <h4>Télécharger un modèle CSV</h4>
+          <div class="aide-tip">Depuis la liste (vue 📋), cliquez sur <strong>📄 Modèle</strong> pour télécharger un fichier CSV vierge avec les bons en-têtes pour importer des projets en masse.</div>
+        </div>
+
+        <!-- BILAN -->
+        <div class="aide-section" id="aide-bilan">
+          <h3>📊 Bilan et Calendrier</h3>
+
+          <h4>Onglets du Bilan (vue 📊 Bilan)</h4>
+          <table class="aide-table">
+            <thead><tr><th>Onglet</th><th>Contenu</th></tr></thead>
+            <tbody>
+              <tr><td>📊 Bilan Financier Général</td><td>Vue consolidée de toutes les enveloppes budgétaires (AP et VE), avec jauges et KPI globaux.</td></tr>
+              <tr><td>🗂️ Fiches Projet</td><td>Liste de tous les projets avec leur fiche EDD associée et l'avis du chef d'établissement.</td></tr>
+              <tr><td>📋 Ordres de Mission</td><td>Suivi des ordres de mission reçus et de leur statut (accordé / refusé / en attente).</td></tr>
+              <tr><td>🎓 Bilan Pédagogique</td><td>Répartition par type de projet, niveau, parcours éducatifs et axes du projet d'établissement.</td></tr>
+            </tbody>
+          </table>
+
+          <h4>Calendrier Gantt (vue 📅 Calendrier)</h4>
+          <div class="aide-tip">Le diagramme affiche les projets sur 12 mois. La <strong>ligne rouge verticale</strong> représente la date du jour. Les barres sont colorées selon le statut du projet. Cliquez sur une barre pour accéder au détail du projet.</div>
+          <div class="aide-statut-grid">
+            <div class="aide-statut-card" style="background:#f5f5f5; border-left:4px solid #95a5a6; font-size:11px;"><strong>⚪ Gris</strong> — Brouillon</div>
+            <div class="aide-statut-card" style="background:#fff8f3; border-left:4px solid #e67e22; font-size:11px;"><strong>🟠 Orange</strong> — Soumis</div>
+            <div class="aide-statut-card" style="background:#f3faf5; border-left:4px solid #27ae60; font-size:11px;"><strong>🟢 Vert</strong> — Validé</div>
+            <div class="aide-statut-card" style="background:#f3f8fd; border-left:4px solid #2980b9; font-size:11px;"><strong>🔵 Bleu</strong> — Terminé</div>
+          </div>
+        </div>
+
+        <!-- PARAMÈTRES -->
+        <div class="aide-section" id="aide-parametres">
+          <h3>⚙️ Paramètres de l'établissement</h3>
+          <p style="font-size:12px; color:#555; margin-bottom:14px;">Accédez aux paramètres via le bouton <span class="aide-badge aide-badge-pri">⚙ Paramètres</span>. Ces données sont partagées par tous les projets.</p>
+
+          <table class="aide-table">
+            <thead><tr><th>Section</th><th>Contenu</th></tr></thead>
+            <tbody>
+              <tr><td>🏫 Identité</td><td>Nom de l'établissement, ville, et signature du proviseur (pour les documents imprimés).</td></tr>
+              <tr><td>📚 Structure</td><td>Niveaux de classes disponibles (ex : 2nde, 1ère, Terminale). Utilisez + Ajouter Niveau.</td></tr>
+              <tr><td>💰 Enveloppes Budgétaires</td><td>Sources de financement récurrentes (AP-01, VE-Voyages…) avec leur montant annuel disponible.</td></tr>
+              <tr><td>👥 Référents</td><td>Liste des professeurs référents avec nom, prénom et email. Import CSV possible.</td></tr>
+              <tr><td>🧑‍🤝‍🧑 Accompagnateurs</td><td>Base de données d'accompagnateurs habituels. Utilisée pour la saisie assistée dans les projets.</td></tr>
+              <tr><td>🎯 Axes</td><td>Axes du projet d'établissement à associer aux projets.</td></tr>
+            </tbody>
+          </table>
+
+          <div class="aide-tip">💡 Pour les référents et accompagnateurs, vous pouvez importer une liste via un fichier CSV. Téléchargez d'abord le <strong>📄 Modèle CSV</strong> pour connaître le format attendu.</div>
+          <div class="aide-warn">⚠️ Le bouton <strong>"TOUT EFFACER"</strong> supprime définitivement toutes les données (projets + paramètres). Cette action est irréversible. Effectuez toujours un Export avant.</div>
+        </div>
+
+        <!-- SAUVEGARDE -->
+        <div class="aide-section" id="aide-sauvegarde">
+          <h3>💾 Sauvegarde et restauration</h3>
+
+          <h4>Exporter une sauvegarde complète</h4>
+          <div class="aide-step"><div class="aide-step-num">1</div><div>Cliquez sur <span class="aide-badge aide-badge-pri">💾 Export</span> dans la barre de navigation.</div></div>
+          <div class="aide-step"><div class="aide-step-num">2</div><div>Un fichier <code>.json</code> est téléchargé automatiquement. Il contient tous vos projets et paramètres.</div></div>
+          <div class="aide-step"><div class="aide-step-num">3</div><div>Conservez ce fichier dans un dossier sécurisé (Drive, serveur…).</div></div>
+
+          <h4>Restaurer une sauvegarde</h4>
+          <div class="aide-step"><div class="aide-step-num">1</div><div>Cliquez sur <span class="aide-badge aide-badge-ok">📂 Charger</span> dans la barre de navigation.</div></div>
+          <div class="aide-step"><div class="aide-step-num">2</div><div>Sélectionnez votre fichier <code>.json</code> de sauvegarde.</div></div>
+          <div class="aide-step"><div class="aide-step-num">3</div><div>L'application restaure toutes les données immédiatement.</div></div>
+
+          <div class="aide-warn">⚠️ Restaurer un fichier de sauvegarde <strong>remplace toutes les données actuelles</strong>. Exportez d'abord si vous souhaitez conserver l'état courant.</div>
+
+          <h4>Bonne pratique</h4>
+          <div class="aide-tip">💡 Exportez une sauvegarde <strong>après chaque session de travail importante</strong>. Nommez vos fichiers avec la date (ex : <code>projets_2024-11-15.json</code>) pour un archivage ordonné.</div>
+
+          <h4>Exporter un projet individuel</h4>
+          <div class="aide-tip">Dans la liste des projets, cliquez sur l'icône <strong>💾</strong> d'un projet pour l'exporter individuellement en JSON. Ce fichier peut ensuite être partagé ou réimporté via <span class="aide-badge aide-badge-purple">📥 Importer</span>.</div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="aide-section" id="aide-faq">
+          <h3>❓ Questions fréquentes</h3>
+          <input type="text" class="aide-search-bar" id="faq-search" placeholder="🔍 Rechercher une question…" oninput="aideModal.filterFAQ(this.value)">
+          <div id="faq-list">
+            <div class="aide-faq-item"><div class="aide-faq-q" onclick="aideModal.toggleFAQ(this)">Mes données sont-elles sauvegardées automatiquement ? <span>▼</span></div><div class="aide-faq-a">L'application enregistre vos données dans la mémoire locale de votre navigateur (localStorage). Elles persistent entre les sessions <strong>sur le même navigateur et le même ordinateur</strong>. Pour éviter toute perte (vidage du cache, changement d'ordinateur…), exportez régulièrement une sauvegarde JSON via le bouton <strong>💾 Export</strong>.</div></div>
+            <div class="aide-faq-item"><div class="aide-faq-q" onclick="aideModal.toggleFAQ(this)">Comment partager les données avec un collègue ? <span>▼</span></div><div class="aide-faq-a">Exportez une sauvegarde complète (💾 Export) et envoyez le fichier JSON à votre collègue. Il pourra le charger via le bouton <strong>📂 Charger</strong>. Il est aussi possible d'exporter un projet individuel (icône 💾 sur la ligne du projet) pour partager un seul dossier.</div></div>
+            <div class="aide-faq-item"><div class="aide-faq-q" onclick="aideModal.toggleFAQ(this)">Comment imprimer une fiche de projet ou un document administratif ? <span>▼</span></div><div class="aide-faq-a">Depuis la liste des projets, cliquez sur l'icône 🖨️ de la ligne souhaitée, ou ouvrez le projet et cliquez sur le bouton d'impression. Vous pouvez aussi aller dans la vue <strong>✍️ Modèles</strong> pour choisir le type de document à générer. Utilisez ensuite <strong>Ctrl+P</strong> pour imprimer ou enregistrer en PDF.</div></div>
+            <div class="aide-faq-item"><div class="aide-faq-q" onclick="aideModal.toggleFAQ(this)">Comment dupliquer un projet récurrent ? <span>▼</span></div><div class="aide-faq-a">Dans le tableau de bord, cliquez sur l'icône 📋 (dupliquer) sur la ligne du projet à copier. Un nouveau projet identique est créé avec le statut "Brouillon". Il vous suffit de modifier les dates et les informations spécifiques à la nouvelle sortie.</div></div>
+            <div class="aide-faq-item"><div class="aide-faq-q" onclick="aideModal.toggleFAQ(this)">Qu'est-ce que la Fiche Projet (EDD) ? <span>▼</span></div><div class="aide-faq-a">La Fiche Projet (ou Fiche EDD) est un document JSON généré par une application complémentaire. Elle contient les informations pédagogiques approfondies : ODD, axes, dispositifs, partenaires, productions attendues. Importez-la via le bouton <span class="aide-badge aide-badge-green">🗂️ Fiche Projet</span> pour l'associer automatiquement au projet correspondant.</div></div>
+            <div class="aide-faq-item"><div class="aide-faq-q" onclick="aideModal.toggleFAQ(this)">Comment ajouter une nouvelle enveloppe budgétaire ? <span>▼</span></div><div class="aide-faq-a">Allez dans <strong>⚙ Paramètres</strong> → section <strong>Enveloppes Budgétaires</strong>. Cliquez sur <strong>+ Ajouter</strong> et saisissez un code (ex : AP-01), un libellé et le montant disponible. Vous pouvez aussi importer une liste via CSV (téléchargez le modèle d'abord).</div></div>
+            <div class="aide-faq-item"><div class="aide-faq-q" onclick="aideModal.toggleFAQ(this)">Le projet n'apparaît pas dans le Gantt, pourquoi ? <span>▼</span></div><div class="aide-faq-a">Le Gantt affiche uniquement les projets avec une <strong>date de début</strong> renseignée. Vérifiez que le champ "Date Début" est bien rempli dans la section Logistique du formulaire.</div></div>
+            <div class="aide-faq-item"><div class="aide-faq-q" onclick="aideModal.toggleFAQ(this)">Comment filtrer les projets par niveau ou statut ? <span>▼</span></div><div class="aide-faq-a">Dans la vue 📋 Liste, utilisez la <strong>barre de recherche</strong> pour filtrer par texte, et la <strong>liste déroulante de niveau</strong> pour filtrer par classe. Pour filtrer par statut, saisissez le statut dans la barre de recherche (ex : "validé", "soumis").</div></div>
+            <div class="aide-faq-item"><div class="aide-faq-q" onclick="aideModal.toggleFAQ(this)">J'ai effacé des données par erreur, comment les récupérer ? <span>▼</span></div><div class="aide-faq-a">Si vous avez précédemment exporté une sauvegarde, rechargez-la via <strong>📂 Charger</strong>. Si vous n'avez pas de sauvegarde, la récupération est malheureusement impossible. C'est pourquoi nous recommandons d'exporter régulièrement.</div></div>
+          </div>
+        </div>
+
+      </div><!-- fin aide-content -->
+    </div><!-- fin aide-body -->
+  </div><!-- fin aide-box -->
+</div><!-- fin aide-modal -->
+
+<header class="no-print">
+    <h1>TABLEAU <span>Gestion Projets</span> <small style="font-size:0.7rem; color:#999;">Lycée Léopold Elfort</small></h1>
+    <nav>
+        <button onclick="app.nav('dash')" class="btn-o">📋 Liste</button>
+        <button onclick="app.nav('cal')" class="btn-o">📅 Calendrier</button>
+        <button onclick="app.nav('tpl')" class="btn-o">✍️ Modèles</button>
+        <button onclick="app.nav('global')" class="btn-o">📊 Bilan</button>
+        <div style="width:1px; height:20px; background:#ddd; margin:0 5px;"></div>
+        <button onclick="app.newProj()" class="btn" style="background:var(--acc)">+ Nouveau</button>
+        <button onclick="document.getElementById('file-smart-import').click()" class="btn" style="background:#8e44ad;">📥 Importer (OM / Projet)</button>
+        <input type="file" id="file-smart-import" hidden accept=".json" onchange="dataManager.importSmart(this)">
+        <button onclick="document.getElementById('file-edd-import').click()" class="btn" style="background:#1a6b4a; font-size:11px; padding:6px 12px;">🗂️ Fiche Projet</button>
+        <input type="file" id="file-edd-import" hidden accept=".json" onchange="dataManager.importEDD(this)">
+        <button onclick="document.getElementById('file-om-import').click()" class="btn" style="background:#2980b9; font-size:11px; padding:6px 12px;">📋 Ordre de Mission</button>
+        <input type="file" id="file-om-import" hidden accept=".json" onchange="dataManager.importOM(this)">
+        <button onclick="aideModal.open()" class="btn-o" style="background:#eaf3fb; border-color:#aed6f1; color:#2980b9; font-weight:bold;">❓ Aide</button>
+        <button onclick="app.settings()" class="btn-o">⚙ Paramètres</button>
+        <button onclick="dataManager.exportBackup()" class="btn-o">💾 Export</button>
+        <button onclick="document.getElementById('file-restore').click()" class="btn-o" style="background:var(--ok); color:white;">📂 Charger</button>
+        <input type="file" id="file-restore" hidden onchange="dataManager.restoreBackup(this)">
+    </nav>
+</header>
+
+<div class="container">
+    <div id="view-dash">
+        <div class="card no-print" style="display:flex; gap:15px; align-items:center;">
+            <div style="flex:2; position:relative;">
+                <input type="text" id="search-bar" oninput="app.renderDash()" placeholder="🔍 Rechercher..." style="padding-left:30px;">
+                <span style="position:absolute; left:10px; top:8px; opacity:0.5;">🔎</span>
+            </div>
+            <div style="flex:2; display:flex; gap:8px; justify-content:flex-end;">
+                <button class="btn-o btn-xl" onclick="dataManager.exportListCSV()">💾 Excel</button>
+                <button class="btn-o" onclick="window.print()">🖨️ PDF</button>
+                <div style="width:1px; height:20px; background:#ccc; margin:0 5px;"></div>
+                <button class="btn-o" onclick="dataManager.dlTemplate('proj')">📄 Modèle</button>
+                <button class="btn-o" onclick="document.getElementById('file-proj-csv').click()">📥 CSV</button>
+                <button class="btn-o" onclick="document.getElementById('file-proj-json').click()">📥 JSON</button>
+            </div>
+            <input type="file" id="file-proj-json" hidden accept=".json" onchange="dataManager.importProjectJSON(this)">
+            <input type="file" id="file-proj-csv" hidden accept=".csv,.txt" onchange="dataManager.importProjectCSV(this)">
+        </div>
+        <div class="card" style="padding:0; overflow:hidden;">
+            <div class="table-scroll-wrapper">
+                <table cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th width="10%">Niveau</th>
+                            <th width="22%">Projet & Détail</th>
+                            <th width="15%">Parcours & Axes</th>
+                            <th width="15%">Référent</th>
+                            <th width="8%" style="text-align:center;">Date CA</th>
+                            <th width="10%" style="text-align:center;">Statut</th>
+                            <th width="20%" style="text-align:center;" class="no-print">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="list"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-cal" class="hidden"><div class="card"><div class="gantt-wrapper"><div class="gantt-grid" id="gantt-chart"></div></div></div></div>
+
+    <div id="view-global" class="hidden">
+        <!-- ONGLETS BILAN -->
+        <div class="card" style="padding:0; overflow:hidden; margin-bottom:0;">
+            <div id="bilan-tabs" style="display:flex; border-bottom:2px solid #e0e0e0; background:#f8f9fa;">
+                <button class="bilan-tab active" onclick="app.showBilanTab('financier')" data-tab="financier" style="flex:1;padding:12px 8px;border:none;border-bottom:3px solid var(--acc);background:white;font-weight:bold;font-size:12px;cursor:pointer;color:var(--acc);">📊 Bilan Financier Général</button>
+                <button class="bilan-tab" onclick="app.showBilanTab('fp')" data-tab="fp" style="flex:1;padding:12px 8px;border:none;border-bottom:3px solid transparent;background:transparent;font-weight:bold;font-size:12px;cursor:pointer;color:#555;">🗂️ Fiches Projet</button>
+                <button class="bilan-tab" onclick="app.showBilanTab('om')" data-tab="om" style="flex:1;padding:12px 8px;border:none;border-bottom:3px solid transparent;background:transparent;font-weight:bold;font-size:12px;cursor:pointer;color:#555;">📋 Ordres de Mission</button>
+                <button class="bilan-tab" onclick="app.showBilanTab('pedago')" data-tab="pedago" style="flex:1;padding:12px 8px;border:none;border-bottom:3px solid transparent;background:transparent;font-weight:bold;font-size:12px;cursor:pointer;color:#555;">🎓 Bilan Pédagogique</button>
+            </div>
+        </div>
+
+        <!-- ══════════════ TAB: BILAN FINANCIER GÉNÉRAL ══════════════ -->
+        <div id="tab-financier" class="bilan-tab-content card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+                <h2 style="margin:0;font-size:1.3rem;color:var(--pri);">📊 Bilan Financier Général</h2>
+                <div class="no-print" style="display:flex;gap:8px;">
+                    <button class="btn-o btn-xl" onclick="dataManager.exportGlobalCSV()">💾 Excel</button>
+                    <button class="btn-o" onclick="window.print()">🖨️ PDF</button>
+                </div>
+            </div>
+
+            <!-- KPI GÉNÉRAUX -->
+            <div id="kpi-general" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:25px;"></div>
+
+            <!-- GROUPE AP -->
+            <div style="margin-bottom:30px;">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px 14px;background:linear-gradient(135deg,#1a5276,#2980b9);border-radius:8px;color:white;">
+                    <span style="font-size:1.3rem;">🏫</span>
+                    <div>
+                        <div style="font-weight:800;font-size:14px;letter-spacing:.5px;">ACTIONS PÉDAGOGIQUES — AP</div>
+                        <div style="font-size:11px;opacity:.85;">Sources dont le code commence par AP</div>
+                    </div>
+                    <div id="kpi-ap" style="margin-left:auto;text-align:right;"></div>
+                </div>
+                <div id="src-ap-list"></div>
+            </div>
+
+            <!-- GROUPE VE -->
+            <div style="margin-bottom:30px;">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px 14px;background:linear-gradient(135deg,#1a6b4a,#27ae60);border-radius:8px;color:white;">
+                    <span style="font-size:1.3rem;">✈️</span>
+                    <div>
+                        <div style="font-weight:800;font-size:14px;letter-spacing:.5px;">VOYAGES ÉDUCATIFS — VE</div>
+                        <div style="font-size:11px;opacity:.85;">Sources dont le code commence par VE</div>
+                    </div>
+                    <div id="kpi-ve" style="margin-left:auto;text-align:right;"></div>
+                </div>
+                <div id="src-ve-list"></div>
+            </div>
+
+            <!-- AUTRES SOURCES -->
+            <div id="groupe-autres" style="margin-bottom:30px;">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:10px 14px;background:linear-gradient(135deg,#6c3483,#9b59b6);border-radius:8px;color:white;">
+                    <span style="font-size:1.3rem;">📂</span>
+                    <div>
+                        <div style="font-weight:800;font-size:14px;letter-spacing:.5px;">AUTRES SOURCES</div>
+                        <div style="font-size:11px;opacity:.85;">Sources sans code AP ou VE</div>
+                    </div>
+                    <div id="kpi-autres" style="margin-left:auto;text-align:right;"></div>
+                </div>
+                <div id="src-autres-list"></div>
+            </div>
+        </div>
+
+        <!-- ══════════════ TAB: FICHES PROJET ══════════════ -->
+        <div id="tab-fp" class="bilan-tab-content card hidden">
+            <h2 style="margin-top:0;font-size:1.3rem;color:#1a6b4a;">🗂️ Bilan Financier — Fiches Projet</h2>
+            <div id="fp-kpi" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px;"></div>
+            <h3 style="font-size:13px;color:#555;border-bottom:1px solid #eee;padding-bottom:6px;margin-top:20px;">Engagements par source de financement</h3>
+            <table><thead><tr><th>Source</th><th>Alloué total</th><th>Engagé (FP)</th><th>% / source</th><th style="width:180px;">Jauge</th><th class="no-print" style="width:40px;">Détail</th></tr></thead><tbody id="fp-src-list"></tbody></table>
+            <h3 style="font-size:13px;color:#555;border-bottom:1px solid #eee;padding-bottom:6px;margin-top:25px;">Liste des Fiches Projet avec budget</h3>
+            <table><thead><tr><th>Projet</th><th>Référent</th><th>Statut</th><th style="text-align:right;">Dépenses</th><th style="text-align:right;">Recettes</th><th style="text-align:right;">Solde</th></tr></thead><tbody id="fp-detail-list"></tbody></table>
+        </div>
+
+        <!-- ══════════════ TAB: ORDRES DE MISSION ══════════════ -->
+        <div id="tab-om" class="bilan-tab-content card hidden">
+            <h2 style="margin-top:0;font-size:1.3rem;color:#2980b9;">📋 Bilan Financier — Ordres de Mission</h2>
+            <div id="om-kpi" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px;"></div>
+            <h3 style="font-size:13px;color:#555;border-bottom:1px solid #eee;padding-bottom:6px;margin-top:20px;">Engagements par source de financement</h3>
+            <table><thead><tr><th>Source</th><th>Alloué total</th><th>Engagé (OM)</th><th>% / source</th><th style="width:180px;">Jauge</th><th class="no-print" style="width:40px;">Détail</th></tr></thead><tbody id="om-src-list"></tbody></table>
+            <h3 style="font-size:13px;color:#555;border-bottom:1px solid #eee;padding-bottom:6px;margin-top:25px;">Liste des Ordres de Mission</h3>
+            <div id="om-stats-summary" style="margin-bottom:15px;"></div>
+            <table>
+                <thead><tr>
+                    <th style="width:24%;">Projet</th><th style="width:18%;">Responsable</th>
+                    <th style="width:14%;">Date(s)</th><th style="width:7%;text-align:center;">Élèves</th>
+                    <th style="width:12%;">Transport</th><th style="width:12%;text-align:right;">Budget</th>
+                    <th style="width:10%;text-align:center;">Décision</th>
+                </tr></thead>
+                <tbody id="om-global-list"></tbody>
+            </table>
+        </div>
+
+        <!-- ══════════════ TAB: BILAN PÉDAGOGIQUE ══════════════ -->
+        <div id="tab-pedago" class="bilan-tab-content card hidden">
+            <h2 style="margin-top:0;font-size:1.3rem;color:var(--pri);">🎓 Bilan Pédagogique</h2>
+
+            <h3 style="font-size:13px;color:#555;border-bottom:1px solid #eee;padding-bottom:6px;">Parcours Éducatifs</h3>
+            <table><thead><tr><th>Parcours</th><th>Nombre de Projets</th><th>Volume Financier</th><th class="no-print" style="width:50px;">Détail</th></tr></thead><tbody id="parcours-list"></tbody></table>
+
+            <h3 style="font-size:13px;color:#555;border-bottom:1px solid #eee;padding-bottom:6px;margin-top:25px;">Bilan par Niveaux</h3>
+            <table><thead><tr><th>Niveau</th><th>Nb Projets</th><th>Dont FP</th><th>Dont OM</th><th>Volume Financier</th><th class="no-print" style="width:50px;">Détail</th></tr></thead><tbody id="level-list"></tbody></table>
+
+            <h3 style="font-size:13px;color:#1a6b4a;border-bottom:1px solid #a8d5bb;padding-bottom:6px;margin-top:25px;">🗂️ Fiches Projet reçues</h3>
+            <div id="edd-global-stats" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:10px;">
+                <div>
+                    <h4 style="font-size:12px;color:#1a6b4a;margin-bottom:6px;">ODD les plus visés</h4>
+                    <table><thead><tr><th>ODD</th><th>Projets</th></tr></thead><tbody id="odd-global-list"></tbody></table>
+                </div>
+                <div>
+                    <h4 style="font-size:12px;color:#1a6b4a;margin-bottom:6px;">Avis chef d'établissement</h4>
+                    <table><thead><tr><th>Avis</th><th>Nombre</th></tr></thead><tbody id="avis-global-list"></tbody></table>
+                    <h4 style="font-size:12px;color:#1a6b4a;margin-bottom:6px;margin-top:15px;">Dispositifs associés</h4>
+                    <table><thead><tr><th>Dispositif</th><th>Projets</th></tr></thead><tbody id="disp-global-list"></tbody></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-form" class="hidden">
+        <div class="card">
+            <form id="f-proj" onsubmit="event.preventDefault(); app.save();">
+                <input type="hidden" id="p-id">
+                
+                <div class="no-print" style="display:flex; justify-content:space-between; align-items:center; background:#f0f7ff; padding:15px; border-radius:6px; margin-bottom:20px; border:1px solid #cce5ff; position:sticky; top:0; z-index:100;">
+                    <div style="display:flex; align-items:center; gap:15px;">
+                        <label style="font-weight:bold; font-size:14px; color:var(--pri);">Statut du Projet :</label>
+                        <select id="p-stat" style="font-weight:bold; font-size:14px; padding:8px; border-radius:4px; border:1px solid #ccc; background:white;">
+                            <option value="en cours d'instruction">En cours d'instruction</option>
+                            <option value="validé phase orga">Validé phase orga</option>
+                            <option value="terminé">Terminé</option>
+                            <option value="annulé">Annulé</option>
+                        </select>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button type="button" class="btn-o" onclick="app.saveAndPrint('SYNTHESE')" style="padding:8px 12px; font-weight:bold; color:var(--pri);">🖨️ Fiche Projet</button>
+                        <button type="button" class="btn-o" onclick="app.saveAndPrint('AR')" style="padding:8px 12px;">🖨️ AR</button>
+                        <button type="button" class="btn-o" onclick="app.saveAndPrint('AUTO')" style="padding:8px 12px;">🖨️ Autorisation</button>
+                        <button type="button" class="btn-o" onclick="app.saveAndPrint('GEST')" style="padding:8px 12px;">🖨️ GESTION</button>
+                        <button type="button" class="btn-o" onclick="app.saveAndPrint('ACC')" style="padding:8px 12px;">🖨️ Accompagnateurs</button>
+                        <div style="width:1px; background:#ccc; margin:0 5px;"></div>
+                        <button type="submit" class="btn" style="background:var(--ok); padding:10px 30px; font-size:15px;">💾 ENREGISTRER</button>
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:30px;">
+                    
+                    <div style="flex:2">
+                        <fieldset><legend>I. Projet & Pédagogie</legend>
+                            <input type="text" id="p-titre" required placeholder="Titre *" style="font-size:16px; font-weight:bold; margin-bottom:15px;">
+                            
+                            <div style="display:flex; gap:15px; margin-bottom:15px;">
+                                <div style="flex:1"><label>Nom Référent</label><input type="text" id="p-prof-nom" list="ref-suggestions" oninput="app.onRefInput(this.value)" placeholder="NOM"></div>
+                                <datalist id="ref-suggestions"></datalist>
+                                <div style="flex:1"><label>Prénom Référent</label><input type="text" id="p-prof-prenom" placeholder="Prénom"></div>
+                                <div style="flex:1"><label>Email</label><input type="text" id="p-mail"></div>
+                            </div>
+
+                            <div style="display:flex; gap:15px; margin-bottom:15px;">
+                                <div style="flex:1"><label>Niveau</label><select id="p-lvl" onchange="app.updateClassSelect()"></select></div>
+                                <div style="flex:1"><label>Classes</label><input type="text" id="p-classes"></div>
+                                <div style="width:120px;"><label>Année</label><select id="p-annee"><option>2025-2026</option><option>2026-2027</option></select></div>
+                            </div>
+                            
+                            <div style="margin-top:15px; background:#f9f9f9; padding:10px; border:1px solid #eee; border-radius:4px;">
+                                <span style="font-weight:bold; font-size:12px; display:block; margin-bottom:5px; color:var(--pri);">PARCOURS ÉDUCATIFS :</span>
+                                <div style="display:flex; gap:15px; flex-wrap:wrap;">
+                                    <label style="cursor:pointer;"><input type="checkbox" class="chk-parc" value="Avenir"> Avenir</label>
+                                    <label style="cursor:pointer;"><input type="checkbox" class="chk-parc" value="Citoyen"> Citoyen</label>
+                                    <label style="cursor:pointer;"><input type="checkbox" class="chk-parc" value="Santé"> Santé</label>
+                                    <label style="cursor:pointer;"><input type="checkbox" class="chk-parc" value="PEAC"> PEAC</label>
+                                </div>
+                            </div>
+
+                            <div style="margin-top:15px; background:#fcf9f9; padding:10px; border:1px solid #eee; border-radius:4px;">
+                                <span style="font-weight:bold; font-size:12px; display:block; margin-bottom:5px; color:var(--pri);">AXES DU PROJET D'ÉTABLISSEMENT :</span>
+                                <div id="p-axes-list" style="display:flex; gap:15px; flex-wrap:wrap;"></div>
+                            </div>
+
+                            <label style="margin-top:15px;">Objectifs Pédagogiques :</label>
+                            <textarea id="p-obj" placeholder="Détaillez les objectifs..." style="height:80px;"></textarea>
+
+                            <!-- ═══ SECTION PROJET/ACTION (données issues de la Fiche Projet) ═══ -->
+                            <div id="edd-panel" style="margin-top:15px; background:#e8f5ef; border:1px solid #a8d5bb; border-radius:6px; padding:12px;">
+                                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                                    <strong style="color:#1a6b4a; font-size:12px;">🗂️ DONNÉES PROJET / ACTION</strong>
+                                    <button type="button" class="edd-collapse-btn" onclick="app.toggleEDD()">▼ Réduire</button>
+                                </div>
+                                <div id="edd-fields">
+                                    <div style="display:flex; gap:10px; margin-bottom:8px;">
+                                        <div style="flex:1"><label style="font-size:11px; color:#1a6b4a; font-weight:bold; display:block; margin-bottom:3px;">AXE PROJET ÉTAB.</label><input type="text" id="p-edd-axe" placeholder="Axe stratégique…"></div>
+                                        <div style="flex:1"><label style="font-size:11px; color:#1a6b4a; font-weight:bold; display:block; margin-bottom:3px;">OBJECTIF</label><input type="text" id="p-edd-objectif" placeholder="Objectif visé…"></div>
+                                    </div>
+                                    <div style="margin-bottom:8px;"><label style="font-size:11px; color:#1a6b4a; font-weight:bold; display:block; margin-bottom:3px;">ACTION CONCRÈTE</label><input type="text" id="p-edd-action" placeholder="Action mise en œuvre…"></div>
+                                    <div style="display:flex; gap:10px; margin-bottom:8px;">
+                                        <div style="flex:1"><label style="font-size:11px; color:#1a6b4a; font-weight:bold; display:block; margin-bottom:3px;">COMPÉTENCE 1</label><input type="text" id="p-edd-c1" placeholder="…"></div>
+                                        <div style="flex:1"><label style="font-size:11px; color:#1a6b4a; font-weight:bold; display:block; margin-bottom:3px;">COMPÉTENCE 2</label><input type="text" id="p-edd-c2" placeholder="…"></div>
+                                        <div style="flex:1"><label style="font-size:11px; color:#1a6b4a; font-weight:bold; display:block; margin-bottom:3px;">COMPÉTENCE 3</label><input type="text" id="p-edd-c3" placeholder="…"></div>
+                                    </div>
+                                    <div style="margin-bottom:8px;">
+                                        <label style="font-size:11px; color:#1a6b4a; font-weight:bold; display:block; margin-bottom:3px;">DISPOSITIFS ASSOCIÉS</label>
+                                        <div style="display:flex; gap:10px; flex-wrap:wrap; background:#fff; padding:8px; border-radius:4px; border:1px solid #c5e8d5;">
+                                            <label style="cursor:pointer; display:inline-flex; align-items:center; gap:4px; font-size:12px;"><input type="checkbox" class="chk-disp" value="Cardie"> Cardie</label>
+                                            <label style="cursor:pointer; display:inline-flex; align-items:center; gap:4px; font-size:12px;"><input type="checkbox" class="chk-disp" value="NEFLE"> NEFLE</label>
+                                            <label style="cursor:pointer; display:inline-flex; align-items:center; gap:4px; font-size:12px;"><input type="checkbox" class="chk-disp" value="Club"> Club</label>
+                                            <label style="cursor:pointer; display:inline-flex; align-items:center; gap:4px; font-size:12px;"><input type="checkbox" class="chk-disp" value="PHare"> PHare</label>
+                                            <label style="cursor:pointer; display:inline-flex; align-items:center; gap:4px; font-size:12px;"><input type="checkbox" class="chk-disp" value="Devoirs faits"> Devoirs faits</label>
+                                            <label style="cursor:pointer; display:inline-flex; align-items:center; gap:4px; font-size:12px;"><input type="checkbox" class="chk-disp" value="Cordées"> Cordées</label>
+                                            <label style="cursor:pointer; display:inline-flex; align-items:center; gap:4px; font-size:12px;"><input type="checkbox" class="chk-disp" value="Ulis"> Ulis</label>
+                                            <label style="cursor:pointer; display:inline-flex; align-items:center; gap:4px; font-size:12px;"><input type="checkbox" class="chk-disp" value="Formation Fil"> Formation Fil</label>
+                                        </div>
+                                    </div>
+                                    <div style="margin-bottom:8px;">
+                                        <label style="font-size:11px; color:#1a6b4a; font-weight:bold; display:block; margin-bottom:3px;">PARTENAIRE(S)</label>
+                                        <div style="display:flex; gap:8px; align-items:center;">
+                                            <input type="text" id="p-edd-partenaire" placeholder="Nom du partenaire…" style="flex:2;">
+                                            <div style="flex:1; display:flex; gap:8px; flex-wrap:wrap;">
+                                                <label style="cursor:pointer; font-size:12px;"><input type="checkbox" class="chk-partrole" value="Animation"> Animation</label>
+                                                <label style="cursor:pointer; font-size:12px;"><input type="checkbox" class="chk-partrole" value="Financement"> Financement</label>
+                                                <label style="cursor:pointer; font-size:12px;"><input type="checkbox" class="chk-partrole" value="Orientation"> Orientation</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style="margin-bottom:8px;"><label style="font-size:11px; color:#1a6b4a; font-weight:bold; display:block; margin-bottom:3px;">PRÉSENTATION / DÉMARCHE</label><textarea id="p-edd-presentation" placeholder="Contexte, problématique, démarche pédagogique…" style="height:70px;"></textarea></div>
+                                    <div style="margin-bottom:8px;"><label style="font-size:11px; color:#1a6b4a; font-weight:bold; display:block; margin-bottom:3px;">SUBVENTIONS OBTENUES</label><input type="text" id="p-edd-subv" placeholder="Montant et source des subventions…"></div>
+                                    <div style="margin-bottom:8px;">
+                                        <label style="font-size:11px; color:#1a6b4a; font-weight:bold; display:block; margin-bottom:3px;">ODD VISÉS <small style="font-weight:normal; color:#5a7068;">(Objectifs de Développement Durable)</small></label>
+                                        <div id="p-edd-odd-grid" style="display:flex; flex-wrap:wrap; gap:4px; background:#fff; padding:8px; border-radius:4px; border:1px solid #c5e8d5;"></div>
+                                    </div>
+                                    <div style="margin-bottom:8px;">
+                                        <label style="font-size:11px; color:#1a6b4a; font-weight:bold; display:block; margin-bottom:3px;">PRODUCTIONS ATTENDUES</label>
+                                        <div style="display:flex; gap:10px; flex-wrap:wrap; background:#fff; padding:8px; border-radius:4px; border:1px solid #c5e8d5;">
+                                            <label style="cursor:pointer; font-size:12px;"><input type="checkbox" class="chk-prod" value="Podcast(s)"> 🎙️ Podcast</label>
+                                            <label style="cursor:pointer; font-size:12px;"><input type="checkbox" class="chk-prod" value="Vidéo(s)"> 🎬 Vidéo</label>
+                                            <label style="cursor:pointer; font-size:12px;"><input type="checkbox" class="chk-prod" value="Livre(s)"> 📗 Livre</label>
+                                            <label style="cursor:pointer; font-size:12px;"><input type="checkbox" class="chk-prod" value="Article(s)"> 📰 Article</label>
+                                            <label style="cursor:pointer; font-size:12px;"><input type="checkbox" class="chk-prod" value="Sculpture(s)"> 🗿 Sculpture</label>
+                                            <label style="cursor:pointer; font-size:12px;"><input type="checkbox" class="chk-prod" value="Objet(s)"> 📦 Objet</label>
+                                        </div>
+                                        <input type="text" id="p-edd-prod-autre" placeholder="Autre production…" style="margin-top:5px;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size:11px; color:#1a6b4a; font-weight:bold; display:block; margin-bottom:3px;">AVIS CHEF D'ÉTABLISSEMENT <span style="font-size:10px; color:#888;">(issu de la fiche projet)</span></label>
+                                        <div style="display:flex; gap:15px; background:#fff; padding:8px; border-radius:4px; border:1px solid #c5e8d5;">
+                                            <label style="cursor:pointer; font-size:13px;"><input type="radio" name="p-edd-avis" value="favorable"> ✅ Avis favorable</label>
+                                            <label style="cursor:pointer; font-size:13px;"><input type="radio" name="p-edd-avis" value="défavorable"> ❌ Avis défavorable</label>
+                                            <label style="cursor:pointer; font-size:13px;"><input type="radio" name="p-edd-avis" value=""> — Non renseigné</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <fieldset><legend>II. Logistique, Typologie & Programme</legend>
+                            
+                            <div id="legacy-warning" class="hidden" style="background:#fff3cd; padding:10px; color:#856404; margin-bottom:15px; border-left:4px solid #ffeeba; border-radius:4px;">
+                                ⚠️ <b>Ancienne typologie détectée.</b> Veuillez reclasser ce projet dans l'une des nouvelles catégories ci-dessous pour pouvoir sauvegarder.
+                            </div>
+
+                            <div style="margin-bottom:15px; background:#fdfdfd; padding:15px; border-radius:6px; border:1px solid #eee;">
+                                <div class="type-group">
+                                    <strong>✈️ VOYAGES (avec nuitées)</strong>
+                                    <div style="display:flex; gap:20px; flex-wrap:wrap;">
+                                        <label><input type="radio" name="p-type" value="voyage_fr" onclick="app.toggleType()"> En France</label>
+                                        <label><input type="radio" name="p-type" value="voyage_etr" onclick="app.toggleType()"> Hors France</label>
+                                    </div>
+                                </div>
+                                <div class="type-group">
+                                    <strong>🏫 SORTIES SCOLAIRES (sans nuitée)</strong>
+                                    <div style="display:flex; gap:20px; flex-wrap:wrap;">
+                                        <label><input type="radio" name="p-type" value="sortie_ts" onclick="app.toggleType()"> Sur temps scolaire</label>
+                                        <label><input type="radio" name="p-type" value="sortie_hts" onclick="app.toggleType()"> Hors temps scolaire</label>
+                                    </div>
+                                </div>
+                                <div class="type-group" style="border-bottom:none; margin-bottom:0; padding-bottom:0;">
+                                    <strong>📅 PROJETS ÉTABLISSEMENT</strong>
+                                    <div style="display:flex; gap:20px; flex-wrap:wrap;">
+                                        <label><input type="radio" name="p-type" value="projet_ponctuel" onclick="app.toggleType()"> Ponctuel (1 date)</label>
+                                        <label><input type="radio" name="p-type" value="projet_multi" onclick="app.toggleType()"> Multi-dates (Séances)</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="block-standard" class="hidden" style="background:#fafafa; padding:10px; border:1px solid #ddd; margin-bottom:15px; border-radius:4px;">
+                                <div style="display:flex; gap:15px; align-items:flex-end;">
+                                    <div><label>Date Début</label><input type="date" id="p-date-d"></div>
+                                    <div id="grp-heures" style="display:flex; gap:5px;">
+                                        <div><label>Heure Départ</label><input type="time" id="p-heure-d"></div>
+                                        <div><label>Heure Retour</label><input type="time" id="p-heure-f"></div>
+                                    </div>
+                                    <div id="grp-date-f" class="hidden"><label>Date Fin (Retour)</label><input type="date" id="p-date-f"></div>
+                                </div>
+                            </div>
+
+                            <div id="block-multi" class="hidden" style="background:#fff8e1; padding:10px; border:1px solid #f1c40f; margin-bottom:15px; border-radius:4px;">
+                                <strong style="color:#d35400; display:block; margin-bottom:10px;">🗓️ Séances prévues :</strong>
+                                <div id="md-list"></div>
+                                <button type="button" class="btn-o" style="margin-top:5px; border-color:#d35400; color:#d35400;" onclick="app.addMD()">+ Ajouter une séance</button>
+                            </div>
+
+                            <div style="display:flex; gap:15px; margin-bottom:15px;">
+                                <div style="flex:2"><label>Lieu / Destination</label><input id="p-dest" placeholder="Ex: Musée, Ville, Établissement..."></div>
+                                <div style="flex:1"><label>Transport</label><input id="p-transp" placeholder="Bus, Marche..."></div>
+                            </div>
+
+                            <div style="display:flex; gap:15px; margin-bottom:15px; background:#f9f9f9; padding:10px; border:1px solid #eee; border-radius:4px;">
+                                <div style="flex:1"><label>Élèves concernés</label><input type="number" id="p-nb-e"></div>
+                                <div style="flex:1"><label>Accomp. (Total)</label><input type="number" id="p-acc-nb"></div>
+                                <div style="flex:1"><label>Repas à commander</label><input type="number" id="p-repas" style="border-color:var(--err);"></div>
+                            </div>
+                            
+                            <datalist id="acc-suggestions"></datalist>
+
+                            <div style="background:#fdfdfd; padding:15px; border:1px solid #eee; border-radius:4px; margin-bottom:15px;">
+                                <strong style="color:var(--pri); display:block; margin-bottom:10px;">👥 Liste des Accompagnateurs</strong>
+                                <div id="acc-list"></div>
+                                <button type="button" class="btn-o" style="margin-top:5px;" onclick="app.addAcc()">+ Ajouter</button>
+                            </div>
+
+                            <label>Programme prévisionnel / Activités :</label>
+                            <textarea id="p-prog" placeholder="Détaillez le programme jour par jour ou les activités prévues..." style="height:120px; margin-bottom:15px;"></textarea>
+
+                            <div><label>Lien Drive / Dossier complet</label><input type="url" id="p-link"></div>
+                        </fieldset>
+
+                        <fieldset><legend>III. Budget Prévisionnel</legend>
+                            <div style="text-align:center; font-weight:bold; margin-bottom:15px; font-size:16px; padding:10px; background:#f9f9f9; border:1px solid #ddd; border-radius:4px;">Solde : <span id="solde">0.00</span> €</div>
+                            <div class="budget-cols">
+                                <div class="budget-col"><h4 style="margin:0 0 5px 0; font-size:13px; color:#c0392b;">DÉPENSES</h4><div id="div-exp"></div><button type="button" class="btn-o" style="width:100%; margin-top:5px;" onclick="bud.add('exp')">+ Ajouter une Dépense</button></div>
+                                <div class="budget-col"><h4 style="margin:0 0 5px 0; font-size:13px; color:#27ae60;">RECETTES (FINANCEMENT)</h4><div id="div-inc"></div><button type="button" class="btn-o" style="width:100%; margin-top:5px;" onclick="bud.add('inc')">+ Ajouter une Source</button></div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div style="flex:1">
+                        <fieldset style="background:#fffcf5; border-color:#fae588; position:sticky; top:80px;"><legend>IV. Validation & Notes Internes</legend>
+                            
+                            <div style="margin-bottom:20px; background:white; padding:10px; border:1px solid #eee; border-radius:4px;">
+                                <label style="color:var(--pri); font-weight:bold;">Validation Conseil d'Administration</label>
+                                <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
+                                    <input type="checkbox" id="p-ca-check" style="width:20px; height:20px; cursor:pointer;"> 
+                                    <input type="date" id="p-ca-date" style="flex:1;">
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom:25px; background:white; padding:10px; border:1px solid #eee; border-radius:4px;">
+                                <label style="color:var(--pri); font-weight:bold;">Accord Chef d'Établissement</label>
+                                <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
+                                    <input type="checkbox" id="p-prov-check" style="width:20px; height:20px; cursor:pointer;"> 
+                                    <input type="date" id="p-prov-date" style="flex:1;">
+                                </div>
+                            </div>
+
+                            <label style="font-weight:bold;">Note pour l'Accusé de Réception :</label>
+                            <textarea id="p-comm-ar" placeholder="Saisissez ici les remarques éventuelles (manque PJ, budget à revoir...)" style="height:100px; margin-top:5px; margin-bottom:15px;"></textarea>
+                            
+                            <label style="font-weight:bold;">Note pour l'Autorisation finale :</label>
+                            <textarea id="p-comm-accord" placeholder="Saisissez ici les conditions d'accord du chef d'établissement..." style="height:100px; margin-top:5px; margin-bottom:15px;"></textarea>
+
+                            <label style="font-weight:bold; color:#d35400;">Note GESTION (Pour Fiche Intendance) :</label>
+                            <textarea id="p-comm-gest" placeholder="Instructions particulières pour l'intendance (acompte transporteur, chèques, bons de commande...)" style="height:150px; margin-top:5px; border-color:#f1c40f;"></textarea>
+
+                            <div style="margin-top:15px; background:#e8f4fd; padding:10px; border:1px solid #aed6f1; border-radius:4px;">
+                                <label style="font-weight:bold; color:#2980b9; font-size:11px;">📋 ORDRE DE MISSION REÇU ?</label>
+                                <div id="p-om-badge" style="margin-top:5px; padding:6px 8px; background:#fff; border-radius:4px; font-size:11px; color:#555; border:1px solid #aed6f1;">Aucun ordre de mission associé</div>
+                            </div>
+
+                            <div style="margin-top:15px; background:#e8f5ef; padding:10px; border:1px solid #a8d5bb; border-radius:4px;">
+                                <label style="font-weight:bold; color:#1a6b4a; font-size:11px;">🗂️ FICHE PROJET REÇUE ?</label>
+                                <div id="p-edd-badge" style="margin-top:5px; padding:6px 8px; background:#fff; border-radius:4px; font-size:11px; color:#555; border:1px solid #c5e8d5;">Aucune fiche projet associée</div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="view-tpl" class="hidden">
+        <div class="card">
+            <h2>Modèles Textes</h2>
+            <div style="background:#fff3cd; padding:10px; margin-bottom:15px; font-size:12px; border-left:4px solid #ffeeba;">
+                <b>Balises disponibles :</b> [PROJET], [PROF], [CLASSES], [STATUT], [DEST], [NOTE_GESTION], [NOTE_AR], [NOTE_ACCORD]
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                <fieldset><legend>Accusé Réception</legend><textarea id="tpl-ar" class="tpl" style="height:200px;"></textarea></fieldset>
+                <fieldset><legend>Autorisation</legend><textarea id="tpl-accord" class="tpl" style="height:200px;"></textarea></fieldset>
+                <fieldset><legend>Mail</legend><textarea id="tpl-mail" class="tpl" style="height:200px;"></textarea></fieldset>
+                <fieldset><legend>Fiche GESTION</legend><textarea id="tpl-gest" class="tpl" style="height:200px;"></textarea></fieldset>
+            </div>
+            <button class="btn" onclick="conf.saveTpls()">💾 ENREGISTRER LES MODÈLES</button>
+        </div>
+    </div>
+    
+    <div id="view-print" class="hidden"><div id="print-content"></div><div class="no-print" style="text-align:center; margin-top:20px;"><button class="btn-o" onclick="app.nav('dash')">Retour</button> <button class="btn" onclick="window.print()">🖨️ LANCER L'IMPRESSION</button></div></div>
+</div>
+
+<script>
+// --- SECURITE DONNEES ---
+const safeNum = (v) => { if(typeof v==='number') return v; if(!v) return 0; let s=v.toString().replace(/,/g,'.').replace(/\s/g,''); return parseFloat(s)||0; };
+
+// Formate une date ISO (AAAA-MM-JJ) en JJ/MM/AAAA
+const fmtDate = (d) => {
+    if(!d) return '-';
+    const m = d.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    return m ? `${m[3]}/${m[2]}/${m[1]}` : d;
+};
+
+window.addEventListener("load", () => {
+    document.addEventListener("wheel", function(event){ if(document.activeElement.type === "number"){ document.activeElement.blur(); } });
+});
+
+const TYPE_LABELS = { voyage_fr: "🇫🇷 Voyage FR", voyage_etr: "🌍 Voyage Étranger", sortie_ts: "🏫 Sortie TS", sortie_hts: "🚌 Sortie Hors TS", projet_ponctuel: "📅 Proj. Ponctuel", projet_multi: "🗓️ Proj. Multi-dates", journee: "⚠️ Sortie (Obsolète)", voyage: "⚠️ Voyage (Obsolète)", annee: "⚠️ Proj. Année (Obsolète)" };
+
+// ════ ODD CONSTANTS ════
+const ODD_LIST = [
+    {n:1,  l:"Pas de pauvreté",                          c:"#E5243B", e:"🏠"},
+    {n:2,  l:"Faim « Zéro »",                            c:"#DDA63A", e:"🌾"},
+    {n:3,  l:"Bonne santé et bien-être",                  c:"#4C9F38", e:"❤️"},
+    {n:4,  l:"Éducation de qualité",                      c:"#C5192D", e:"📚"},
+    {n:5,  l:"Égalité entre les sexes",                   c:"#FF3A21", e:"⚖️"},
+    {n:6,  l:"Eau propre et assainissement",              c:"#26BDE2", e:"💧"},
+    {n:7,  l:"Énergie propre et abordable",               c:"#FCC30B", e:"☀️"},
+    {n:8,  l:"Travail décent et croissance",              c:"#A21942", e:"📈"},
+    {n:9,  l:"Industrie et innovation",                   c:"#FD6925", e:"🏭"},
+    {n:10, l:"Inégalités réduites",                       c:"#DD1367", e:"🤝"},
+    {n:11, l:"Villes et communautés durables",            c:"#FD9D24", e:"🏙️"},
+    {n:12, l:"Consommation et production responsables",   c:"#BF8B2E", e:"♻️"},
+    {n:13, l:"Lutte contre les changements climatiques",  c:"#3F7E44", e:"🌍"},
+    {n:14, l:"Vie aquatique",                             c:"#0A97D9", e:"🐠"},
+    {n:15, l:"Vie terrestre",                             c:"#56C02B", e:"🌿"},
+    {n:16, l:"Paix, justice et institutions efficaces",   c:"#00689D", e:"🕊️"},
+    {n:17, l:"Partenariats pour les objectifs",           c:"#19486A", e:"🌐"},
+];
+
+function buildODDGrid() {
+    const g = document.getElementById('p-edd-odd-grid');
+    if(!g) return;
+    g.innerHTML = '';
+    ODD_LIST.forEach(o => {
+        const lb = document.createElement('label');
+        lb.style.cssText = 'display:inline-flex;align-items:center;gap:4px;cursor:pointer;font-size:11px;padding:3px 6px;border-radius:4px;border:1px solid #ddd;background:#fff;';
+        lb.innerHTML = `<input type="checkbox" class="chk-odd" value="${o.n}" style="width:12px;height:12px;accent-color:${o.c};"><span style="background:${o.c};color:#fff;border-radius:3px;padding:1px 5px;font-weight:bold;font-size:10px;">${o.n}</span>${o.e}`;
+        g.appendChild(lb);
+    });
+}
+
+const conf = {
+    data: {etab:"", chef:"", ville:""}, srcs: [], struct: [], refs: [], accs: [], axes: [], tpls: { ar: "", accord: "", mail: "", gest: "" },
+    init() {
+        try {
+            const d=localStorage.getItem('CP112_CONF'), s=localStorage.getItem('CP112_SRCS'), st=localStorage.getItem('CP112_STRUCT'), t=localStorage.getItem('CP112_TPLS'), r=localStorage.getItem('CP112_REFS'), a=localStorage.getItem('CP112_ACCS'), ax=localStorage.getItem('CP112_AXES');
+            if(d) this.data=JSON.parse(d); if(s) this.srcs=JSON.parse(s); if(st) this.struct=JSON.parse(st); if(t) this.tpls=JSON.parse(t); if(r) this.refs=JSON.parse(r); if(a) this.accs=JSON.parse(a); if(ax) this.axes=JSON.parse(ax);
+        } catch(e){}
+        ['etab','chef','ville'].forEach(k => { if(document.getElementById('s-'+k)) document.getElementById('s-'+k).value = this.data[k]||""; });
+        ['ar','accord','mail','gest'].forEach(k => { const el = document.getElementById('tpl-'+k); if(el) { if(!this.tpls[k] && k === 'gest') this.tpls[k] = "NOTE GESTION :\n[NOTE_GESTION]"; el.value = this.tpls[k] || ""; }});
+        this.srcs.forEach(s => s.v = safeNum(s.v));
+        this.render();
+    },
+    render() {
+        document.getElementById('struct-list').innerHTML = this.struct.map((item, i) => `<div style="display:flex; gap:5px; margin-bottom:5px;"><input value="${item.lvl}" oninput="conf.struct[${i}].lvl=this.value" style="flex:1"><input value="${item.cls}" oninput="conf.struct[${i}].cls=this.value" style="flex:2"><button onclick="conf.struct.splice(${i},1);conf.render()">x</button></div>`).join('');
+        document.getElementById('s-list').innerHTML = this.srcs.map((s, i) => `<div style="display:flex; gap:5px; margin-bottom:5px;"><input value="${s.n}" oninput="conf.srcs[${i}].n=this.value" style="flex:2"><input value="${s.v}" type="number" oninput="conf.srcs[${i}].v=safeNum(this.value)" style="width:70px"><button onclick="conf.srcs.splice(${i},1);conf.render()">x</button></div>`).join('');
+        document.getElementById('refs-list').innerHTML = this.refs.map((r, i) => `<div style="display:flex; gap:3px; margin-bottom:3px; font-size:10px;"><b>${r.n}</b> - ${r.m} <button onclick="conf.refs.splice(${i},1);conf.render()">x</button></div>`).join('');
+        document.getElementById('accs-conf-list').innerHTML = this.accs.map((a, i) => `<div style="display:flex; gap:3px; margin-bottom:3px; font-size:10px;"><b>${a.n}</b> ${a.p} <i style="color:#666;">(${a.f==='Autre'?a.fa:a.f||'?'})</i> - 📞 ${a.t} <button onclick="conf.accs.splice(${i},1);conf.render()">x</button></div>`).join('');
+        document.getElementById('axes-conf-list').innerHTML = this.axes.map((a, i) => `<div style="display:flex; gap:5px; margin-bottom:5px;"><input value="${a}" oninput="conf.axes[${i}]=this.value" style="flex:1"><button onclick="conf.axes.splice(${i},1);conf.render()">x</button></div>`).join('');
+        app.updateSuggestions();
+    },
+    addLvl() { this.struct.push({lvl:"", cls:""}); this.render(); },
+    addSrc() { this.srcs.push({n:"", v:0}); this.render(); },
+    addRef() { this.refs.push({n:"", m:""}); this.render(); },
+    addAccDef() { this.accs.push({n:"", p:"", t:"", f:"", fa:""}); this.render(); }, 
+    addAxe() { this.axes.push("Nouvel axe"); this.render(); },
+    saveTpls() { ['ar','accord','mail','gest'].forEach(k => this.tpls[k] = document.getElementById('tpl-'+k).value); localStorage.setItem('CP112_TPLS', JSON.stringify(this.tpls)); alert("Sauvegardé"); },
+    hardReset() { if(confirm("⚠️ ATTENTION : Voulez-vous vraiment effacer TOUS les projets et TOUS les paramètres ? \nCette action est IRRÉVERSIBLE.\n\nPensez à faire un Export de sauvegarde avant !")) { localStorage.clear(); location.reload(); } },
+    close() {
+        ['etab','chef','ville'].forEach(k => this.data[k] = document.getElementById('s-'+k).value);
+        localStorage.setItem('CP112_CONF', JSON.stringify(this.data)); localStorage.setItem('CP112_SRCS', JSON.stringify(this.srcs)); 
+        localStorage.setItem('CP112_STRUCT', JSON.stringify(this.struct)); localStorage.setItem('CP112_REFS', JSON.stringify(this.refs));
+        localStorage.setItem('CP112_ACCS', JSON.stringify(this.accs)); localStorage.setItem('CP112_AXES', JSON.stringify(this.axes));
+        document.getElementById('modal').style.display='none'; app.updateFormDropdowns();
+    }
+};
+
+const bud = {
+    e:[], i:[],
+    render(e, i) { this.e = e || []; this.i = i || []; this.draw(); },
+    add(t) { if(t=='exp') this.e.push({l:'', v:0}); else this.i.push({s:'', v:0}); this.draw(); },
+    draw() {
+        document.getElementById('div-exp').innerHTML = this.e.map((x,k)=>`<div style="display:flex; gap:3px; margin-bottom:3px"><input value="${x.l}" oninput="bud.e[${k}].l=this.value" style="flex:2"><input type="number" step="0.01" value="${x.v}" onchange="this.value=parseFloat(this.value).toFixed(2)" oninput="bud.e[${k}].v=safeNum(this.value);bud.calc()" style="width:90px; text-align:right;"></div>`).join('');
+        const opts = `<option value="">Source...</option>` + conf.srcs.map(s => `<option value="${s.n}">${s.n}</option>`).join('');
+        document.getElementById('div-inc').innerHTML = this.i.map((x,k)=>`<div style="display:flex; gap:3px; margin-bottom:3px"><select onchange="bud.i[${k}].s=this.value" style="flex:2">${opts.replace(`value="${x.s}"`, `value="${x.s}" selected`)}</select><input type="number" step="0.01" value="${x.v}" onchange="this.value=parseFloat(this.value).toFixed(2)" oninput="bud.i[${k}].v=safeNum(this.value);bud.calc()" style="width:90px; text-align:right;"></div>`).join('');
+        this.calc();
+    },
+    calc() { const te = this.e.reduce((a,b)=>a+safeNum(b.v),0), ti = this.i.reduce((a,b)=>a+safeNum(b.v),0); document.getElementById('solde').innerText = (ti-te).toFixed(2); }
+};
+
+const dataManager = {
+    list: [],
+    init() { 
+        try { const s = localStorage.getItem('CP112_LIST'); if (s) this.list = JSON.parse(s); } catch(e){} 
+        this.sanitize(); 
+        conf.init(); app.nav('dash'); 
+    },
+    sanitize() {
+        this.list.forEach(p => {
+            if(p.exp) p.exp.forEach(e => e.v = safeNum(e.v));
+            if(p.inc) p.inc.forEach(i => i.v = safeNum(i.v));
+            if(!p.md) p.md = [];
+            if(!p.accList && p.accNoms) { p.accList = [{n: p.accNoms, p: '', t: '', f: '', fa: ''}]; }
+            if(!p.accList) p.accList = [];
+            
+            p.accList.forEach(a => { if(a.f === undefined) a.f = ""; if(a.fa === undefined) a.fa = ""; });
+
+            const statMap = { 'Brouillon': "en cours d'instruction", 'Soumis': "en cours d'instruction", 'Validé': "validé phase orga", 'Terminé': "terminé", 'Annulé': "annulé" };
+            if(statMap[p.stat]) p.stat = statMap[p.stat];
+            if(!p.stat) p.stat = "en cours d'instruction";
+            if(p.prog === undefined) p.prog = "";
+            if(p.axes === undefined) p.axes = [];
+            // EDD champs par défaut
+            if(!p.odd) p.odd = [];
+            if(!p.dispositifs) p.dispositifs = [];
+            if(!p.partRoles) p.partRoles = [];
+            if(!p.productions) p.productions = [];
+            if(!p.encadrants) p.encadrants = [];
+        });
+        this.saveToNav();
+    },
+    saveToNav() { localStorage.setItem('CP112_LIST', JSON.stringify(this.list)); },
+    exportBackup() {
+        const data = {projects:this.list, config:conf.data, sources:conf.srcs, struct:conf.struct, tpls:conf.tpls, refs:conf.refs, accs:conf.accs, axes:conf.axes};
+        const a = document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(data)], {type:'application/json'})); a.download="BACKUP_PROJETS.json"; a.click();
+    },
+    restoreBackup(el) {
+        if(!el.files[0]) return;
+        const r = new FileReader(); 
+        r.onload = e => {
+            try {
+                const d = JSON.parse(e.target.result);
+                this.list = d.projects || []; conf.data = d.config || {}; conf.srcs = d.sources || []; conf.struct = d.struct || []; conf.refs = d.refs || []; conf.tpls = d.tpls || conf.tpls; conf.accs = d.accs || []; conf.axes = d.axes || [];
+                this.sanitize();
+                localStorage.setItem('CP112_LIST', JSON.stringify(this.list)); localStorage.setItem('CP112_CONF', JSON.stringify(conf.data)); localStorage.setItem('CP112_SRCS', JSON.stringify(conf.srcs)); localStorage.setItem('CP112_STRUCT', JSON.stringify(conf.struct)); localStorage.setItem('CP112_REFS', JSON.stringify(conf.refs)); localStorage.setItem('CP112_TPLS', JSON.stringify(conf.tpls)); localStorage.setItem('CP112_ACCS', JSON.stringify(conf.accs)); localStorage.setItem('CP112_AXES', JSON.stringify(conf.axes));
+                location.reload();
+            } catch(x){ alert("Fichier invalide"); }
+        }; 
+        r.readAsText(el.files[0]);
+    },
+    exportListCSV() {
+        let csv = "\uFEFFTITRE;PROF;NIVEAU;CLASSES;STATUT;TYPE;DEBUT;FIN;DESTINATION;BUDGET_ESTIME;PARCOURS;AXES;DATE_CA;LIEN\n";
+        this.list.forEach(p => {
+            const budget = (p.exp||[]).reduce((a,c)=>a+safeNum(c.v),0);
+            const parc = (p.parcours || []).join(', ');
+            const axes = (p.axes || []).join(', ');
+            csv += `"${(p.titre||'').replace(/"/g,'""')}","${p.prof||''}","${p.lvl||''}","${p.classes||''}","${p.stat||''}","${p.type||''}","${p.dateD||''}","${p.dateF||''}","${(p.dest||'').replace(/"/g,'""')}","${budget}","${parc}","${axes}","${p.caDate||''}","${p.link||''}"`.replace(/,/g,';') + "\n";
+        });
+        const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'})); a.download = "LISTE_PROJETS.csv"; a.click();
+    },
+    exportGlobalCSV() {
+        let m={}; conf.srcs.forEach(s=>m[s.n]=0);
+        this.list.forEach(p=>{ if(p.inc) p.inc.forEach(i=>{ if(m[i.s]!==undefined) m[i.s]+=safeNum(i.v); }); });
+        let csv = "\uFEFFSOURCE;ALLOUE;ENGAGE;SOLDE\n";
+        conf.srcs.forEach(s => { csv += `"${s.n.replace(/"/g,'""')}","${s.v}","${m[s.n]}","${s.v-m[s.n]}"`.replace(/,/g,';')+"\n"; });
+        const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8;'})); a.download = "BILAN_FINANCIER.csv"; a.click();
+    },
+    dlTemplate(type) {
+        let c="", f="";
+        if(type==='proj') { c="TITRE;PROF;EMAIL;NIVEAU;CLASSES;ANNEE;DEBUT;FIN;DESTINATION;NB_ELEVES;NB_ACCOMP;TRANSPORT;LIEN;STATUT;OBJECTIFS;BUDGET_ESTIME;TYPE;HEURE_DEBUT;HEURE_FIN\nExemple;Dupont;d@d.com;3ème;3A;2025;2025-01-01;2025-01-05;Rome;50;4;Bus;;en cours d'instruction;;3000;sortie_ts;;"; f="modele_projets.csv"; }
+        else if(type==='ref') { c="NOM;EMAIL\nDupont;d@d.com"; f="modele_referents.csv"; }
+        else if(type==='acc') { c="NOM;PRENOM;TELEPHONE;FONCTION;PRECISION\nMARTIN;Sophie;0612345678;Enseignant;"; f="modele_accompagnateurs.csv"; }
+        else if(type==='src') { 
+            c="Code;Libellé;Montant\nAP/0DFACTION;Actions/Projets/Sorties;22000\nAP/0DFDIVERS;Divers;12000\nAP/13STA;Stages (hébergement+transport);26640\nVE/SUBV;Subvention partenaire;5000";
+            f="modele_enveloppes_budgetaires.csv"; 
+        }
+        const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(["\ufeff"+c],{type:'text/csv;charset=utf-8;'})); a.download=f; a.click();
+    },
+
+    importSrcs(el) {
+        if(!el.files[0]) return;
+        const r = new FileReader();
+        r.onload = e => {
+            const text = e.target.result;
+            // Détecter séparateur
+            const sep = text.includes(';') ? ';' : ',';
+            const lines = text.split(/\r\n|\n/).filter(l => l.trim());
+            let c = 0, skipped = 0;
+            // Ignorer la 1ère ligne si c'est un en-tête
+            const startIdx = lines[0].toLowerCase().includes('libellé') || lines[0].toLowerCase().includes('code') || lines[0].toLowerCase().includes('montant') ? 1 : 0;
+            for(let i = startIdx; i < lines.length; i++) {
+                const cols = lines[i].split(sep);
+                if(cols.length < 2) continue;
+                // Colonnes : Code (opt) ; Libellé ; Montant
+                let nom, montant;
+                let code = '';
+                if(cols.length >= 3) {
+                    // Format : Code;Libellé;Montant
+                    code = cols[0].trim();
+                    nom = cols[1].trim();
+                    montant = safeNum(cols[2].replace(/[€\s]/g,'').replace(/,/g,'.'));
+                } else {
+                    // Format : Libellé;Montant
+                    nom = cols[0].trim();
+                    montant = safeNum(cols[1].replace(/[€\s]/g,'').replace(/,/g,'.'));
+                }
+                if(!nom) continue;
+                // Vérifier si cette source existe déjà (par nom)
+                const exists = conf.srcs.find(s => s.n.toLowerCase() === nom.toLowerCase());
+                if(exists) { skipped++; continue; }
+                conf.srcs.push({ n: nom, v: montant, c: code });
+                c++;
+            }
+            localStorage.setItem('CP112_SRCS', JSON.stringify(conf.srcs));
+            conf.render();
+            let msg = `✅ ${c} enveloppe(s) importée(s).`;
+            if(skipped > 0) msg += `\n⚠️ ${skipped} ligne(s) ignorée(s) (déjà existante).`;
+            alert(msg);
+            el.value = '';
+        };
+        r.readAsText(el.files[0]);
+    },
+    importProjectJSON(el) {
+        if(!el.files[0]) return;
+        const r = new FileReader(); r.onload = e => {
+            try {
+                const d = JSON.parse(e.target.result); const items = Array.isArray(d) ? d : (d.projects ? d.projects : [d]);
+                items.forEach(p => {
+                    p.id = Date.now() + Math.random(); if(!p.exp) p.exp=[]; if(!p.inc) p.inc=[]; if(!p.md) p.md=[]; if(!p.accList) p.accList=[]; if(!p.axes) p.axes=[];
+                    this.list.push(p); if(p.prof && p.mail && !conf.refs.find(r=>r.n.toLowerCase()===p.prof.toLowerCase())) conf.refs.push({n:p.prof, m:p.mail});
+                });
+                this.sanitize();
+                localStorage.setItem('CP112_REFS', JSON.stringify(conf.refs)); conf.render(); app.renderDash(); alert("Import JSON OK");
+            } catch(x){ alert("Erreur JSON"); } el.value="";
+        }; r.readAsText(el.files[0]);
+    },
+    importProjectCSV(el) {
+        if(!el.files[0]) return;
+        const r = new FileReader(); r.onload = e => {
+            const sep = e.target.result.includes('\t')?'\t':';'; const lines = e.target.result.split(/\r\n|\n/);
+            const headers = lines[0].split(sep).map(h=>h.trim().toUpperCase());
+            const map = {'TITRE':'titre','PROF':'prof','EMAIL':'mail','CLASSES':'classes','NIVEAU':'lvl','DESTINATION':'dest','ANNEE':'annee','DEBUT':'dateD','FIN':'dateF','NB_ELEVES':'nbE','NB_ACCOMP':'accNb','TRANSPORT':'transp','LIEN':'link','STATUT':'stat','OBJECTIFS':'obj','TYPE':'type','HEURE_DEBUT':'heureD','HEURE_FIN':'heureF'};
+            let c=0;
+            for(let i=1; i<lines.length; i++) {
+                const row = lines[i].split(sep); if(row.length < 2) continue;
+                let p = { id:Date.now()+Math.random(), exp:[], inc:[], stat:"en cours d'instruction", md:[], accList:[], prog:"" }; let bv=0;
+                headers.forEach((h, idx) => { const val = row[idx]?row[idx].trim():""; if(map[h]) p[map[h]]=val; else if(h==='BUDGET_ESTIME') bv=safeNum(val); });
+                if(bv>0) p.exp.push({l:"Estimation", v:bv});
+                if(p.titre) { this.list.push(p); c++; if(p.prof && p.mail && !conf.refs.find(r=>r.n.toLowerCase()===p.prof.toLowerCase())) conf.refs.push({n:p.prof, m:p.mail}); }
+            }
+            this.sanitize(); 
+            localStorage.setItem('CP112_REFS', JSON.stringify(conf.refs)); conf.render(); app.renderDash(); alert(c+" CSV importés"); el.value="";
+        }; r.readAsText(el.files[0]);
+    },
+    importRefs(el) {
+        if(!el.files[0]) return;
+        const r = new FileReader(); r.onload = e => {
+            const lines = e.target.result.split(/\r\n|\n/); const sep = lines[0].includes(';')?';':'\t';
+            let c=0; for(let i=1; i<lines.length; i++) {
+                const d = lines[i].split(sep); if(d.length>1) { const n=d[0].trim(),m=d[1].trim(); if(n&&m&&!conf.refs.find(x=>x.n.toLowerCase()===n.toLowerCase())) { conf.refs.push({n:n, m:m}); c++; } }
+            }
+            localStorage.setItem('CP112_REFS', JSON.stringify(conf.refs)); conf.render(); alert(c+" Refs ajoutés"); el.value='';
+        }; r.readAsText(el.files[0]);
+    },
+    importAccs(el) {
+        if(!el.files[0]) return;
+        const r = new FileReader(); r.onload = e => {
+            const lines = e.target.result.split(/\r\n|\n/); const sep = lines[0].includes(';')?';':'\t';
+            let c=0; for(let i=1; i<lines.length; i++) {
+                const d = lines[i].split(sep); if(d.length>0) { 
+                    const n=d[0]?d[0].trim().toUpperCase():"", p=d[1]?d[1].trim():"", t=d[2]?d[2].trim():"", f=d[3]?d[3].trim():"", fa=d[4]?d[4].trim():""; 
+                    if(n&&!conf.accs.find(x=>x.n===n && x.p===p)) { conf.accs.push({n:n, p:p, t:t, f:f, fa:fa}); c++; } 
+                }
+            }
+            localStorage.setItem('CP112_ACCS', JSON.stringify(conf.accs)); conf.render(); alert(c+" Accompagnateurs ajoutés"); el.value='';
+        }; r.readAsText(el.files[0]);
+    },
+
+    // ══════════════════════════════════════════════════════
+    // IMPORT INTELLIGENT — détection automatique par préfixe
+    // Fichiers commençant par "OM_"     → Ordre de Mission
+    // Fichiers commençant par "projet_" → Fiche Projet
+    // ══════════════════════════════════════════════════════
+    importSmart(el) {
+        if(!el.files[0]) return;
+        const fname = el.files[0].name.toLowerCase();
+        if(fname.startsWith('om_') || fname.startsWith('om ')) {
+            // Déléguer à importOM avec le même fichier
+            this._pendingFile = el.files[0];
+            this._importFileAs('om');
+        } else if(fname.startsWith('projet_') || fname.startsWith('projet ')) {
+            this._pendingFile = el.files[0];
+            this._importFileAs('fp');
+        } else {
+            alert(`❌ Impossible de détecter le type de fichier.\n\nLe nom du fichier doit commencer par :\n• "OM_"      pour un Ordre de Mission\n• "projet_"  pour une Fiche Projet\n\nFichier reçu : "${el.files[0].name}"`);
+        }
+        el.value = '';
+    },
+    _importFileAs(type) {
+        const file = this._pendingFile;
+        if(!file) return;
+        const r = new FileReader();
+        r.onload = e => {
+            // Créer un faux input-like object pour réutiliser les handlers
+            const fakeEl = { files: [{ name: file.name }], value: '' };
+            // Injecter le résultat directement
+            this._smartContent = e.target.result;
+            if(type === 'om') this._runImportOM(e.target.result, file.name);
+            else               this._runImportFP(e.target.result, file.name);
+        };
+        r.readAsText(file);
+    },
+    _runImportFP(jsonText, fname) {
+        try {
+            const d = JSON.parse(jsonText);
+            if(!d.titre && !d.referent) { alert(`❌ "${fname}" ne semble pas être une Fiche Projet valide.`); return; }
+            this._doImportFP(d);
+        } catch(err) { alert(`❌ Fichier invalide : "${fname}"\nUn fichier Fiche Projet doit commencer par "projet_".`); }
+    },
+    _runImportOM(jsonText, fname) {
+        try {
+            const d = JSON.parse(jsonText);
+            if(!d.titre && !d.respNom) { alert(`❌ "${fname}" ne semble pas être un Ordre de Mission valide.`); return; }
+            this._doImportOM(d);
+        } catch(err) { alert(`❌ Fichier invalide : "${fname}"\nUn fichier Ordre de Mission doit commencer par "OM_".`); }
+    },
+
+    // ══════════════════════════════════════════════════════
+    // IMPORT FICHE PROJET (JSON exporté depuis SAISIE_PROJET)
+    // Nom de fichier attendu : projet_*.json
+    // ══════════════════════════════════════════════════════
+    importEDD(el) {
+        if(!el.files[0]) return;
+        const fname = el.files[0].name.toLowerCase();
+        if(!fname.startsWith('projet_') && !fname.startsWith('projet ')) {
+            if(!confirm(`⚠️ Le nom du fichier "${el.files[0].name}" ne commence pas par "projet_".\n\nLes fichiers Fiche Projet doivent être nommés : projet_*.json\n\nVoulez-vous quand même tenter l'import ?`)) { el.value=''; return; }
+        }
+        const r = new FileReader();
+        r.onload = e => {
+            try {
+                const d = JSON.parse(e.target.result);
+                if(!d.titre && !d.referent) { alert("❌ Ce fichier ne semble pas être une fiche projet valide."); el.value=''; return; }
+                this._doImportFP(d);
+            } catch(err) { console.error(err); alert("❌ Fichier invalide. Choisissez un fichier .json exporté depuis la Fiche Projet (nom : projet_*.json)."); }
+            el.value = '';
+        };
+        r.readAsText(el.files[0]);
+    },
+    _doImportFP(d) {
+        // Trouver si un projet avec ce titre existe déjà
+        const existIdx = this.list.findIndex(p => p.titre && p.titre.toLowerCase() === (d.titre||'').toLowerCase());
+        
+        const confirmMsg = existIdx >= 0 
+            ? `⚠️ Un projet "${d.titre}" existe déjà.\n\nVoulez-vous METTRE À JOUR ses données ?\n(Les données budgétaires et de statut seront conservées)`
+            : `📥 Importer la fiche projet :\n"${d.titre}"\nRéférent : ${d.referent}\n\nCréer un nouveau projet ?`;
+        
+        if(!confirm(confirmMsg)) return;
+
+        // Construire le bloc Fiche Projet
+        const edd = {
+            hasEDD: true,
+            eddImportDate: new Date().toLocaleDateString('fr-FR'),
+            axe: d.axe || '', objectif: d.objectif || '', action: d.action || '',
+            c1: d.c1 || '', c2: d.c2 || '', c3: d.c3 || '',
+            dispositifs: d.dispositifs || [], partNom: d.partNom || '',
+            partRoles: d.partRoles || [], partDetail: d.partDetail || '',
+            odd: (d.odd || []).map(Number), presentation: d.presentation || '',
+            subv: d.subv || '', productions: d.productions || [],
+            prodAutre: d.prodAutre || '', pv1: d.pv1 || '', pv2: d.pv2 || '', pv3: d.pv3 || '',
+            plusEtab: d.plusEtab || [], avis: d.avis || '',
+            dates: d.dates || [], lieux: d.lieux || [], durees: d.durees || [],
+            materiel: d.materiel || [], encadrants: d.encadrants || [], disciplines: d.disciplines || '',
+        };
+
+        if(existIdx >= 0) {
+            Object.assign(this.list[existIdx], edd);
+            if(!this.list[existIdx].prof && d.referent) this.list[existIdx].prof = d.referent;
+            if(!this.list[existIdx].mail && d.email) this.list[existIdx].mail = d.email;
+            if(!this.list[existIdx].classes && d.classes) this.list[existIdx].classes = d.classes;
+            if(!this.list[existIdx].nbE && d.nbEl) this.list[existIdx].nbE = d.nbEl;
+            this.saveToNav();
+            alert(`✅ Données mises à jour pour :\n"${d.titre}"`);
+            app.renderDash();
+        } else {
+            const eddDeps = (d.depenses || []).filter(dep => dep.amt);
+            const expFromEDD = eddDeps.map(dep => ({ l: dep.type + (dep.precision ? ' – ' + dep.precision : ''), v: safeNum(dep.amt) }));
+            const hasMultiDates = (d.dates || []).length > 1;
+            const refName = (d.referent || '').trim();
+            const refParts = refName.split(' ');
+            const newP = {
+                id: Date.now() + Math.random(),
+                titre: d.titre || 'Nouveau Projet', profNom: refParts[0]?refParts[0].toUpperCase():'',
+                profPrenom: refParts.slice(1).join(' '), prof: refName,
+                mail: d.email || d.referentEmail || '', lvl: d.niveaux || '',
+                classes: d.classes || '', annee: d.annee || '2025-2026',
+                type: hasMultiDates ? 'projet_multi' : 'projet_ponctuel',
+                dateD: (d.dates||[])[0] || '', dateF: (d.dates||[]).slice(-1)[0] || '',
+                heureD: '', heureF: '',
+                md: hasMultiDates ? (d.dates||[]).map(dt => ({d:dt, hd:'', hf:'', obj:''})) : [],
+                dest: (d.lieux||[]).join(', ') || '', nbE: d.nbEl || '',
+                accNb: (d.encadrants||[]).length || '', transp: '',
+                accList: (d.encadrants||[]).map(enc => ({ n:(enc.nom||'').toUpperCase(), p:enc.prenom||'', t:'', f:enc.role||'', fa:'' })),
+                link: '', obj: [d.objectif, d.action, d.c1, d.c2, d.c3].filter(Boolean).join('\n'),
+                prog: d.presentation || '', repas: '',
+                ca: false, caDate: '', prov: false, provDate: '',
+                cAR: '', cAcc: '', cGest: '', stat: "en cours d'instruction",
+                exp: expFromEDD, inc: [], parcours: d.parcours || [], axes: [],
+                hasOM: false, omImportDate: '',
+                ...edd
+            };
+            if(newP.prof && newP.mail && !conf.refs.find(ref => ref.n.toLowerCase() === newP.prof.toLowerCase())) {
+                conf.refs.push({n: newP.prof, m: newP.mail});
+                localStorage.setItem('CP112_REFS', JSON.stringify(conf.refs));
+            }
+            (d.encadrants||[]).forEach(enc => {
+                const nomUp = (enc.nom||'').toUpperCase();
+                if(nomUp && !conf.accs.find(x => x.n === nomUp)) conf.accs.push({n:nomUp, p:enc.prenom||'', t:'', f:enc.role||'', fa:''});
+            });
+            localStorage.setItem('CP112_ACCS', JSON.stringify(conf.accs));
+            this.list.push(newP); this.sanitize(); conf.render();
+            alert(`✅ Fiche Projet créée :\n"${newP.titre}"\n\nOuvrez-la pour compléter le budget et les dates.`);
+            app.renderDash();
+        }
+    },
+    // ══════════════════════════════════════════════════════
+    // IMPORT ORDRE DE MISSION (JSON exporté depuis ORDRE_DE_MISSION.html)
+    // Nom de fichier attendu : OM_*.json
+    // ══════════════════════════════════════════════════════
+    importOM(el) {
+        if(!el.files[0]) return;
+        const fname = el.files[0].name.toLowerCase();
+        if(!fname.startsWith('om_') && !fname.startsWith('om ')) {
+            if(!confirm(`⚠️ Le nom du fichier "${el.files[0].name}" ne commence pas par "OM_".\n\nLes fichiers Ordre de Mission doivent être nommés : OM_*.json\n\nVoulez-vous quand même tenter l'import ?`)) { el.value=''; return; }
+        }
+        const r = new FileReader();
+        r.onload = e => {
+            try {
+                const d = JSON.parse(e.target.result);
+                if(!d.titre && !d.respNom) { alert("❌ Ce fichier ne semble pas être un Ordre de Mission valide."); el.value=''; return; }
+                this._doImportOM(d);
+            } catch(err) { console.error(err); alert("❌ Fichier invalide. Choisissez un fichier .json exporté depuis l'Ordre de Mission (nom : OM_*.json)."); }
+            el.value = '';
+        };
+        r.readAsText(el.files[0]);
+    },
+    _doImportOM(d) {
+        const titre = (d.titre || '').trim();
+        const existIdx = this.list.findIndex(p => p.titre && p.titre.toLowerCase() === titre.toLowerCase());
+
+        const confirmMsg = existIdx >= 0
+            ? `⚠️ Un Ordre de Mission "${titre}" existe déjà.\n\nVoulez-vous METTRE À JOUR ses données ?\n(Le statut et le budget seront conservés)`
+            : `📋 Importer l'Ordre de Mission :\n"${titre}"\nResponsable : ${d.respNom || ''} ${d.respPrenom || ''}\n\nCréer un nouvel enregistrement ?`;
+
+        if(!confirm(confirmMsg)) return;
+
+        const hasDateFin = !!d.dateFin && d.dateFin !== d.dateDebut;
+        const typeOM = hasDateFin ? 'voyage_fr' : 'projet_ponctuel';
+        const profNom    = (d.respNom    || '').trim().toUpperCase();
+        const profPrenom = (d.respPrenom || '').trim();
+        const prof       = (profNom + ' ' + profPrenom).trim();
+        const accList = (d.accompagnateurs || []).map(a => ({ n:(a.n||'').toUpperCase(), p:a.p||'', t:'', f:a.q||'', fa:'' }));
+        const expFromOM = [];
+        if(d.busMontant && safeNum(d.busMontant) > 0) expFromOM.push({ l: 'Transport ' + (d.transport || 'Bus'), v: safeNum(d.busMontant) });
+
+        const omData = {
+            hasOM: true, hasEDD: false,
+            omImportDate: new Date().toLocaleDateString('fr-FR'),
+            titre, prof, profNom, profPrenom, lvl: '',
+            classes: d.classes || '', nbE: d.nbEleves || '',
+            dest: d.lieu || '',
+            dateD: d.dateUnique || d.dateDebut || '',
+            dateF: d.dateFin   || d.dateUnique || '',
+            heureD: d.heureDepart || '', heureF: d.heureRetour || '',
+            transp: d.transport || '', obj: d.objectifs || '',
+            repas: d.repasNb || '', type: typeOM,
+            accList, accNb: accList.length || '',
+            typeSortie: d.typeSortie || '',
+            omAvisAccord: d.avisAccord || '', omAvisMotif: d.avisMotif || '',
+            omDestinataires: (d.destinataires || []).join(', '),
+        };
+
+        if(existIdx >= 0) {
+            const p = this.list[existIdx];
+            if(!p.classes && omData.classes) p.classes = omData.classes;
+            if(!p.nbE     && omData.nbE)     p.nbE     = omData.nbE;
+            if(!p.dest    && omData.dest)     p.dest    = omData.dest;
+            if(!p.dateD   && omData.dateD)    p.dateD   = omData.dateD;
+            if(!p.dateF   && omData.dateF)    p.dateF   = omData.dateF;
+            if(!p.heureD  && omData.heureD)   p.heureD  = omData.heureD;
+            if(!p.heureF  && omData.heureF)   p.heureF  = omData.heureF;
+            if(!p.transp  && omData.transp)   p.transp  = omData.transp;
+            if(!p.obj     && omData.obj)      p.obj     = omData.obj;
+            if(!p.repas   && omData.repas)    p.repas   = omData.repas;
+            if((!p.accList || p.accList.length === 0) && accList.length > 0) p.accList = accList;
+            if(expFromOM.length > 0 && (!p.exp || p.exp.length === 0)) p.exp = expFromOM;
+            p.hasOM = true; p.omImportDate = omData.omImportDate;
+            p.omAvisAccord = omData.omAvisAccord; p.omAvisMotif = omData.omAvisMotif;
+            p.omDestinataires = omData.omDestinataires;
+            this.saveToNav();
+            alert(`✅ Ordre de Mission mis à jour :\n"${titre}"`);
+            app.renderDash();
+        } else {
+            const newP = {
+                id: Date.now() + Math.random(), annee: '2025-2026',
+                mail: '', link: '', prog: '',
+                ca: false, caDate: '', prov: false, provDate: '',
+                cAR: '', cAcc: '', cGest: '', stat: "en cours d'instruction",
+                exp: expFromOM, inc: [], parcours: [], axes: [], md: [],
+                ...omData
+            };
+            if(newP.prof && !conf.refs.find(x => x.n.toLowerCase() === newP.prof.toLowerCase())) {
+                conf.refs.push({n: newP.prof, m: ''}); localStorage.setItem('CP112_REFS', JSON.stringify(conf.refs));
+            }
+            accList.forEach(a => { if(a.n && !conf.accs.find(x => x.n === a.n)) conf.accs.push({n:a.n, p:a.p, t:'', f:a.f, fa:''}); });
+            localStorage.setItem('CP112_ACCS', JSON.stringify(conf.accs));
+            this.list.push(newP); this.sanitize(); conf.render();
+            alert(`✅ Ordre de Mission créé :\n"${titre}"\n\nOuvrez-le pour compléter le budget et les sources de financement.`);
+            app.renderDash();
+        }
+    }
+};
+
+const app = {
+    md: [],
+    accList: [],
+    esc(str) { if(!str) return ""; return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); },
+    nav(v) { 
+        ['dash','form','global','cal','tpl','print'].forEach(x => { const el = document.getElementById('view-'+x); if(el) el.classList.add('hidden'); }); 
+        document.getElementById('view-'+v).classList.remove('hidden'); 
+        if(v=='dash') this.renderDash(); if(v=='global') this.renderGlobal(); if(v=='cal') this.renderCal(); 
+        if(v=='form') { this.updateFormDropdowns(); app.updateSuggestions(); buildODDGrid(); } 
+    },
+    updateFormDropdowns() { 
+        document.getElementById('p-lvl').innerHTML = '<option value="">Niveau...</option>' + conf.struct.map(s => `<option value="${s.lvl}">${s.lvl}</option>`).join(''); 
+    },
+    updateSuggestions() { 
+        const dl = document.getElementById('ref-suggestions'); if(dl) dl.innerHTML = conf.refs.map(r => `<option value="${r.n}">`).join(''); 
+        const dlA = document.getElementById('acc-suggestions'); if(dlA) dlA.innerHTML = conf.accs.map(a => `<option value="${a.n}">`).join('');
+    },
+    updateClassSelect() { const lvl = document.getElementById('p-lvl').value, f = conf.struct.find(s => s.lvl === lvl); if(f) document.getElementById('p-classes').value = f.cls; },
+    onRefInput(v) { const r = conf.refs.find(x=>x.n.toLowerCase() == v.toLowerCase() || x.n.split(' ')[0].toLowerCase() == v.toLowerCase()); if(r) document.getElementById('p-mail').value = r.m; },
+    
+    onAccInput(v, idx) {
+        this.accList[idx].n = v;
+        const a = conf.accs.find(x => x.n.toUpperCase() === v.toUpperCase());
+        if(a) {
+            this.accList[idx].p = a.p; this.accList[idx].t = a.t; this.accList[idx].f = a.f || ""; this.accList[idx].fa = a.fa || "";
+            document.getElementById(`acc-p-${idx}`).value = a.p; document.getElementById(`acc-t-${idx}`).value = a.t;
+            this.renderAcc();
+        }
+    },
+
+    toggleType() {
+        const typeEl = document.querySelector('input[name="p-type"]:checked');
+        const t = typeEl ? typeEl.value : null;
+        const bStd = document.getElementById('block-standard');
+        const bMul = document.getElementById('block-multi');
+        const dFin = document.getElementById('grp-date-f');
+
+        if(t === 'projet_multi') {
+            bStd.classList.add('hidden'); bMul.classList.remove('hidden');
+        } else if (t) {
+            bStd.classList.remove('hidden'); bMul.classList.add('hidden');
+            if(t === 'voyage_fr' || t === 'voyage_etr') dFin.classList.remove('hidden'); else dFin.classList.add('hidden');
+        }
+    },
+    
+    renderMD() {
+        document.getElementById('md-list').innerHTML = this.md.map((m, i) => `
+            <div style="display:flex; gap:5px; margin-bottom:5px; align-items:center;">
+                <input type="date" value="${m.d}" onchange="app.md[${i}].d=this.value" style="width:130px; padding:5px;">
+                <input type="time" value="${m.hd}" onchange="app.md[${i}].hd=this.value" title="Départ" style="width:100px; padding:5px;">
+                <input type="time" value="${m.hf}" onchange="app.md[${i}].hf=this.value" title="Retour" style="width:100px; padding:5px;">
+                <input type="text" value="${this.esc(m.obj)}" onchange="app.md[${i}].obj=this.value" placeholder="Objet / Activité" style="flex:1; padding:5px;">
+                <button type="button" class="btn-o" style="color:red; border-color:#ffcccc; padding:4px 8px;" onclick="app.remMD(${i})">×</button>
+            </div>
+        `).join('');
+    },
+    addMD() { this.md.push({d:'', hd:'', hf:'', obj:''}); this.renderMD(); },
+    remMD(i) { this.md.splice(i,1); this.renderMD(); },
+
+    renderAcc() {
+        document.getElementById('acc-list').innerHTML = this.accList.map((a, i) => `
+            <div style="display:flex; gap:5px; margin-bottom:5px; align-items:center; background:#fff; padding:5px; border:1px solid #ddd; border-radius:4px; flex-wrap:wrap;">
+                <input type="text" list="acc-suggestions" value="${this.esc(a.n)}" oninput="app.onAccInput(this.value, ${i})" onchange="app.accList[${i}].n=this.value.toUpperCase()" placeholder="NOM" style="flex:1; min-width:120px; padding:5px;">
+                <input type="text" id="acc-p-${i}" value="${this.esc(a.p)}" onchange="app.accList[${i}].p=this.value" placeholder="Prénom" style="flex:1; min-width:100px; padding:5px;">
+                <select id="acc-f-${i}" onchange="app.accList[${i}].f=this.value; app.renderAcc()" style="width:130px; padding:5px;">
+                    <option value="">Fonction...</option>
+                    <option value="Enseignant" ${a.f==='Enseignant'?'selected':''}>Enseignant</option>
+                    <option value="CPE" ${a.f==='CPE'?'selected':''}>CPE</option>
+                    <option value="AED" ${a.f==='AED'?'selected':''}>AED</option>
+                    <option value="AESH" ${a.f==='AESH'?'selected':''}>AESH</option>
+                    <option value="Parent" ${a.f==='Parent'?'selected':''}>Parent</option>
+                    <option value="Autre" ${a.f==='Autre'?'selected':''}>Autre</option>
+                </select>
+                ${a.f === 'Autre' ? `<input type="text" id="acc-fa-${i}" value="${this.esc(a.fa)}" onchange="app.accList[${i}].fa=this.value" placeholder="Précisez..." style="width:100px; padding:5px;">` : ''}
+                <input type="text" id="acc-t-${i}" value="${this.esc(a.t)}" onchange="app.accList[${i}].t=this.value" placeholder="Tél. Portable" style="width:110px; padding:5px;">
+                <button type="button" class="btn-o" style="color:red; border-color:#ffcccc; padding:4px 8px;" onclick="app.remAcc(${i})">×</button>
+            </div>
+        `).join('');
+    },
+    addAcc() { this.accList.push({n:'', p:'', t:'', f:'', fa:''}); this.renderAcc(); },
+    remAcc(i) { this.accList.splice(i,1); this.renderAcc(); },
+
+    newProj() { 
+        document.getElementById('f-proj').reset(); 
+        document.getElementById('p-id').value=''; 
+        bud.render([],[]); 
+        this.md = []; this.renderMD();
+        this.accList = []; this.renderAcc();
+        document.getElementById('legacy-warning').classList.add('hidden');
+        document.querySelectorAll('input[name="p-type"]').forEach(r => r.checked = false);
+        document.getElementById('block-standard').classList.add('hidden');
+        document.getElementById('block-multi').classList.add('hidden');
+        
+        document.getElementById('p-axes-list').innerHTML = conf.axes.map(a => `<label style="cursor:pointer; display:inline-flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" class="chk-axe" value="${this.esc(a)}"> ${this.esc(a)}</label>`).join('');
+        
+        this.resetEDDFields();
+        this.nav('form'); 
+    },
+
+    resetEDDFields() {
+        ['p-edd-axe','p-edd-objectif','p-edd-action','p-edd-c1','p-edd-c2','p-edd-c3','p-edd-partenaire','p-edd-presentation','p-edd-subv','p-edd-prod-autre'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+        document.querySelectorAll('.chk-disp,.chk-partrole,.chk-prod,.chk-odd').forEach(c => c.checked=false);
+        document.querySelectorAll('input[name="p-edd-avis"]').forEach(r => r.checked=false);
+        const badge = document.getElementById('p-edd-badge');
+        if(badge) badge.innerHTML = 'Aucune fiche projet associée';
+        const omBadge = document.getElementById('p-om-badge');
+        if(omBadge) { omBadge.innerHTML = 'Aucun ordre de mission associé'; omBadge.style.background='#fff'; omBadge.style.borderColor='#aed6f1'; }
+    },
+
+    toggleEDD() {
+        const f = document.getElementById('edd-fields');
+        const btn = document.querySelector('.edd-collapse-btn');
+        if(!f) return;
+        const hidden = f.style.display === 'none';
+        f.style.display = hidden ? '' : 'none';
+        if(btn) btn.textContent = hidden ? '▼ Réduire' : '▶ Développer';
+    },
+    
+    save(stay = false) {
+        const typeEl = document.querySelector('input[name="p-type"]:checked');
+        if(!typeEl) { alert("⚠️ Veuillez sélectionner une catégorie de projet dans la section II. Logistique."); return false; }
+        const type = typeEl.value;
+
+        const idVal = document.getElementById('p-id').value; const id = idVal ? parseFloat(idVal) : Date.now();
+        document.getElementById('p-id').value = id; // Maj DOM pour impression éventuelle
+        
+        const profNom = document.getElementById('p-prof-nom').value.trim().toUpperCase(); 
+        const profPrenom = document.getElementById('p-prof-prenom').value.trim();
+        const prof = (profNom + " " + profPrenom).trim();
+        const mail = document.getElementById('p-mail').value.trim();
+        if(prof && mail) { const idx = conf.refs.findIndex(r => r.n.toLowerCase() === prof.toLowerCase() || r.n.toLowerCase() === profNom.toLowerCase()); if(idx >= 0) conf.refs[idx].m = mail; else conf.refs.push({n:prof, m:mail}); localStorage.setItem('CP112_REFS', JSON.stringify(conf.refs)); conf.render(); }
+        
+        const cleanAccList = this.accList.filter(a => a.n.trim() !== "");
+        cleanAccList.forEach(a => {
+            const nomUP = a.n.toUpperCase();
+            const idx = conf.accs.findIndex(x => x.n === nomUP);
+            if (idx >= 0) { 
+                if(!conf.accs[idx].t && a.t) conf.accs[idx].t = a.t; 
+                if(!conf.accs[idx].f && a.f) { conf.accs[idx].f = a.f; conf.accs[idx].fa = a.fa; }
+            } 
+            else { conf.accs.push({n: nomUP, p: a.p, t: a.t, f: a.f, fa: a.fa}); }
+        });
+        localStorage.setItem('CP112_ACCS', JSON.stringify(conf.accs)); conf.render();
+
+        let dD = "", dF = "";
+        if(type === 'projet_multi') {
+            if(this.md.length > 0) { let validDates = this.md.map(x => x.d).filter(x=>x).sort(); if(validDates.length > 0) { dD = validDates[0]; dF = validDates[validDates.length-1]; } }
+        } else {
+            dD = document.getElementById('p-date-d').value; dF = document.getElementById('p-date-f').value;
+            if(!['voyage_fr','voyage_etr'].includes(type)) dF = dD;
+        }
+
+        const parcours = Array.from(document.querySelectorAll('.chk-parc:checked')).map(cb => cb.value);
+        const axes = Array.from(document.querySelectorAll('.chk-axe:checked')).map(cb => cb.value);
+        if(bud.e) bud.e.forEach(e => e.v = safeNum(e.v)); if(bud.i) bud.i.forEach(i => i.v = safeNum(i.v));
+
+        // Récupérer le projet existant pour préserver ses flags d'origine
+        const existing = dataManager.list.find(x => x.id == id) || {};
+
+        // hasEDD = vrai uniquement si une fiche projet a été importée (eddImportDate),
+        // ou si le projet existait déjà avec hasEDD=true. PAS hardcodé à true.
+        const keepHasEDD = existing.hasEDD || !!existing.eddImportDate;
+
+        const p = {
+            id: id, titre: document.getElementById('p-titre').value, 
+            profNom: profNom, profPrenom: profPrenom, prof: prof, mail: mail, 
+            lvl: document.getElementById('p-lvl').value, classes: document.getElementById('p-classes').value, annee: document.getElementById('p-annee').value,
+            type: type, dateD: dD, dateF: dF, heureD: document.getElementById('p-heure-d').value, heureF: document.getElementById('p-heure-f').value,
+            md: this.md, dest: document.getElementById('p-dest').value, nbE: document.getElementById('p-nb-e').value, accNb: document.getElementById('p-acc-nb').value, transp: document.getElementById('p-transp').value, 
+            accList: cleanAccList, link: document.getElementById('p-link').value,
+            obj: document.getElementById('p-obj').value, prog: document.getElementById('p-prog').value,
+            repas: document.getElementById('p-repas').value, ca: document.getElementById('p-ca-check').checked, caDate: document.getElementById('p-ca-date').value, prov: document.getElementById('p-prov-check').checked, provDate: document.getElementById('p-prov-date').value,
+            cAR: document.getElementById('p-comm-ar').value, cAcc: document.getElementById('p-comm-accord').value, cGest: document.getElementById('p-comm-gest').value, stat: document.getElementById('p-stat').value, 
+            exp: bud.e, inc: bud.i, parcours: parcours, axes: axes,
+            // ── Préservation des flags d'origine (OM et FP) ──
+            hasOM:          existing.hasOM          || false,
+            omImportDate:   existing.omImportDate   || '',
+            omAvisAccord:   existing.omAvisAccord   || '',
+            omAvisMotif:    existing.omAvisMotif    || '',
+            omDestinataires:existing.omDestinataires|| '',
+            typeSortie:     existing.typeSortie     || '',
+            eddImportDate:  existing.eddImportDate  || '',
+            // ── Données Fiche Projet (conservées seulement si fiche importée) ──
+            hasEDD: keepHasEDD,
+            axe: document.getElementById('p-edd-axe').value,
+            objectif: document.getElementById('p-edd-objectif').value,
+            action: document.getElementById('p-edd-action').value,
+            c1: document.getElementById('p-edd-c1').value,
+            c2: document.getElementById('p-edd-c2').value,
+            c3: document.getElementById('p-edd-c3').value,
+            disciplines: document.getElementById('p-edd-disciplines') ? document.getElementById('p-edd-disciplines').value : '',
+            dispositifs: Array.from(document.querySelectorAll('.chk-disp:checked')).map(c=>c.value),
+            partNom: document.getElementById('p-edd-partenaire').value,
+            partRoles: Array.from(document.querySelectorAll('.chk-partrole:checked')).map(c=>c.value),
+            presentation: document.getElementById('p-edd-presentation').value,
+            subv: document.getElementById('p-edd-subv').value,
+            odd: Array.from(document.querySelectorAll('.chk-odd:checked')).map(c=>Number(c.value)),
+            productions: Array.from(document.querySelectorAll('.chk-prod:checked')).map(c=>c.value),
+            prodAutre: document.getElementById('p-edd-prod-autre').value,
+            eddAvis: (document.querySelector('input[name="p-edd-avis"]:checked') || {}).value || '',
+        };
+        const idxList = dataManager.list.findIndex(x => x.id == p.id); if(idxList >= 0) dataManager.list[idxList] = p; else dataManager.list.push(p);
+        dataManager.saveToNav(); 
+        if(!stay) this.nav('dash');
+        return id;
+    },
+
+    saveAndPrint(type) {
+        if(!document.getElementById('p-titre').value) { alert("Le titre du projet est requis avant d'imprimer."); return; }
+        const id = this.save(true);
+        if(id) this.printDoc(id, type);
+    },
+
+    renderDash() {
+        const s = document.getElementById('search-bar').value.toLowerCase(); const f = dataManager.list.filter(p => (p.titre||"").toLowerCase().includes(s) || (p.prof||"").toLowerCase().includes(s));
+        document.getElementById('list').innerHTML = f.map(p => {
+            const caDisplay = p.caDate ? `<small>${fmtDate(p.caDate)}</small>` : '-';
+            const linkIcon = p.link ? `<a href="${p.link}" target="_blank" class="link-icon" title="Dossier Drive">🔗</a>` : '';
+            const tLabel = TYPE_LABELS[p.type] || p.type || "?";
+            
+            let bgStat = '#95a5a6';
+            if(p.stat === 'validé phase orga') bgStat = 'var(--ok)';
+            else if(p.stat === "en cours d'instruction") bgStat = 'var(--acc)';
+            else if(p.stat === 'terminé') bgStat = '#2980b9';
+            else if(p.stat === 'annulé') bgStat = 'var(--err)';
+
+            let parcAxes = [p.parcours?.join(', '), p.axes?.join(', ')].filter(x=>x).join('<br>');
+
+            return `<tr>
+                <td><b>${this.esc(p.lvl)}</b><br><small style="color:#666;">${this.esc(p.classes)}</small></td>
+                <td><b style="font-size:13px; color:var(--pri);">${this.esc(p.titre)}</b>${p.hasEDD||p.eddImportDate ? `<span class="badge-edd" title="Fiche Projet reçue">PROJET${(p.eddAvis||p.avis)==='favorable'?' ✅':(p.eddAvis||p.avis)==='défavorable'?' ❌':''}</span>`:''}${p.hasOM||p.omImportDate ? `<span style="display:inline-block;background:#2980b9;color:#fff;font-size:9px;font-weight:bold;padding:1px 5px;border-radius:3px;vertical-align:middle;margin-left:3px;" title="Ordre de Mission importé">OM ✅</span>`:''}${linkIcon}<br><small style="color:#888; font-weight:bold;">${tLabel}</small></td>
+                <td style="color:#555; font-size:11px;">${parcAxes}</td>
+                <td>${this.esc(p.prof)}</td>
+                <td style="text-align:center;">${caDisplay}</td>
+                <td style="text-align:center;"><span style="padding:4px 8px; border-radius:4px; font-size:10px; font-weight:bold; color:white; background:${bgStat}">${this.esc(p.stat).toUpperCase()}</span></td>
+                <td style="text-align:center;" class="no-print">
+                    <div style="display:flex; justify-content:center; gap:5px;">
+                        <button class="btn-o" onclick="app.edit(${p.id})" title="Éditer">✏️ Éditer</button>
+                        <button class="btn-o" onclick="app.printDoc(${p.id},'GEST')" title="Fiche GESTION">💼 Gestion</button>
+                        <button class="btn-o" onclick="app.printDoc(${p.id},'ACC')" title="Liste Accompagnateurs">👥 Acc.</button>
+                        <button class="btn-o" onclick="app.del(${p.id})" style="color:red; border-color:#ffcccc;" title="Supprimer">×</button>
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
+    },
+    toggleDetail(i) { const el = document.getElementById('detail-'+i); if(el) el.classList.toggle('hidden'); },
+    toggleParcoursDetail(i) { const el = document.getElementById('detail-p-'+i); if(el) el.classList.toggle('hidden'); },
+    toggleLevelDetail(i) { const el = document.getElementById('detail-l-'+i); if(el) el.classList.toggle('hidden'); },
+    
+    showBilanTab(tab) {
+        document.querySelectorAll('.bilan-tab').forEach(b => {
+            b.classList.remove('active');
+            b.style.borderBottomColor = 'transparent';
+            b.style.background = 'transparent';
+            b.style.color = '#555';
+        });
+        document.querySelectorAll('.bilan-tab-content').forEach(c => c.classList.add('hidden'));
+        const btn = document.querySelector(`.bilan-tab[data-tab="${tab}"]`);
+        if(btn) { btn.classList.add('active'); btn.style.borderBottomColor = 'var(--acc)'; btn.style.background = 'white'; btn.style.color = 'var(--acc)'; }
+        const ct = document.getElementById('tab-' + tab);
+        if(ct) ct.classList.remove('hidden');
+    },
+
+    renderGlobal() {
+        const esc = (s) => this.esc(s);
+        const fmt = (v) => safeNum(v).toFixed(2);
+        const fmtE = (v) => fmt(v) + ' €';
+
+        // ── Séparation des projets ──
+        const allP   = dataManager.list;
+        const fpList = allP.filter(p => p.hasEDD || p.eddImportDate);   // Fiches Projet
+        const omList = allP.filter(p => p.hasOM  || p.omImportDate);    // Ordres de Mission
+        // Projets manuels (ni FP ni OM)
+        const otherList = allP.filter(p => !p.hasEDD && !p.eddImportDate && !p.hasOM && !p.omImportDate);
+
+        // ── Calcul engagements par source ──
+        const calcEngaged = (projects) => {
+            const m = {};
+            conf.srcs.forEach(s => m[s.n] = { total: 0, details: [] });
+            projects.forEach(p => {
+                if(p.inc) p.inc.forEach(i => {
+                    if(m[i.s] !== undefined) {
+                        m[i.s].total += safeNum(i.v);
+                        m[i.s].details.push({ titre: p.titre, prof: p.prof, amount: safeNum(i.v) });
+                    }
+                });
+            });
+            return m;
+        };
+
+        const mAll = calcEngaged(allP);
+        const mFP  = calcEngaged(fpList);
+        const mOM  = calcEngaged(omList);
+
+        // ── Groupes AP / VE / Autres ──
+        const srcAP     = conf.srcs.filter(s => (s.c||'').toUpperCase().startsWith('AP'));
+        const srcVE     = conf.srcs.filter(s => (s.c||'').toUpperCase().startsWith('VE'));
+        const srcAutres = conf.srcs.filter(s => !(s.c||'').toUpperCase().startsWith('AP') && !(s.c||'').toUpperCase().startsWith('VE'));
+
+        const groupTotal = (srcs, engaged) => {
+            const alloc   = srcs.reduce((a,s) => a + safeNum(s.v), 0);
+            const engage  = srcs.reduce((a,s) => a + (engaged[s.n]?.total || 0), 0);
+            return { alloc, engage, solde: alloc - engage, pct: alloc > 0 ? Math.min((engage/alloc)*100,100) : 0 };
+        };
+
+        const kpiHTML = (g, color) => {
+            const pct = g.pct.toFixed(0);
+            const barClass = g.pct >= 100 ? 'src-bar-err' : g.pct >= 80 ? 'src-bar-warn' : 'src-bar-ok';
+            return `<div style="text-align:right;font-size:11px;line-height:1.6;">
+                <span style="opacity:.8;">Alloué : ${fmtE(g.alloc)}</span><br>
+                <b>Engagé : ${fmtE(g.engage)}</b><br>
+                <span style="opacity:.8;">Solde : ${fmtE(g.solde)}</span>
+                <div class="src-bar-bg" style="width:180px;margin-top:4px;margin-left:auto;">
+                    <div class="${barClass}" style="width:${pct}%;">${pct > 15 ? pct+'%' : ''}</div>
+                </div>
+            </div>`;
+        };
+
+        const renderSrcGroup = (srcs, engaged, containerId) => {
+            const el = document.getElementById(containerId);
+            if(!el) return;
+            if(srcs.length === 0) { el.innerHTML = `<p style="font-style:italic;color:#aaa;font-size:12px;padding:8px 0;">Aucune source dans ce groupe (vérifiez le code dans le CSV : Code;Libellé;Montant)</p>`; return; }
+            el.innerHTML = srcs.map((s, idx) => {
+                const eng = engaged[s.n]?.total || 0;
+                const solde = safeNum(s.v) - eng;
+                const pct = safeNum(s.v) > 0 ? Math.min((eng / safeNum(s.v)) * 100, 100) : 0;
+                const barClass = pct >= 100 ? 'src-bar-err' : pct >= 80 ? 'src-bar-warn' : 'src-bar-ok';
+                const details = (engaged[s.n]?.details || []);
+                const codeTag = s.c ? `<span style="background:#f0f0f0;border:1px solid #ddd;border-radius:3px;padding:1px 5px;font-size:9px;font-family:monospace;color:#555;margin-right:6px;">${esc(s.c)}</span>` : '';
+                return `<div class="src-card">
+                    <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+                        <div style="flex:3;min-width:180px;">
+                            <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:4px;">
+                                ${codeTag}<b style="font-size:13px;">${esc(s.n)}</b>
+                            </div>
+                            <div class="src-bar-bg">
+                                <div class="${barClass}" style="width:${pct.toFixed(1)}%;">${pct >= 15 ? pct.toFixed(0)+'%' : ''}</div>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-top:3px;">
+                                <span>0 €</span><span>${fmtE(safeNum(s.v))}</span>
+                            </div>
+                        </div>
+                        <div style="flex:1;min-width:280px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;">
+                            <div class="kpi-card" style="flex:1;min-width:80px;">
+                                <div class="kpi-val" style="color:#888;">${fmtE(safeNum(s.v))}</div>
+                                <div class="kpi-lbl">Alloué</div>
+                            </div>
+                            <div class="kpi-card" style="flex:1;min-width:80px;">
+                                <div class="kpi-val" style="color:${pct>=100?'var(--err)':pct>=80?'var(--acc)':'var(--pri)'};">${fmtE(eng)}</div>
+                                <div class="kpi-lbl">Engagé</div>
+                            </div>
+                            <div class="kpi-card" style="flex:1;min-width:80px;">
+                                <div class="kpi-val" style="color:${solde<0?'var(--err)':'var(--ok)'};">${fmtE(solde)}</div>
+                                <div class="kpi-lbl">Solde</div>
+                            </div>
+                            <div class="kpi-card no-print" style="min-width:36px;cursor:pointer;" onclick="this.nextElementSibling.classList.toggle('hidden')" title="Voir détail">
+                                <div class="kpi-val" style="font-size:16px;">👁️</div>
+                                <div class="kpi-lbl">${details.length}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hidden" style="margin-top:10px;background:#f9f9f9;border-radius:4px;padding:8px;">
+                        ${details.length > 0
+                            ? `<table style="width:100%;font-size:11px;">${details.map(d => `<tr><td>${esc(d.titre)} <span style="color:#aaa;">(${esc(d.prof)})</span></td><td style="text-align:right;font-weight:bold;">${fmtE(d.amount)}</td></tr>`).join('')}</table>`
+                            : `<span style="font-style:italic;color:#aaa;">Aucun projet sur cette source</span>`}
+                    </div>
+                </div>`;
+            }).join('');
+        };
+
+        // ── KPI généraux ──
+        const totAlloc  = conf.srcs.reduce((a,s) => a + safeNum(s.v), 0);
+        const totEngage = conf.srcs.reduce((a,s) => a + (mAll[s.n]?.total||0), 0);
+        const totSolde  = totAlloc - totEngage;
+        const totPct    = totAlloc > 0 ? ((totEngage/totAlloc)*100).toFixed(1) : 0;
+        const kpiEl = document.getElementById('kpi-general');
+        if(kpiEl) kpiEl.innerHTML = [
+            {v: fmtE(totAlloc),  l:'Budget total alloué', c:'var(--pri)'},
+            {v: fmtE(totEngage), l:'Total engagé',        c: totPct>=100?'var(--err)':totPct>=80?'var(--acc)':'var(--pri)'},
+            {v: fmtE(totSolde),  l:'Solde disponible',    c: totSolde<0?'var(--err)':'var(--ok)'},
+            {v: totPct+'%',      l:'Taux consommation',   c: totPct>=100?'var(--err)':totPct>=80?'var(--acc)':'#2980b9'},
+            {v: allP.length,     l:'Total projets',       c:'#555'},
+            {v: fpList.length,   l:'Fiches Projet',       c:'#1a6b4a'},
+            {v: omList.length,   l:'Ordres de Mission',   c:'#2980b9'},
+        ].map(k => `<div class="kpi-card"><div class="kpi-val" style="color:${k.c};">${k.v}</div><div class="kpi-lbl">${k.l}</div></div>`).join('');
+
+        // KPI par groupe
+        const gAP = groupTotal(srcAP, mAll);
+        const gVE = groupTotal(srcVE, mAll);
+        const gAU = groupTotal(srcAutres, mAll);
+        const kpiAP = document.getElementById('kpi-ap'); if(kpiAP) kpiAP.innerHTML = kpiHTML(gAP,'#2980b9');
+        const kpiVE = document.getElementById('kpi-ve'); if(kpiVE) kpiVE.innerHTML = kpiHTML(gVE,'#27ae60');
+        const kpiAU = document.getElementById('kpi-autres'); if(kpiAU) kpiAU.innerHTML = kpiHTML(gAU,'#9b59b6');
+
+        // Masquer groupe "Autres" si vide
+        const gaEl = document.getElementById('groupe-autres');
+        if(gaEl) gaEl.style.display = srcAutres.length === 0 ? 'none' : '';
+
+        renderSrcGroup(srcAP,     mAll, 'src-ap-list');
+        renderSrcGroup(srcVE,     mAll, 'src-ve-list');
+        renderSrcGroup(srcAutres, mAll, 'src-autres-list');
+
+        // ══ TAB FICHES PROJET ══
+        const fpTotExp = fpList.reduce((a,p) => a + (p.exp||[]).reduce((x,e)=>x+safeNum(e.v),0), 0);
+        const fpTotInc = fpList.reduce((a,p) => a + (p.inc||[]).reduce((x,i)=>x+safeNum(i.v),0), 0);
+        const fpKpiEl = document.getElementById('fp-kpi');
+        if(fpKpiEl) fpKpiEl.innerHTML = [
+            {v: fpList.length,    l:'Fiches Projet',   c:'#1a6b4a'},
+            {v: fmtE(fpTotExp),   l:'Total dépenses',  c:'var(--err)'},
+            {v: fmtE(fpTotInc),   l:'Total recettes',  c:'var(--ok)'},
+            {v: fmtE(fpTotInc-fpTotExp), l:'Solde FP', c: fpTotInc-fpTotExp<0?'var(--err)':'var(--ok)'},
+        ].map(k=>`<div class="kpi-card"><div class="kpi-val" style="color:${k.c};">${k.v}</div><div class="kpi-lbl">${k.l}</div></div>`).join('');
+
+        const fpSrcEl = document.getElementById('fp-src-list');
+        if(fpSrcEl) fpSrcEl.innerHTML = conf.srcs.map((s,idx) => {
+            const eng = mFP[s.n]?.total || 0; if(eng === 0 && mAll[s.n]?.total === 0) return '';
+            const pct = safeNum(s.v) > 0 ? Math.min((eng/safeNum(s.v))*100,100) : 0;
+            const barClass = pct>=100?'fill-err':pct>=80?'fill-warn':'fill-ok';
+            const details = mFP[s.n]?.details || [];
+            const codeTag = s.c ? `<span style="font-family:monospace;font-size:10px;color:#888;">[${esc(s.c)}]</span> ` : '';
+            return `<tr><td>${codeTag}<b>${esc(s.n)}</b></td><td style="text-align:right;">${fmtE(safeNum(s.v))}</td><td style="text-align:right;font-weight:bold;">${fmtE(eng)}</td><td style="text-align:right;color:${pct>=80?'var(--err)':'inherit'};">${pct.toFixed(0)}%</td><td><div class="progress-bg"><div class="progress-fill ${barClass}" style="width:${pct}%;"></div></div></td><td class="no-print" style="text-align:center;cursor:pointer;" onclick="this.closest('tr').nextElementSibling.classList.toggle('hidden')">👁️</td></tr><tr class="hidden detail-row"><td colspan="6"><table class="detail-table">${details.map(d=>`<tr><td>${esc(d.titre)} (${esc(d.prof)})</td><td style="text-align:right">${fmtE(d.amount)}</td></tr>`).join('') || '<tr><td>Aucun projet</td></tr>'}</table></td></tr>`;
+        }).join('');
+
+        const fpDetEl = document.getElementById('fp-detail-list');
+        if(fpDetEl) fpDetEl.innerHTML = fpList.length === 0
+            ? `<tr><td colspan="6" style="font-style:italic;color:#aaa;text-align:center;padding:15px;">Aucune Fiche Projet enregistrée</td></tr>`
+            : fpList.map(p => {
+                const exp = (p.exp||[]).reduce((a,e)=>a+safeNum(e.v),0);
+                const inc = (p.inc||[]).reduce((a,i)=>a+safeNum(i.v),0);
+                const solde = inc - exp;
+                let bg='#95a5a6'; if(p.stat==='validé phase orga')bg='var(--ok)'; else if(p.stat==="en cours d'instruction")bg='var(--acc)'; else if(p.stat==='terminé')bg='#2980b9'; else if(p.stat==='annulé')bg='var(--err)';
+                return `<tr><td><b>${esc(p.titre)}</b><br><small style="color:#888;">${esc(p.classes)}</small></td><td>${esc(p.prof)}</td><td><span style="padding:2px 6px;border-radius:3px;font-size:10px;font-weight:bold;color:white;background:${bg};">${esc(p.stat).toUpperCase()}</span></td><td style="text-align:right;color:var(--err);">${fmtE(exp)}</td><td style="text-align:right;color:var(--ok);">${fmtE(inc)}</td><td style="text-align:right;font-weight:bold;color:${solde<0?'var(--err)':'var(--ok)'};">${fmtE(solde)}</td></tr>`;
+            }).join('');
+
+        // ══ TAB ORDRES DE MISSION ══
+        const omTotExp  = omList.reduce((a,p)=>a+(p.exp||[]).reduce((x,e)=>x+safeNum(e.v),0),0);
+        const omTotInc  = omList.reduce((a,p)=>a+(p.inc||[]).reduce((x,i)=>x+safeNum(i.v),0),0);
+        const omAccorde = omList.filter(p=>p.omAvisAccord).length;
+        const omRefuse  = omList.filter(p=>p.omAvisMotif && !p.omAvisAccord).length;
+        const omAttente = omList.length - omAccorde - omRefuse;
+        const totEleves = omList.reduce((a,p)=>a+(safeNum(p.nbE)||0),0);
+
+        const omKpiEl = document.getElementById('om-kpi');
+        if(omKpiEl) omKpiEl.innerHTML = [
+            {v: omList.length,   l:'Ordres de Mission',   c:'#2980b9'},
+            {v: omAccorde,       l:'Accordés ✅',          c:'var(--ok)'},
+            {v: omRefuse,        l:'Refusés ❌',           c:'var(--err)'},
+            {v: omAttente,       l:'En attente ⏳',        c:'var(--acc)'},
+            {v: totEleves,       l:'Élèves concernés',     c:'var(--pri)'},
+            {v: fmtE(omTotExp),  l:'Budget (dépenses)',    c:'var(--err)'},
+        ].map(k=>`<div class="kpi-card"><div class="kpi-val" style="color:${k.c};">${k.v}</div><div class="kpi-lbl">${k.l}</div></div>`).join('');
+
+        const omSrcEl = document.getElementById('om-src-list');
+        if(omSrcEl) omSrcEl.innerHTML = conf.srcs.map((s,idx) => {
+            const eng = mOM[s.n]?.total || 0; if(eng === 0) return '';
+            const pct = safeNum(s.v) > 0 ? Math.min((eng/safeNum(s.v))*100,100) : 0;
+            const barClass = pct>=100?'fill-err':pct>=80?'fill-warn':'fill-ok';
+            const details = mOM[s.n]?.details || [];
+            const codeTag = s.c ? `<span style="font-family:monospace;font-size:10px;color:#888;">[${esc(s.c)}]</span> ` : '';
+            return `<tr><td>${codeTag}<b>${esc(s.n)}</b></td><td style="text-align:right;">${fmtE(safeNum(s.v))}</td><td style="text-align:right;font-weight:bold;">${fmtE(eng)}</td><td style="text-align:right;color:${pct>=80?'var(--err)':'inherit'};">${pct.toFixed(0)}%</td><td><div class="progress-bg"><div class="progress-fill ${barClass}" style="width:${pct}%;"></div></div></td><td class="no-print" style="text-align:center;cursor:pointer;" onclick="this.closest('tr').nextElementSibling.classList.toggle('hidden')">👁️</td></tr><tr class="hidden detail-row"><td colspan="6"><table class="detail-table">${details.map(d=>`<tr><td>${esc(d.titre)} (${esc(d.prof)})</td><td style="text-align:right">${fmtE(d.amount)}</td></tr>`).join('') || '<tr><td>Aucun projet</td></tr>'}</table></td></tr>`;
+        }).join('') || `<tr><td colspan="6" style="font-style:italic;color:#aaa;text-align:center;padding:15px;">Aucun financement enregistré sur les ordres de mission</td></tr>`;
+
+        const omStatsSumEl = document.getElementById('om-stats-summary');
+        if(omStatsSumEl) omStatsSumEl.innerHTML = '';
+
+        const omGlobEl = document.getElementById('om-global-list');
+        if(omGlobEl) omGlobEl.innerHTML = omList.length === 0
+            ? `<tr><td colspan="7" style="font-style:italic;color:#aaa;text-align:center;padding:15px;">Aucun Ordre de Mission importé</td></tr>`
+            : omList.map(p => {
+                const exp = (p.exp||[]).reduce((a,e)=>a+safeNum(e.v),0);
+                const dateD = p.dateD ? fmtDate(p.dateD) : '-';
+                const dateF = (p.dateF && p.dateF !== p.dateD) ? ` → ${fmtDate(p.dateF)}` : '';
+                const avisOM = p.omAvisAccord ? `<span style="color:var(--ok);font-weight:bold;">✅</span>` : (p.omAvisMotif ? `<span style="color:var(--err);font-weight:bold;">❌</span>` : `<span style="color:#aaa;">⏳</span>`);
+                return `<tr><td><b>${esc(p.titre)}</b><br><small style="color:#888;">${esc(p.classes)}</small></td><td>${esc(p.prof)}</td><td>${dateD}${dateF}</td><td style="text-align:center;">${p.nbE||'-'}</td><td>${esc(p.transp||'-')}</td><td style="text-align:right;font-weight:bold;">${exp>0?fmtE(exp):'-'}</td><td style="text-align:center;">${avisOM}</td></tr>`;
+            }).join('');
+
+        // ══ TAB PÉDAGOGIQUE ══
+        const allPP = ["Avenir", "Citoyen", "Santé", "PEAC"];
+        let statP = {}; allPP.forEach(k => statP[k] = {c:0, v:0, details:[]});
+        allP.forEach(p => {
+            const cost = (p.exp||[]).reduce((a,b)=>a+safeNum(b.v),0);
+            (p.parcours||[]).forEach(parc => { if(statP[parc]) { statP[parc].c++; statP[parc].v+=cost; statP[parc].details.push({titre:p.titre, prof:p.prof, cost}); } });
+        });
+        const parcEl = document.getElementById('parcours-list');
+        if(parcEl) parcEl.innerHTML = allPP.map((k,idx) => {
+            const dh = statP[k].details.map(d=>`<tr><td>${esc(d.titre)} (${esc(d.prof)})</td><td style="text-align:right">${fmtE(d.cost)}</td></tr>`).join('');
+            return `<tr><td><b>${k}</b></td><td style="text-align:center">${statP[k].c}</td><td style="text-align:right">${fmtE(statP[k].v)}</td><td style="text-align:center;cursor:pointer;" class="no-print" onclick="app.toggleParcoursDetail(${idx})">👁️</td></tr><tr id="detail-p-${idx}" class="hidden detail-row"><td colspan="4"><table class="detail-table">${dh||'<tr><td style="font-style:italic">Aucun projet</td></tr>'}</table></td></tr>`;
+        }).join('');
+
+        let statL = {};
+        allP.forEach(p => {
+            let l = p.lvl || "Non défini";
+            if(!statL[l]) statL[l] = {c:0, fp:0, om:0, v:0, details:[]};
+            const cost = (p.exp||[]).reduce((a,b)=>a+safeNum(b.v),0);
+            statL[l].c++; statL[l].v+=cost;
+            if(p.hasEDD||p.eddImportDate) statL[l].fp++;
+            if(p.hasOM||p.omImportDate) statL[l].om++;
+            statL[l].details.push({titre:p.titre, prof:p.prof, cost});
+        });
+        const lvlEl = document.getElementById('level-list');
+        if(lvlEl) lvlEl.innerHTML = Object.keys(statL).sort().map((k,idx) => {
+            const dh = statL[k].details.map(d=>`<tr><td>${esc(d.titre)} (${esc(d.prof)})</td><td style="text-align:right">${fmtE(d.cost)}</td></tr>`).join('');
+            return `<tr><td><b>${esc(k)}</b></td><td style="text-align:center">${statL[k].c}</td><td style="text-align:center;color:#1a6b4a;">${statL[k].fp}</td><td style="text-align:center;color:#2980b9;">${statL[k].om}</td><td style="text-align:right">${fmtE(statL[k].v)}</td><td style="text-align:center;cursor:pointer;" class="no-print" onclick="app.toggleLevelDetail(${idx})">👁️</td></tr><tr id="detail-l-${idx}" class="hidden detail-row"><td colspan="6"><table class="detail-table">${dh||'<tr><td>Aucun</td></tr>'}</table></td></tr>`;
+        }).join('');
+
+        // ODD / Avis / Dispositifs
+        const eddList = fpList;
+        const oddCount = {}; ODD_LIST.forEach(o => oddCount[o.n]=0);
+        eddList.forEach(p=>(p.odd||[]).forEach(n=>{if(oddCount[n]!==undefined)oddCount[n]++;}));
+        const oddSorted = ODD_LIST.filter(o=>oddCount[o.n]>0).sort((a,b)=>oddCount[b.n]-oddCount[a.n]);
+        const oddEl = document.getElementById('odd-global-list');
+        if(oddEl) oddEl.innerHTML = oddSorted.length>0 ? oddSorted.map(o=>`<tr><td><span style="background:${o.c};color:#fff;border-radius:3px;padding:1px 6px;font-size:10px;">${o.n} ${o.e}</span> ${o.l}</td><td style="text-align:center;font-weight:bold;">${oddCount[o.n]}</td></tr>`).join('') : `<tr><td colspan="2" style="font-style:italic;color:#aaa;">Aucun ODD renseigné</td></tr>`;
+
+        let avFav=0, avDef=0, avNR=0;
+        eddList.forEach(p=>{ const a=p.eddAvis||p.avis||''; if(a==='favorable')avFav++; else if(a==='défavorable')avDef++; else avNR++; });
+        const avisEl = document.getElementById('avis-global-list');
+        if(avisEl) avisEl.innerHTML = eddList.length>0 ? `<tr><td>✅ Favorable</td><td style="text-align:center;font-weight:bold;color:var(--ok);">${avFav}</td></tr><tr><td>❌ Défavorable</td><td style="text-align:center;font-weight:bold;color:var(--err);">${avDef}</td></tr><tr><td>⏳ Non renseigné</td><td style="text-align:center;font-weight:bold;color:#888;">${avNR}</td></tr><tr style="border-top:2px solid #ddd;"><td><b>Total FP reçues</b></td><td style="text-align:center;font-weight:bold;">${eddList.length}</td></tr>` : `<tr><td colspan="2" style="font-style:italic;color:#aaa;">Aucune fiche projet reçue</td></tr>`;
+
+        const dispCount = {}; eddList.forEach(p=>(p.dispositifs||[]).forEach(d=>{dispCount[d]=(dispCount[d]||0)+1;}));
+        const dispEl = document.getElementById('disp-global-list');
+        if(dispEl) { const ds = Object.entries(dispCount).sort((a,b)=>b[1]-a[1]); dispEl.innerHTML = ds.length>0 ? ds.map(([d,c])=>`<tr><td>${d}</td><td style="text-align:center;font-weight:bold;">${c}</td></tr>`).join('') : `<tr><td colspan="2" style="font-style:italic;color:#aaa;">Aucun dispositif</td></tr>`; }
+    },
+    renderCal() {
+        const months = ['Sept','Oct','Nov','Déc','Jan','Fév','Mars','Avr','Mai','Juin','Juil','Août']; let html = `<div class="gantt-head" style="grid-column:1; position:sticky; left:0; background:#eee; z-index:10;">Projets</div>` + months.map(m=>`<div class="gantt-head">${m}</div>`).join('');
+        const now = new Date(); let mIdx = now.getMonth(); mIdx = (mIdx>=8)?(mIdx-8):(mIdx+4); const dayPos = (now.getDate()/30)*100; const todayLeft = `calc(250px + ${(mIdx * (100/12)) + (dayPos/12)}%)`;
+        html += `<div class="today-line" style="left:${todayLeft}"></div>`;
+        dataManager.list.sort((a,b)=>(a.dateD>b.dateD)?1:-1).forEach(p => {
+            html += `<div class="gantt-row-label" style="grid-column:1; position:sticky; left:0; z-index:5;" onclick="app.edit(${p.id})"><b>${this.esc(p.titre)}</b><br><span style="color:#666; font-size:9px;">${this.esc(p.classes)}</span></div><div class="gantt-row-bar">`;
+            if(p.dateD) {
+                const d1=new Date(p.dateD), d2=new Date(p.dateF||p.dateD); let sm=d1.getMonth(), em=d2.getMonth(); sm=(sm>=8)?(sm-8):(sm+4); em=(em>=8)?(em-8):(em+4); if(sm<0) sm=0; if(em>11) em=11;
+                
+                let cl = 'st-brouillon';
+                if(p.stat === 'validé phase orga') cl = 'st-valide';
+                else if(p.stat === 'terminé') cl = 'st-termine';
+                else if(p.stat === "en cours d'instruction") cl = 'st-soumis';
+                else if(p.stat === 'annulé') cl = 'st-annule';
+
+                html += `<div class="gantt-bar ${cl}" style="grid-column: ${sm+1} / span ${(em-sm)+1}; margin-left:${(d1.getDate()/30)*33}%;" onclick="app.edit(${p.id})" title="${p.titre}">${d1.getDate()}/${d1.getMonth()+1}</div>`;
+            } else { html += `<div class="gantt-alert" onclick="app.edit(${p.id})">Date manquante</div>`; }
+            html += `</div>`;
+        }); document.getElementById('gantt-chart').innerHTML = html;
+    },
+    del(id) { if(confirm("Supprimer ?")) { dataManager.list = dataManager.list.filter(x => x.id != id); dataManager.saveToNav(); this.renderDash(); } },
+    
+    sendGmail(id) { 
+        const p = dataManager.list.find(x => x.id == id); 
+        
+        let bodyText = (conf.tpls.mail || "")
+            .replace(/\[PROJET\]/g, p.titre || "")
+            .replace(/\[PROF\]/g, p.prof || "")
+            .replace(/\[CLASSES\]/g, p.classes || "")
+            .replace(/\[STATUT\]/g, p.stat || "")
+            .replace(/\[DEST\]/g, p.dest || "")
+            .replace(/\[NOTE_GESTION\]/g, p.cGest || "")
+            .replace(/\[NOTE_AR\]/g, p.cAR || "")
+            .replace(/\[NOTE_ACCORD\]/g, p.cAcc || "");
+
+        // AJOUT DE FORCE DES NOTES DANS LE MAIL SI ELLES SONT REMPLIES MAIS ABSENTES DU MODELE
+        if(p.cAR && (!conf.tpls.mail || !conf.tpls.mail.includes('[NOTE_AR]'))) {
+            bodyText += `\n\nRemarques de la direction (AR) :\n${p.cAR}`;
+        }
+        if(p.cAcc && (!conf.tpls.mail || !conf.tpls.mail.includes('[NOTE_ACCORD]'))) {
+            bodyText += `\n\nConditions d'accord :\n${p.cAcc}`;
+        }
+        
+        window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${p.mail}&su=${encodeURIComponent("Projet: "+p.titre)}&body=${encodeURIComponent(bodyText)}`, '_blank'); 
+    },
+    
+    parseTpl(tpl, p) { 
+        return tpl.replace(/\[PROJET\]/g, this.esc(p.titre))
+                  .replace(/\[PROF\]/g, this.esc(p.prof))
+                  .replace(/\[CLASSES\]/g, this.esc(p.classes))
+                  .replace(/\[STATUT\]/g, p.stat)
+                  .replace(/\[DEST\]/g, this.esc(p.dest))
+                  .replace(/\[NOTE_GESTION\]/g, this.esc(p.cGest))
+                  .replace(/\[NOTE_AR\]/g, this.esc(p.cAR))
+                  .replace(/\[NOTE_ACCORD\]/g, this.esc(p.cAcc))
+                  .replace(/\n/g, "<br>"); 
+    },
+    
+    printDoc(id, type) { 
+        const p = dataManager.list.find(x => x.id == id); 
+        let t = "", body = "";
+        
+        if(type==='AR') { 
+            t="ACCUSÉ DE RÉCEPTION"; 
+            body=this.parseTpl(conf.tpls.ar, p); 
+            if(p.cAR && (!conf.tpls.ar || !conf.tpls.ar.includes('[NOTE_AR]'))) {
+                body += `<div style="margin-top:20px;"><strong>Note / Remarques de la direction :</strong><div class="print-long-text" style="border-left:3px solid #ccc; padding-left:10px; margin-top:5px;">${this.esc(p.cAR)}</div></div>`;
+            }
+        }
+        else if(type==='AUTO') { 
+            t="AUTORISATION DE SORTIE"; 
+            body=this.parseTpl(conf.tpls.accord, p); 
+            if(p.cAcc && (!conf.tpls.accord || !conf.tpls.accord.includes('[NOTE_ACCORD]'))) {
+                body += `<div style="margin-top:20px;"><strong>Note / Conditions d'accord :</strong><div class="print-long-text" style="border-left:3px solid #ccc; padding-left:10px; margin-top:5px;">${this.esc(p.cAcc)}</div></div>`;
+            }
+        }
+        else if(type==='GEST') { t="FICHE DE GESTION / INTENDANCE"; body=this.parseTpl(conf.tpls.gest, p); }
+        else if(type==='ACC') { t="LISTE DES ACCOMPAGNATEURS"; body=""; }
+        else if(type==='SYNTHESE') { t="FICHE DE PROJET PÉDAGOGIQUE"; body=""; }
+
+        if(type === 'SYNTHESE') {
+            const axesStr = (p.axes && p.axes.length > 0) ? p.axes.join(', ') : "Aucun";
+            const parcStr = (p.parcours && p.parcours.length > 0) ? p.parcours.join(', ') : "Aucun";
+            let datesHtml = "";
+            if (p.type === 'projet_multi' && p.md && p.md.length > 0) {
+                datesHtml = "<ul>" + p.md.map(m => `<li>Le <b>${fmtDate(m.d)}</b> (${m.hd||'?'}-${m.hf||'?'}) : ${this.esc(m.obj)}</li>`).join('') + "</ul>";
+            } else {
+                datesHtml = `<p><b>Date(s) :</b> du ${fmtDate(p.dateD)} au ${fmtDate(p.dateF||p.dateD)} <br><b>Horaires :</b> ${p.heureD||'?'} à ${p.heureF||'?'}</p>`;
+            }
+            const validAcc = (p.accList || []).filter(a => a.n || a.p);
+            let accHtml = validAcc.length > 0 ? `<ul>${validAcc.map(a => `<li>${this.esc(a.n).toUpperCase()} ${this.esc(a.p)} <strong style="color:#555">[${a.f === 'Autre' ? this.esc(a.fa) : this.esc(a.f)}]</strong> - 📞 ${this.esc(a.t) || '?'}</li>`).join('')}</ul>` : "Aucun renseigné";
+            
+            const safeExp = p.exp || []; const safeInc = p.inc || [];
+            const totalExp = safeExp.reduce((a,b)=>a+safeNum(b.v),0).toFixed(2);
+            const totalInc = safeInc.reduce((a,b)=>a+safeNum(b.v),0).toFixed(2);
+            const solde = (totalInc - totalExp).toFixed(2);
+
+            body = `
+                <div style="margin-bottom:20px;">
+                    <h3 style="border-bottom:1px solid #ccc; padding-bottom:5px; background:#f9f9f9; padding:5px;">1. Pédagogie & Identité</h3>
+                    <table style="width:100%; border-collapse:collapse; margin-bottom:10px;">
+                        <tr><td style="padding:5px; width:30%;"><b>Titre de l'action :</b></td><td style="padding:5px;">${this.esc(p.titre)}</td></tr>
+                        <tr><td style="padding:5px;"><b>Professeur Référent :</b></td><td style="padding:5px;">${this.esc(p.prof)} (${this.esc(p.mail)})</td></tr>
+                        <tr><td style="padding:5px;"><b>Niveau & Classes :</b></td><td style="padding:5px;">${this.esc(p.lvl)} - ${this.esc(p.classes)}</td></tr>
+                        <tr><td style="padding:5px;"><b>Parcours Éducatifs :</b></td><td style="padding:5px;">${this.esc(parcStr)}</td></tr>
+                        <tr><td style="padding:5px;"><b>Axes du Projet :</b></td><td style="padding:5px;">${this.esc(axesStr)}</td></tr>
+                    </table>
+                    <div style="margin-top:10px;"><b>Objectifs Pédagogiques :</b><div class="print-long-text" style="border:1px dashed #ccc; padding:10px; margin-top:5px;">${this.esc(p.obj)||'Non renseignés'}</div></div>
+                </div>
+                
+                <div style="margin-bottom:20px;">
+                    <h3 style="border-bottom:1px solid #ccc; padding-bottom:5px; background:#f9f9f9; padding:5px;">2. Logistique & Programme</h3>
+                    <p><b>Catégorie :</b> ${TYPE_LABELS[p.type]||'Non défini'}</p>
+                    <div style="margin-bottom:10px;">${datesHtml}</div>
+                    <table style="width:100%; border-collapse:collapse; margin-bottom:10px;">
+                        <tr><td style="padding:5px; width:30%;"><b>Lieu / Destination :</b></td><td style="padding:5px;">${this.esc(p.dest)||'?'}</td></tr>
+                        <tr><td style="padding:5px;"><b>Mode de Transport :</b></td><td style="padding:5px;">${this.esc(p.transp)||'?'}</td></tr>
+                        <tr><td style="padding:5px;"><b>Effectifs :</b></td><td style="padding:5px;">${p.nbE||0} Élèves / ${p.accNb||0} Adultes (Total)</td></tr>
+                        <tr><td style="padding:5px;"><b>Repas à commander :</b></td><td style="padding:5px; font-weight:bold;">${p.repas||0}</td></tr>
+                        <tr><td style="padding:5px;" valign="top"><b>Accompagnateurs :</b></td><td style="padding:5px;">${accHtml}</td></tr>
+                    </table>
+                    ${p.prog ? `<div style="margin-top:10px;"><b>Programme prévisionnel :</b><div class="print-long-text" style="border-left:3px solid #ccc; padding-left:10px; margin-top:5px;">${this.esc(p.prog)}</div></div>` : ""}
+                </div>
+                
+                ${(p.hasEDD||p.axe||(p.odd&&p.odd.length>0)||(p.productions&&p.productions.length>0)) ? `
+                <div style="margin-bottom:20px; border:1px solid #a8d5bb; border-radius:6px; overflow:hidden;">
+                    <h3 style="padding:8px 12px; background:#1a6b4a; color:#fff; margin:0; font-size:13px;">🗂️ Projet / Action</h3>
+                    <div style="padding:12px;">
+                    ${p.presentation ? `<div style="margin-bottom:8px;"><b>Démarche :</b><div style="border-left:3px solid #1a6b4a; padding-left:8px; margin-top:3px; font-size:12px;">${this.esc(p.presentation)}</div></div>` : ''}
+                    ${(p.axe||p.objectif||p.action) ? `<table style="width:100%; border-collapse:collapse; margin-bottom:8px; font-size:12px;">
+                        ${p.axe?`<tr><td style="padding:3px; width:25%; font-weight:bold;">Axe :</td><td style="padding:3px;">${this.esc(p.axe)}</td></tr>`:''}
+                        ${p.objectif?`<tr><td style="padding:3px; font-weight:bold;">Objectif :</td><td style="padding:3px;">${this.esc(p.objectif)}</td></tr>`:''}
+                        ${p.action?`<tr><td style="padding:3px; font-weight:bold;">Action :</td><td style="padding:3px;">${this.esc(p.action)}</td></tr>`:''}
+                    </table>` : ''}
+                    ${(p.c1||p.c2||p.c3)?`<div style="margin-bottom:6px; font-size:12px;"><b>Compétences :</b> ${[p.c1,p.c2,p.c3].filter(Boolean).map(c=>this.esc(c)).join(' — ')}</div>`:''}
+                    ${(p.dispositifs&&p.dispositifs.length>0)?`<div style="margin-bottom:6px; font-size:12px;"><b>Dispositifs :</b> ${p.dispositifs.join(', ')}</div>`:''}
+                    ${p.partNom?`<div style="margin-bottom:6px; font-size:12px;"><b>Partenaire(s) :</b> ${this.esc(p.partNom)}${p.partRoles&&p.partRoles.length>0?' ['+p.partRoles.join(', ')+']':''}</div>`:''}
+                    ${(p.odd&&p.odd.length>0)?`<div style="margin-bottom:6px;"><b style="font-size:12px;">ODD visés :</b><br>${p.odd.map(n=>{const o=ODD_LIST.find(x=>x.n===n);return o?`<span style="display:inline-block;background:${o.c};color:#fff;border-radius:3px;padding:1px 6px;font-size:10px;margin:2px;">${o.n} ${o.e} ${o.l}</span>`:'ODD '+n;}).join(' ')}</div>`:''}
+                    ${(p.productions&&p.productions.length>0||p.prodAutre)?`<div style="margin-bottom:6px; font-size:12px;"><b>Productions :</b> ${[...(p.productions||[]),p.prodAutre||''].filter(Boolean).join(', ')}</div>`:''}
+                    ${p.subv?`<div style="margin-bottom:6px; font-size:12px;"><b>Subventions :</b> ${this.esc(p.subv)}</div>`:''}
+                    ${(p.eddAvis||p.avis)?`<div style="padding:6px 10px; background:${(p.eddAvis||p.avis)==='favorable'?'#d4edda':'#f8d7da'}; border-radius:4px; font-weight:bold; font-size:12px;">${(p.eddAvis||p.avis)==='favorable'?'✅ Avis favorable du chef d\'établissement':'❌ Avis défavorable du chef d\'établissement'}</div>`:''}
+                    </div>
+                </div>` : ''}
+
+                ${(p.hasOM || p.omImportDate) ? `
+                <div style="margin-bottom:20px; border:1px solid #aed6f1; border-radius:6px; overflow:hidden;">
+                    <h3 style="padding:8px 12px; background:#2980b9; color:#fff; margin:0; font-size:13px;">📋 Ordre de Mission — importé le ${p.omImportDate||''}</h3>
+                    <div style="padding:10px; font-size:12px;">
+                        <table style="width:100%; border-collapse:collapse;">
+                            ${p.dest    ? `<tr><td style="padding:3px; width:28%; font-weight:bold;">Destination :</td><td style="padding:3px;">${this.esc(p.dest)}</td></tr>` : ''}
+                            ${p.transp  ? `<tr><td style="padding:3px; font-weight:bold;">Transport :</td><td style="padding:3px;">${this.esc(p.transp)}</td></tr>` : ''}
+                            ${p.heureD  ? `<tr><td style="padding:3px; font-weight:bold;">Horaires :</td><td style="padding:3px;">${p.heureD||'?'} → ${p.heureF||'?'}</td></tr>` : ''}
+                            ${p.repas   ? `<tr><td style="padding:3px; font-weight:bold;">Repas commandés :</td><td style="padding:3px; font-weight:bold; color:var(--err);">${p.repas}</td></tr>` : ''}
+                            ${p.omDestinataires ? `<tr><td style="padding:3px; font-weight:bold;">Destinataires OM :</td><td style="padding:3px;">${this.esc(p.omDestinataires)}</td></tr>` : ''}
+                            ${p.typeSortie ? `<tr><td style="padding:3px; font-weight:bold;">Type de sortie :</td><td style="padding:3px;">${this.esc(p.typeSortie)}</td></tr>` : ''}
+                        </table>
+                        ${p.omAvisAccord ? `<div style="margin-top:8px; padding:6px 10px; background:#d4edda; border-radius:4px; font-weight:bold;">✅ Accord chef d'établissement : ${this.esc(p.omAvisAccord)}</div>` : ''}
+                        ${p.omAvisMotif  ? `<div style="margin-top:8px; padding:6px 10px; background:#f8d7da; border-radius:4px; font-weight:bold;">❌ Refus : ${this.esc(p.omAvisMotif)}</div>` : ''}
+                    </div>
+                </div>` : ''}
+
+                <div style="margin-bottom:20px;">
+                    <h3 style="border-bottom:1px solid #ccc; padding-bottom:5px; background:#f9f9f9; padding:5px;">3. Budget Prévisionnel</h3>
+                    <table class="doc-budget-table" style="margin-top:10px; width:100%;">
+                        <tr><th style="width:50%">DÉPENSES PRÉVUES</th><th style="width:50%">RECETTES (FINANCEMENT)</th></tr>
+                        <tr>
+                            <td valign="top" style="padding:10px;">
+                                ${safeExp.length > 0 ? safeExp.map(e => `<div>- ${this.esc(e.l)} : <b>${parseFloat(e.v).toFixed(2)}€</b></div>`).join('') : '<div style="font-style:italic; color:#888;">Aucune dépense</div>'}
+                                <div style="border-top:1px solid #000; margin-top:10px; padding-top:5px; font-weight:bold;">TOTAL : ${totalExp} €</div>
+                            </td>
+                            <td valign="top" style="padding:10px;">
+                                ${safeInc.length > 0 ? safeInc.map(i => `<div>- ${this.esc(i.s)} : <b>${parseFloat(i.v).toFixed(2)}€</b></div>`).join('') : '<div style="font-style:italic; color:#888;">Aucune recette</div>'}
+                                <div style="border-top:1px solid #000; margin-top:10px; padding-top:5px; font-weight:bold;">TOTAL : ${totalInc} €</div>
+                            </td>
+                        </tr>
+                    </table>
+                    <div style="text-align:right; margin-top:10px; font-weight:bold; font-size:14px; background:#eee; padding:5px; border:1px solid #ccc;">SOLDE (Reste à charge) : ${solde} €</div>
+                    ${p.cGest ? `<div style="margin-top:15px;"><b>Précisions supplémentaires / Notes :</b><div class="print-long-text" style="border:1px dashed #ccc; padding:10px; margin-top:5px;">${this.esc(p.cGest)}</div></div>` : ""}
+                </div>
+            `;
+        } else if(type === 'GEST') {
+            const safeExp = p.exp || []; const safeInc = p.inc || [];
+            const totalExp = safeExp.reduce((a,b)=>a+safeNum(b.v),0).toFixed(2);
+            const totalInc = safeInc.reduce((a,b)=>a+safeNum(b.v),0).toFixed(2);
+            const solde = (totalInc - totalExp).toFixed(2);
+
+            let multiHTML = "";
+            if(p.type === 'projet_multi' && p.md && p.md.length > 0) {
+                multiHTML = `<div style="margin-top:10px; font-size:11px;"><u>SÉANCES PRÉVUES :</u><ul>` + p.md.map(m => `<li>Le ${fmtDate(m.d)} de ${m.hd||'?'} à ${m.hf||'?'} : ${this.esc(m.obj)}</li>`).join('') + `</ul></div>`;
+            }
+
+            let progHtml = p.prog ? `<div style="margin-top:15px; border-top:1px dashed #ccc; padding-top:10px;"><u>PROGRAMME PRÉVISIONNEL :</u><div class="print-long-text">${this.esc(p.prog)}</div></div>` : '';
+
+            // Besoins EDD (lieux, durées, matériel) si présents
+            const eddLieux   = (p.lieux    || []).filter(Boolean);
+            const eddDurees  = (p.durees   || []).filter(Boolean);
+            const eddMat     = (p.materiel || []).filter(Boolean);
+            const eddDates   = (p.dates    || []).filter(Boolean);
+            let eddBesoinHtml = '';
+            if(eddLieux.length || eddDurees.length || eddMat.length || eddDates.length) {
+                eddBesoinHtml = `<div style="margin-top:10px; border-top:1px dashed #a8d5bb; padding-top:8px;">
+                    <u style="color:#1a6b4a;">BESOINS PROJET :</u>
+                    ${eddDates.length  ? `<div style="margin-top:4px;"><b>Dates prévues :</b> ${eddDates.map(fmtDate).join(', ')}</div>` : ''}
+                    ${eddLieux.length  ? `<div style="margin-top:4px;"><b>Lieux :</b> ${eddLieux.join(', ')}</div>` : ''}
+                    ${eddDurees.length ? `<div style="margin-top:4px;"><b>Durées :</b> ${eddDurees.join(', ')}</div>` : ''}
+                    ${eddMat.length    ? `<div style="margin-top:4px;"><b>Matériel :</b><ul style="margin:2px 0; padding-left:18px;">${eddMat.map(m=>`<li>${this.esc(m)}</li>`).join('')}</ul></div>` : ''}
+                    ${p.subv ? `<div style="margin-top:4px;"><b>Subventions :</b> ${this.esc(p.subv)}</div>` : ''}
+                </div>`;
+            }
+
+            const validAcc = (p.accList || []).filter(a => a.n || a.p);
+            let accHtml = validAcc.length > 0 ? `<ul style="margin:0; padding-left:20px;">${validAcc.map(a => {
+                let funcStr = a.f ? (a.f === 'Autre' ? `[Autre: ${this.esc(a.fa)}]` : `[${this.esc(a.f)}]`) : "";
+                return `<li>${this.esc(a.n).toUpperCase()} ${this.esc(a.p)} <strong style="color:#555">${funcStr}</strong> - 📞 ${this.esc(a.t) || '?'}</li>`;
+            }).join('')}</ul>` : "Aucun";
+
+            body += `
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-top:20px;">
+                    <div class="doc-box">
+                        <h3>🚛 LOGISTIQUE & PROGRAMME</h3>
+                        <div class="info-row"><span>Type :</span> <strong>${TYPE_LABELS[p.type]||'Non défini'}</strong></div>
+                        <div class="info-row"><span>Date :</span> <strong>${fmtDate(p.dateD)}${p.dateF && p.dateF !== p.dateD ?' au '+fmtDate(p.dateF):''}</strong></div>
+                        <div class="info-row"><span>Horaires :</span> <strong>${p.heureD || '-'} / ${p.heureF || '-'}</strong></div>
+                        <div class="info-row"><span>Lieu :</span> <strong>${this.esc(p.dest)}</strong></div>
+                        <div class="info-row"><span>Effectifs :</span> <strong>${p.nbE || 0} Élèves / ${p.accNb || 0} Adultes</strong></div>
+                        <div class="info-row" style="background:#fff3cd;"><span>REPAS À PRÉVOIR :</span> <strong>${p.repas || 0}</strong></div>
+                        <div class="info-row"><span>Transporteur :</span> <strong>${this.esc(p.transp) || '-'}</strong></div>
+                        <div style="margin-top:10px;"><u>Accompagnateurs :</u><br>${accHtml}</div>
+                        ${multiHTML}
+                        ${eddBesoinHtml}
+                        ${progHtml}
+                    </div>
+
+                    <div class="doc-box">
+                        <h3>💶 PRÉVISIONS BUDGÉTAIRES</h3>
+                        <table class="doc-budget-table">
+                            <tr><th>DÉPENSES PRÉVUES</th><th>RECETTES (FINANCEMENT)</th></tr>
+                            <tr>
+                                <td valign="top">
+                                    ${safeExp.map(e => `<div>- ${this.esc(e.l)} : <b>${parseFloat(e.v).toFixed(2)}€</b></div>`).join('')}
+                                    <div style="border-top:1px solid #000; margin-top:5px; font-weight:bold;">TOTAL : ${totalExp} €</div>
+                                </td>
+                                <td valign="top">
+                                    ${safeInc.map(i => `<div>- ${this.esc(i.s)} : <b>${parseFloat(i.v).toFixed(2)}€</b></div>`).join('')}
+                                    <div style="border-top:1px solid #000; margin-top:5px; font-weight:bold;">TOTAL : ${totalInc} €</div>
+                                </td>
+                            </tr>
+                        </table>
+                        <div style="text-align:right; margin-top:5px; font-weight:bold;">SOLDE (Reste à charge) : ${solde} €</div>
+                    </div>
+                </div>
+            `;
+        } else if (type === 'ACC') {
+            const validAcc = (p.accList || []).filter(a => a.n || a.p);
+            
+            let accHtml = validAcc.length > 0 
+                ? `<table class="doc-budget-table" style="width:100%; margin-top:20px;">
+                    <tr><th style="text-align:left; padding:10px;">NOM</th><th style="text-align:left; padding:10px;">Prénom</th><th style="text-align:left; padding:10px;">Fonction</th><th style="text-align:left; padding:10px;">Téléphone</th><th style="text-align:center; padding:10px; width:150px;">Pointage / Présence</th></tr>
+                    ${validAcc.map(a => {
+                        let funcStr = a.f ? (a.f === 'Autre' ? this.esc(a.fa) : this.esc(a.f)) : "-";
+                        return `<tr><td style="padding:10px; font-weight:bold; font-size:14px;">${this.esc(a.n).toUpperCase()}</td><td style="padding:10px; font-size:14px;">${this.esc(a.p)}</td><td style="padding:10px; font-size:14px; color:#555; font-style:italic;">${funcStr}</td><td style="padding:10px; font-size:14px;">${this.esc(a.t) || '-'}</td><td style="padding:10px; border:1px solid #ccc;"></td></tr>`;
+                    }).join('')}
+                   </table>`
+                : "<p style='margin-top:20px; font-style:italic; text-align:center;'>Aucun accompagnateur renseigné pour ce projet.</p>";
+            
+            body = `
+                <div class="doc-box" style="margin-top:20px;">
+                    <h3>📍 RAPPEL DE LA SORTIE</h3>
+                    <div class="info-row"><span>Date :</span> <strong>${fmtDate(p.dateD)}${p.dateF && p.dateF !== p.dateD ?' au '+fmtDate(p.dateF):''}</strong></div>
+                    <div class="info-row"><span>Horaires (Départ/Retour) :</span> <strong>${p.heureD || '-'} / ${p.heureF || '-'}</strong></div>
+                    <div class="info-row"><span>Lieu / Destination :</span> <strong>${this.esc(p.dest)}</strong></div>
+                    <div class="info-row"><span>Effectif total prévu :</span> <strong>${p.nbE || 0} Élèves / ${p.accNb || 0} Adultes</strong></div>
+                </div>
+                ${accHtml}
+            `;
+        }
+
+        document.getElementById('print-content').innerHTML = `
+            <div class="doc-header"><div><strong>${this.esc(conf.data.etab)}</strong><br>${this.esc(conf.data.ville)}</div><div>Le ${new Date().toLocaleDateString()}</div></div>
+            <div class="doc-title">${t}</div>
+            <div style="border:1px solid #ddd; padding:10px; margin-bottom:15px; background:#f9f9f9;">
+                <strong>Projet :</strong> ${this.esc(p.titre)}<br><strong>Professeur Référent :</strong> ${this.esc(p.prof)}<br><strong>Classes :</strong> ${this.esc(p.classes)}
+            </div>
+            <div class="doc-corps">${body}</div><div class="doc-sign" style="margin-top:40px;">${type === 'ACC' ? 'Signature du Responsable :' : this.esc(conf.data.chef)}</div>
+        `; 
+        this.nav('print'); 
+    },
+
+    edit(id) {
+        const p = dataManager.list.find(x => x.id == id); this.nav('form');
+        
+        let profN = p.profNom || ""; let profP = p.profPrenom || "";
+        if(!profN && p.prof) profN = p.prof;
+        document.getElementById('p-prof-nom').value = profN;
+        document.getElementById('p-prof-prenom').value = profP;
+
+        const fields = ['id','titre','mail','lvl','classes','date-d','date-f','heure-d','heure-f','dest','nb-e','acc-nb','transp','link','obj','prog','ca-date','prov-date','comm-ar','comm-accord','comm-gest','stat','repas'];
+        fields.forEach(f => { let val = ""; if(f=='date-d') val=p.dateD; else if(f=='date-f') val=p.dateF; else if(f=='heure-d') val=p.heureD; else if(f=='heure-f') val=p.heureF; else if(f=='nb-e') val=p.nbE; else if(f=='acc-nb') val=p.accNb; else if(f=='ca-date') val=p.caDate; else if(f=='prov-date') val=p.provDate; else if(f=='comm-ar') val=p.cAR; else if(f=='comm-accord') val=p.cAcc; else if(f=='comm-gest') val=p.cGest; else val = p[f]; const el = document.getElementById('p-'+f); if(el) el.value = val || ""; });
+        
+        const oldTypes = ['journee', 'voyage', 'annee'];
+        if(oldTypes.includes(p.type) || !p.type) {
+            document.getElementById('legacy-warning').classList.remove('hidden');
+            document.querySelectorAll('input[name="p-type"]').forEach(r => r.checked = false);
+            document.getElementById('block-standard').classList.remove('hidden');
+            document.getElementById('block-multi').classList.add('hidden');
+            if(p.type === 'voyage') document.getElementById('grp-date-f').classList.remove('hidden');
+        } else {
+            document.getElementById('legacy-warning').classList.add('hidden');
+            let r = document.querySelector(`input[name="p-type"][value="${p.type}"]`); if(r) r.checked = true;
+            this.toggleType();
+        }
+        
+        this.md = p.md || []; this.renderMD();
+        this.accList = p.accList || []; this.renderAcc();
+
+        // Affichage dynamique des axes (et conservation des anciens obsolètes)
+        let htmlAxes = conf.axes.map(a => `<label style="cursor:pointer; display:inline-flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" class="chk-axe" value="${this.esc(a)}"> ${this.esc(a)}</label>`).join('');
+        const pAxes = p.axes || [];
+        pAxes.forEach(pa => {
+            if(!conf.axes.includes(pa)) { htmlAxes += `<label style="cursor:pointer; color:#888; display:inline-flex; align-items:center; gap:5px; white-space:nowrap;"><input type="checkbox" class="chk-axe" value="${this.esc(pa)}"> ${this.esc(pa)} (Obsolète)</label>`; }
+        });
+        document.getElementById('p-axes-list').innerHTML = htmlAxes;
+        document.querySelectorAll('.chk-axe').forEach(c => c.checked = pAxes.includes(c.value));
+
+        const parc = p.parcours || []; document.querySelectorAll('.chk-parc').forEach(c => c.checked = parc.includes(c.value));
+        document.getElementById('p-ca-check').checked = p.ca; document.getElementById('p-ca-check').checked = p.ca; document.getElementById('p-prov-check').checked = p.prov; 
+        bud.render(p.exp, p.inc);
+
+        // ── Charger les champs EDD ──
+        buildODDGrid();
+        ['axe','objectif','action','c1','c2','c3','partenaire','presentation','subv','prod-autre'].forEach(k => {
+            const key = k === 'partenaire' ? 'partNom' : k === 'prod-autre' ? 'prodAutre' : k;
+            const el = document.getElementById('p-edd-' + k); if(el) el.value = p[key] || '';
+        });
+        document.querySelectorAll('.chk-disp').forEach(c => c.checked = (p.dispositifs||[]).includes(c.value));
+        document.querySelectorAll('.chk-partrole').forEach(c => c.checked = (p.partRoles||[]).includes(c.value));
+        document.querySelectorAll('.chk-prod').forEach(c => c.checked = (p.productions||[]).includes(c.value));
+        document.querySelectorAll('.chk-odd').forEach(c => c.checked = (p.odd||[]).map(Number).includes(Number(c.value)));
+        const avisEl = document.querySelector(`input[name="p-edd-avis"][value="${p.eddAvis||p.avis||''}"]`); if(avisEl) avisEl.checked=true;
+        
+        // Badge EDD / Fiche Projet
+        const badge = document.getElementById('p-edd-badge');
+        if(badge) {
+            if(p.hasEDD || p.eddImportDate) {
+                const avisStr = (p.eddAvis||p.avis) === 'favorable' ? '✅ Avis favorable' : (p.eddAvis||p.avis) === 'défavorable' ? '❌ Avis défavorable' : '⏳ Avis non renseigné';
+                badge.innerHTML = `<span style="color:#1a6b4a; font-weight:bold;">✅ Fiche Projet reçue</span>${p.eddImportDate ? ' — importée le '+p.eddImportDate : ''}<br><span style="margin-top:3px; display:block;">${avisStr}</span>`;
+                badge.style.background = '#e8f5ef'; badge.style.borderColor = '#1a6b4a';
+            } else {
+                badge.innerHTML = 'Aucune fiche projet associée';
+                badge.style.background = '#fff'; badge.style.borderColor = '#c5e8d5';
+            }
+        }
+
+        // Badge Ordre de Mission
+        const omBadge = document.getElementById('p-om-badge');
+        if(omBadge) {
+            if(p.hasOM || p.omImportDate) {
+                const avisOM = p.omAvisAccord
+                    ? `<span style="color:var(--ok);">✅ Accordé</span>`
+                    : (p.omAvisMotif ? `<span style="color:var(--err);">❌ Refusé : ${p.omAvisMotif}</span>` : `<span style="color:#888;">⏳ En attente de décision</span>`);
+                omBadge.innerHTML = `<span style="color:#2980b9; font-weight:bold;">📋 OM reçu</span>${p.omImportDate ? ' — importé le '+p.omImportDate : ''}<br><span style="margin-top:3px; display:block;">${avisOM}</span>`;
+                omBadge.style.background = '#e8f4fd'; omBadge.style.borderColor = '#2980b9';
+            } else {
+                omBadge.innerHTML = 'Aucun ordre de mission associé';
+                omBadge.style.background = '#fff'; omBadge.style.borderColor = '#aed6f1';
+            }
+        }
+    },
+    settings() { document.getElementById('modal').style.display='flex'; }
+};
+dataManager.init();
+// Build ODD grid once DOM is ready (for form)
+window.addEventListener('load', () => { buildODDGrid(); });
+
+// ── AIDE MODAL ──
+const aideModal = {
+    open(tab) {
+        document.getElementById('aide-modal').style.display = 'flex';
+        this.show(tab || 'demarrage');
+        document.getElementById('faq-search').value = '';
+        this.filterFAQ('');
+    },
+    close() {
+        document.getElementById('aide-modal').style.display = 'none';
+    },
+    show(tab) {
+        document.querySelectorAll('.aide-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.aide-nav-item').forEach(n => n.classList.remove('active'));
+        const section = document.getElementById('aide-' + tab);
+        if (section) section.classList.add('active');
+        const navItem = document.querySelector(`.aide-nav-item[data-tab="${tab}"]`);
+        if (navItem) navItem.classList.add('active');
+    },
+    toggleFAQ(el) {
+        const item = el.closest('.aide-faq-item');
+        const wasOpen = item.classList.contains('open');
+        document.querySelectorAll('.aide-faq-item').forEach(i => i.classList.remove('open'));
+        if (!wasOpen) item.classList.add('open');
+    },
+    filterFAQ(q) {
+        const query = q.toLowerCase().trim();
+        document.querySelectorAll('.aide-faq-item').forEach(item => {
+            const text = item.textContent.toLowerCase();
+            item.style.display = (!query || text.includes(query)) ? '' : 'none';
+        });
+    }
+};
+
+// Fermer l'aide en cliquant sur le fond
+document.getElementById('aide-modal').addEventListener('click', function(e) {
+    if (e.target === this) aideModal.close();
+});
+
+// Raccourci clavier F1 pour ouvrir l'aide
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'F1') { e.preventDefault(); aideModal.open(); }
+    if (e.key === 'Escape' && document.getElementById('aide-modal').style.display === 'flex') { aideModal.close(); }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Espace Numérique de Pilotage — LPO Léopold Elfort</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   RESET & VARIABLES
+═══════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy:       #0f1f45;
+  --navy-mid:   #1a3260;
+  --blue:       #1565c0;
+  --blue-light: #1e88e5;
+  --bg:         #f0f4f8;
+  --card:       #ffffff;
+  --text:       #1a2035;
+  --muted:      #6b7a99;
+  --border:     #e2e8f0;
+  --shadow:     0 2px 12px rgba(15,31,69,.08);
+  --shadow-up:  0 8px 32px rgba(15,31,69,.16);
+  --radius:     16px;
+  /* Catégories */
+  --c-vs:   #1565c0;
+  --c-el:   #1e3a5f;
+  --c-ex:   #6a1b9a;
+  --c-pc:   #bf360c;
+  --c-pj:   #00695c;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════
+   HEADER
+═══════════════════════════════════════ */
+.hub-header {
+  background: linear-gradient(135deg, #080f2e 0%, var(--navy) 40%, var(--navy-mid) 70%, #1a4fa0 100%);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+.hub-header::before {
+  content: '';
+  position: absolute; top: -120px; right: -80px;
+  width: 480px; height: 480px;
+  background: radial-gradient(circle, rgba(255,255,255,.06) 0%, transparent 70%);
+  border-radius: 50%; pointer-events: none;
+}
+.hub-header::after {
+  content: '';
+  position: absolute; bottom: -100px; left: 25%;
+  width: 320px; height: 320px;
+  background: radial-gradient(circle, rgba(30,79,160,.25) 0%, transparent 70%);
+  border-radius: 50%; pointer-events: none;
+}
+/* Motif géométrique subtil */
+.hub-header-pattern {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,.03) 39px, rgba(255,255,255,.03) 40px),
+    repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,.03) 39px, rgba(255,255,255,.03) 40px);
+}
+
+.header-inner {
+  position: relative; z-index: 2;
+  max-width: 1400px; margin: 0 auto;
+  padding: 40px 48px 36px;
+  display: flex; align-items: center; justify-content: space-between; gap: 28px;
+  flex-wrap: wrap;
+}
+
+.header-brand { display: flex; align-items: center; gap: 22px; }
+
+.header-emblem {
+  width: 76px; height: 76px;
+  background: rgba(255,255,255,.13);
+  border: 2px solid rgba(255,255,255,.28);
+  border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.4rem;
+  backdrop-filter: blur(10px);
+  flex-shrink: 0;
+  box-shadow: 0 4px 20px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.15);
+}
+
+.header-overline {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(232,160,32,.85);
+  color: #1a1000;
+  font-size: .7rem; font-weight: 700;
+  letter-spacing: 1.2px; text-transform: uppercase;
+  padding: 3px 11px; border-radius: 4px;
+  margin-bottom: 8px;
+}
+.header-overline::before { content: '📍'; font-size: .8rem; }
+
+.header-titles h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 2rem; font-weight: 800;
+  line-height: 1.1; letter-spacing: -.5px;
+  text-shadow: 0 2px 12px rgba(0,0,0,.3);
+}
+.header-titles p {
+  font-size: .9rem; opacity: .72; margin-top: 5px; font-weight: 300;
+}
+
+.header-meta {
+  text-align: right;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+}
+.header-date {
+  font-size: .82rem; opacity: .68; font-weight: 300; letter-spacing: .3px;
+}
+.header-year-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(255,255,255,.14);
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 24px;
+  padding: 7px 18px;
+  font-size: .88rem; font-weight: 600;
+  backdrop-filter: blur(8px);
+}
+.header-year-badge::before { content: '📅'; font-size: .9rem; }
+.header-apps-count {
+  font-size: .76rem; opacity: .6;
+  display: flex; align-items: center; gap: 5px;
+}
+.header-apps-count::before {
+  content: '';
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #4caf50;
+  box-shadow: 0 0 6px #4caf50;
+}
+
+/* Barre de progression de l'année scolaire */
+.year-progress-bar {
+  position: relative; z-index: 2;
+  max-width: 1400px; margin: 0 auto;
+  padding: 0 48px 28px;
+}
+.year-progress-label {
+  display: flex; justify-content: space-between;
+  font-size: .72rem; opacity: .6; margin-bottom: 5px;
+}
+.year-progress-track {
+  height: 4px; border-radius: 2px;
+  background: rgba(255,255,255,.15);
+  overflow: hidden;
+}
+.year-progress-fill {
+  height: 100%; border-radius: 2px;
+  background: linear-gradient(90deg, rgba(255,255,255,.4), rgba(232,160,32,.9));
+  transition: width .6s ease;
+}
+
+/* ═══════════════════════════════════════
+   BARRE DE NAVIGATION / FILTRE
+═══════════════════════════════════════ */
+.nav-bar {
+  background: white;
+  border-bottom: 2px solid var(--border);
+  position: sticky; top: 0; z-index: 200;
+  box-shadow: 0 2px 10px rgba(0,0,0,.07);
+}
+.nav-inner {
+  max-width: 1400px; margin: 0 auto;
+  padding: 0 48px;
+  display: flex; align-items: stretch; gap: 0;
+  overflow-x: auto;
+}
+.nav-btn {
+  padding: 14px 20px;
+  font-family: 'Inter', sans-serif;
+  font-size: .83rem; font-weight: 500;
+  color: var(--muted);
+  background: none; border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer; white-space: nowrap;
+  transition: all .18s;
+  display: flex; align-items: center; gap: 7px;
+}
+.nav-btn:hover { color: var(--blue); background: #f8faff; }
+.nav-btn.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
+.nav-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.nav-count {
+  background: #e8f0fe; color: var(--blue);
+  font-size: .68rem; font-weight: 700;
+  padding: 1px 6px; border-radius: 10px;
+  min-width: 18px; text-align: center;
+}
+.nav-btn.active .nav-count { background: var(--blue); color: white; }
+
+/* ═══════════════════════════════════════
+   CONTENU PRINCIPAL
+═══════════════════════════════════════ */
+.main {
+  max-width: 1400px; margin: 0 auto;
+  padding: 40px 48px 48px;
+}
+
+/* ── Séparateur de section ── */
+.section-sep {
+  display: flex; align-items: center; gap: 12px;
+  margin: 40px 0 18px;
+}
+.section-sep:first-child { margin-top: 0; }
+.section-sep-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: .72rem; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  padding: 5px 13px; border-radius: 20px;
+  white-space: nowrap;
+}
+.section-sep-line { flex: 1; height: 1px; background: var(--border); }
+.section-sep-count {
+  font-size: .76rem; color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ── Grille ── */
+.app-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 22px;
+}
+
+/* ── Carte application ── */
+.app-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  border: 1px solid var(--border);
+  position: relative;
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s;
+  animation: fadeInUp .45s ease both;
+}
+.app-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-up);
+  border-color: transparent;
+}
+.app-card[data-hidden] { display: none; }
+
+/* Bande colorée en haut */
+.card-stripe { height: 5px; flex-shrink: 0; }
+
+.card-body {
+  padding: 24px 24px 16px;
+  flex: 1; display: flex; flex-direction: column;
+}
+
+.card-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 16px; gap: 10px;
+}
+.card-icon-wrap {
+  width: 56px; height: 56px; border-radius: 15px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.75rem; flex-shrink: 0;
+}
+.card-header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.card-badge {
+  font-size: .7rem; font-weight: 700; letter-spacing: .5px; text-transform: uppercase;
+  padding: 4px 11px; border-radius: 20px; white-space: nowrap;
+}
+.card-tag-new {
+  background: #e91e63; color: white;
+  font-size: .64rem; font-weight: 700;
+  letter-spacing: .8px; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 4px;
+}
+
+.card-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.08rem; font-weight: 700; line-height: 1.25;
+  color: var(--text); margin-bottom: 9px;
+}
+.card-desc {
+  font-size: .84rem; color: var(--muted);
+  line-height: 1.65; flex: 1; margin-bottom: 18px;
+}
+
+/* Tags de fonctionnalités */
+.card-features {
+  display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 20px;
+}
+.feat-tag {
+  font-size: .7rem; font-weight: 500;
+  padding: 3px 9px; border-radius: 5px;
+  background: var(--bg); color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+/* Pied de carte */
+.card-footer {
+  padding: 13px 24px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.card-source {
+  display: flex; align-items: center; gap: 6px;
+  font-size: .76rem; color: var(--muted);
+}
+.source-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+.btn-launch {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 20px; border-radius: 9px;
+  font-family: 'Inter', sans-serif;
+  font-size: .84rem; font-weight: 600;
+  text-decoration: none; color: white;
+  white-space: nowrap;
+  transition: opacity .15s, transform .15s;
+  box-shadow: 0 3px 10px rgba(0,0,0,.2);
+}
+.btn-launch:hover { opacity: .88; transform: translateX(3px); }
+.btn-launch-arrow { font-size: 1rem; transition: transform .15s; }
+.btn-launch:hover .btn-launch-arrow { transform: translateX(3px); }
+
+/* ── État vide ── */
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center; padding: 70px 20px;
+  color: var(--muted);
+}
+.empty-icon { font-size: 3.5rem; margin-bottom: 14px; }
+.empty-state h3 { font-size: 1.1rem; color: var(--text); margin-bottom: 6px; }
+.empty-state p { font-size: .88rem; }
+
+/* ═══════════════════════════════════════
+   PIED DE PAGE
+═══════════════════════════════════════ */
+.hub-footer {
+  background: var(--navy);
+  color: rgba(255,255,255,.55);
+  padding: 20px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
+  font-size: .8rem; margin-top: 40px;
+}
+.footer-brand { color: rgba(255,255,255,.88); font-weight: 600; font-size: .85rem; }
+.footer-links { display: flex; gap: 16px; align-items: center; }
+.footer-links a {
+  color: rgba(255,255,255,.55); text-decoration: none;
+  transition: color .15s;
+}
+.footer-links a:hover { color: white; }
+.footer-version {
+  font-size: .72rem; letter-spacing: .5px;
+  background: rgba(255,255,255,.08);
+  padding: 3px 10px; border-radius: 10px;
+}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media (max-width: 1000px) {
+  .header-inner, .year-progress-bar { padding-left: 28px; padding-right: 28px; }
+  .nav-inner, .main, .hub-footer { padding-left: 28px; padding-right: 28px; }
+  .app-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+}
+@media (max-width: 700px) {
+  .header-inner { padding: 24px 20px 16px; }
+  .year-progress-bar { padding: 0 20px 20px; }
+  .nav-inner, .main, .hub-footer { padding-left: 20px; padding-right: 20px; }
+  .header-titles h1 { font-size: 1.4rem; }
+  .header-meta { display: none; }
+  .app-grid { grid-template-columns: 1fr; }
+  .section-sep { margin: 28px 0 14px; }
+}
+
+/* ═══════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════ */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.app-card:nth-child(1) { animation-delay: .04s; }
+.app-card:nth-child(2) { animation-delay: .09s; }
+.app-card:nth-child(3) { animation-delay: .14s; }
+.app-card:nth-child(4) { animation-delay: .19s; }
+.app-card:nth-child(5) { animation-delay: .24s; }
+.app-card:nth-child(6) { animation-delay: .29s; }
+</style>
+</head>
+<body>
+
+<!-- ══════════ HEADER ══════════ -->
+<header class="hub-header">
+  <div class="hub-header-pattern"></div>
+  <div class="header-inner">
+    <div class="header-brand">
+      <div class="header-emblem">🏛️</div>
+      <div class="header-titles">
+        <div class="header-overline">LPO Léopold Elfort · Mana, Guyane</div>
+        <h1>Espace Numérique de Pilotage</h1>
+        <p>Tableaux de bord &amp; outils de gestion — Chef d'établissement</p>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="header-date" id="current-date">—</div>
+      <div class="header-year-badge" id="school-year">Année scolaire</div>
+      <div class="header-apps-count" id="apps-count">6 applications disponibles</div>
+    </div>
+  </div>
+  <div class="year-progress-bar">
+    <div class="year-progress-label">
+      <span id="prog-start">Sept. 2024</span>
+      <span id="prog-pct">Avancement de l'année scolaire</span>
+      <span id="prog-end">Juil. 2025</span>
+    </div>
+    <div class="year-progress-track">
+      <div class="year-progress-fill" id="year-fill" style="width:0%"></div>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════ BARRE FILTRE ══════════ -->
+<nav class="nav-bar" role="navigation" aria-label="Filtre par domaine">
+  <div class="nav-inner">
+    <button class="nav-btn active" data-filter="all">
+      <span>🗂️</span> Toutes les applications
+      <span class="nav-count" id="cnt-all">6</span>
+    </button>
+    <button class="nav-btn" data-filter="viescolaire">
+      <span class="nav-dot" style="background:var(--c-vs)"></span>
+      Vie Scolaire
+      <span class="nav-count">2</span>
+    </button>
+    <button class="nav-btn" data-filter="examens">
+      <span class="nav-dot" style="background:var(--c-ex)"></span>
+      Examens
+      <span class="nav-count">1</span>
+    </button>
+    <button class="nav-btn" data-filter="parcoursup">
+      <span class="nav-dot" style="background:var(--c-pc)"></span>
+      Parcoursup
+      <span class="nav-count">2</span>
+    </button>
+    <button class="nav-btn" data-filter="projets">
+      <span class="nav-dot" style="background:var(--c-pj)"></span>
+      Projets
+      <span class="nav-count">1</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ══════════ CONTENU PRINCIPAL ══════════ -->
+<main class="main" id="main-content">
+
+  <!-- ─── SECTION VIE SCOLAIRE ─── -->
+  <div class="section-sep" data-section="viescolaire">
+    <span class="section-sep-pill" style="background:#e3f2fd;color:var(--c-vs)">
+      <span>🏫</span> Vie Scolaire &amp; Suivi Élèves
+    </span>
+    <div class="section-sep-line"></div>
+    <span class="section-sep-count">2 outils</span>
+  </div>
+
+  <div class="app-grid" data-grid="viescolaire">
+
+    <!-- ● Tableau de Bord Vie Scolaire -->
+    <article class="app-card" data-category="viescolaire">
+      <div class="card-stripe" style="background:linear-gradient(90deg,#1565c0,#42a5f5)"></div>
+      <div class="card-body">
+        <div class="card-head">
+          <div class="card-icon-wrap" style="background:#e3f2fd">📊</div>
+          <div class="card-header-right">
+            <span class="card-badge" style="background:#e3f2fd;color:#1565c0">Vie Scolaire</span>
+          </div>
+        </div>
+        <h3 class="card-title">Tableau de Bord Vie Scolaire</h3>
+        <p class="card-desc">
+          Pilotage global de l'absentéisme et de la discipline. Visualisation des taux d'absence mensuels, analyse des sanctions par type et par classe, comparaison par niveau et par genre, évolution inter-annuelle.
+        </p>
+        <div class="card-features">
+          <span class="feat-tag">Taux d'absence</span>
+          <span class="feat-tag">Justifié / Non justifié</span>
+          <span class="feat-tag">Sanctions</span>
+          <span class="feat-tag">Par niveau & genre</span>
+          <span class="feat-tag">Comparaison N−1</span>
+          <span class="feat-tag">Export PPTX</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="card-source">
+          <div class="source-dot" style="background:#4caf50"></div>
+          Import Excel (PRONOTE)
+        </div>
+        <a href="VIE SCOLAIRE/tableau_bord_VS.html" class="btn-launch" style="background:var(--c-vs)">
+          Ouvrir <span class="btn-launch-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- ● LycéeDash -->
+    <article class="app-card" data-category="viescolaire">
+      <div class="card-stripe" style="background:linear-gradient(90deg,#1e3a5f,#2d6a9f,#42a5f5)"></div>
+      <div class="card-body">
+        <div class="card-head">
+          <div class="card-icon-wrap" style="background:#e8f0fe">🎓</div>
+          <div class="card-header-right">
+            <span class="card-badge" style="background:#e8f0fe;color:#1e3a5f">Suivi Élèves</span>
+          </div>
+        </div>
+        <h3 class="card-title">LycéeDash — EDS &amp; Orientations</h3>
+        <p class="card-desc">
+          Suivi individuel et collectif des élèves : enseignements de spécialité (EDS), choix d'orientation en première et terminale, statistiques par filière et par classe. Visualisations dynamiques via Plotly.
+        </p>
+        <div class="card-features">
+          <span class="feat-tag">EDS (Spécialités)</span>
+          <span class="feat-tag">Orientations</span>
+          <span class="feat-tag">Par filière</span>
+          <span class="feat-tag">Graphs interactifs</span>
+          <span class="feat-tag">Export PPTX</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="card-source">
+          <div class="source-dot" style="background:#4caf50"></div>
+          Import Excel · Multi-années
+        </div>
+        <a href="SUIVI ELEVE ORIENTATION EDS/LycéeDash.html" class="btn-launch" style="background:#1e3a5f">
+          Ouvrir <span class="btn-launch-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+  </div><!-- /grid viescolaire -->
+
+  <!-- ─── SECTION EXAMENS ─── -->
+  <div class="section-sep" data-section="examens">
+    <span class="section-sep-pill" style="background:#f3e5f5;color:var(--c-ex)">
+      <span>🏆</span> Résultats aux Examens
+    </span>
+    <div class="section-sep-line"></div>
+    <span class="section-sep-count">1 outil</span>
+  </div>
+
+  <div class="app-grid" data-grid="examens">
+
+    <!-- ● Résultats aux Examens -->
+    <article class="app-card" data-category="examens">
+      <div class="card-stripe" style="background:linear-gradient(90deg,#6a1b9a,#9c27b0,#e91e63,#f06292)"></div>
+      <div class="card-body">
+        <div class="card-head">
+          <div class="card-icon-wrap" style="background:#f3e5f5">🏆</div>
+          <div class="card-header-right">
+            <span class="card-badge" style="background:#f3e5f5;color:#6a1b9a">Examens</span>
+          </div>
+        </div>
+        <h3 class="card-title">Résultats aux Examens</h3>
+        <p class="card-desc">
+          Analyse complète des résultats aux examens nationaux : taux de réussite, répartition des mentions (TB, B, AB), évolution pluriannuelle. Couvre l'ensemble des certifications de l'établissement.
+        </p>
+        <div class="card-features">
+          <span class="feat-tag">CAP</span>
+          <span class="feat-tag">Bac Professionnel</span>
+          <span class="feat-tag">Bac Général</span>
+          <span class="feat-tag">BTS</span>
+          <span class="feat-tag">CS</span>
+          <span class="feat-tag">Mentions</span>
+          <span class="feat-tag">Évolution N−1</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="card-source">
+          <div class="source-dot" style="background:#4caf50"></div>
+          Saisie manuelle · Graphiques Chart.js
+        </div>
+        <a href="RESULTATS EXAMENS/resultats_examens.html" class="btn-launch" style="background:var(--c-ex)">
+          Ouvrir <span class="btn-launch-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+  </div><!-- /grid examens -->
+
+  <!-- ─── SECTION PARCOURSUP ─── -->
+  <div class="section-sep" data-section="parcoursup">
+    <span class="section-sep-pill" style="background:#fbe9e7;color:var(--c-pc)">
+      <span>🎯</span> Orientation — Parcoursup
+    </span>
+    <div class="section-sep-line"></div>
+    <span class="section-sep-count">2 outils</span>
+  </div>
+
+  <div class="app-grid" data-grid="parcoursup">
+
+    <!-- ● Tableau de Bord Parcoursup -->
+    <article class="app-card" data-category="parcoursup">
+      <div class="card-stripe" style="background:linear-gradient(90deg,#0d1f3c,#1e4fa0,#e8a020)"></div>
+      <div class="card-body">
+        <div class="card-head">
+          <div class="card-icon-wrap" style="background:#fff8e1">📈</div>
+          <div class="card-header-right">
+            <span class="card-badge" style="background:#fff8e1;color:#e65100">Parcoursup</span>
+          </div>
+        </div>
+        <h3 class="card-title">Tableau de Bord Parcoursup</h3>
+        <p class="card-desc">
+          Analyse statistique des candidatures Parcoursup : taux d'admission par filière, profil des candidats retenus, comparaison inter-annuelles, cartographie des admissions. Outil décisionnel pour le suivi de l'orientation post-bac.
+        </p>
+        <div class="card-features">
+          <span class="feat-tag">Candidatures</span>
+          <span class="feat-tag">Taux d'admission</span>
+          <span class="feat-tag">Par filière</span>
+          <span class="feat-tag">Comparaison annuelle</span>
+          <span class="feat-tag">Import CSV/Excel</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="card-source">
+          <div class="source-dot" style="background:#4caf50"></div>
+          Import fichiers Parcoursup
+        </div>
+        <a href="PARCOUSUP/PARCOURSUP_DASHBOARD.html" class="btn-launch" style="background:#0d1f3c">
+          Ouvrir <span class="btn-launch-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- ● Gestion des Vœux Parcoursup -->
+    <article class="app-card" data-category="parcoursup">
+      <div class="card-stripe" style="background:linear-gradient(90deg,#1e3a5f,#bf360c,#e8a020)"></div>
+      <div class="card-body">
+        <div class="card-head">
+          <div class="card-icon-wrap" style="background:#fff3e0">📋</div>
+          <div class="card-header-right">
+            <span class="card-badge" style="background:#fff3e0;color:#e65100">Conseil de Classe</span>
+          </div>
+        </div>
+        <h3 class="card-title">Gestion des Vœux — Conseil de Classe</h3>
+        <p class="card-desc">
+          Outil dédié à la préparation du conseil de classe : saisie, gestion et suivi des avis du proviseur sur les vœux Parcoursup. Gestion des avis favorables, réservés et défavorables, propagation automatique pour filières identiques.
+        </p>
+        <div class="card-features">
+          <span class="feat-tag">Avis proviseur</span>
+          <span class="feat-tag">Vœux Parcoursup</span>
+          <span class="feat-tag">Par classe</span>
+          <span class="feat-tag">Propagation filières</span>
+          <span class="feat-tag">Export</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="card-source">
+          <div class="source-dot" style="background:#4caf50"></div>
+          Import élèves · Sauvegarde locale
+        </div>
+        <a href="GESTION DES VOEUX PARCOURSUP/GESTION_VOEUX_PARCOURSUP_CONSEIL_CLASSE.html" class="btn-launch" style="background:var(--c-pc)">
+          Ouvrir <span class="btn-launch-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+  </div><!-- /grid parcoursup -->
+
+  <!-- ─── SECTION PROJETS ─── -->
+  <div class="section-sep" data-section="projets">
+    <span class="section-sep-pill" style="background:#e0f2f1;color:var(--c-pj)">
+      <span>🗂️</span> Gestion des Projets &amp; Sorties
+    </span>
+    <div class="section-sep-line"></div>
+    <span class="section-sep-count">1 outil</span>
+  </div>
+
+  <div class="app-grid" data-grid="projets">
+
+    <!-- ● Gestion des Projets Pédagogiques -->
+    <article class="app-card" data-category="projets">
+      <div class="card-stripe" style="background:linear-gradient(90deg,#2c3e50,#00695c,#27ae60)"></div>
+      <div class="card-body">
+        <div class="card-head">
+          <div class="card-icon-wrap" style="background:#e0f2f1">🗺️</div>
+          <div class="card-header-right">
+            <span class="card-badge" style="background:#e0f2f1;color:#00695c">Projets</span>
+          </div>
+        </div>
+        <h3 class="card-title">Gestion des Projets Pédagogiques</h3>
+        <p class="card-desc">
+          Suivi complet des sorties et voyages scolaires : gestion budgétaire (prévisionnel vs réalisé), sources de financement, planning Gantt, état d'avancement par projet, bilan financier consolidé.
+        </p>
+        <div class="card-features">
+          <span class="feat-tag">Budget prévisionnel</span>
+          <span class="feat-tag">Budget réalisé</span>
+          <span class="feat-tag">Planning Gantt</span>
+          <span class="feat-tag">Sources financement</span>
+          <span class="feat-tag">Export Excel</span>
+          <span class="feat-tag">Bilan consolidé</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="card-source">
+          <div class="source-dot" style="background:#4caf50"></div>
+          Multi-projets · Sauvegarde locale
+        </div>
+        <a href="GESTION DES SORTIES PEDAGOGIQUES/TABLEAU_GESTION_PROJETS.html" class="btn-launch" style="background:var(--c-pj)">
+          Ouvrir <span class="btn-launch-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+  </div><!-- /grid projets -->
+
+  <!-- État vide (caché par défaut) -->
+  <div id="empty-state" class="app-grid" style="display:none">
+    <div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <h3>Aucun outil dans cette catégorie</h3>
+      <p>Cliquez sur "Toutes les applications" pour afficher tous les outils.</p>
+    </div>
+  </div>
+
+</main>
+
+<!-- ══════════ PIED DE PAGE ══════════ -->
+<footer class="hub-footer">
+  <div>
+    <span class="footer-brand">🏛️ LPO Léopold Elfort</span>
+    &nbsp;·&nbsp; Mana, Guyane &nbsp;·&nbsp;
+    Espace Numérique de Pilotage
+  </div>
+  <div class="footer-links">
+    <a href="https://github.com/" target="_blank" rel="noopener">⬡ GitHub Pages</a>
+    <span style="color:rgba(255,255,255,.2)">|</span>
+    <span class="footer-version">v1.0 — 2025</span>
+  </div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════
+   1. DATE & AVANCEMENT ANNÉE SCOLAIRE
+═══════════════════════════════════════════ */
+(function () {
+  var now = new Date();
+
+  /* Date du jour */
+  var opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  document.getElementById('current-date').textContent =
+    now.toLocaleDateString('fr-FR', opts);
+
+  /* Année scolaire */
+  var m = now.getMonth() + 1; /* 1–12 */
+  var y = now.getFullYear();
+  var startY = m >= 9 ? y : y - 1;
+  var endY   = startY + 1;
+  document.getElementById('school-year').textContent =
+    'Année scolaire ' + startY + '–' + endY;
+
+  /* Progression */
+  var start = new Date(startY, 8, 1);  /* 1er sept. */
+  var end   = new Date(endY,   6, 5);  /* 5 juil.   */
+  var pct   = Math.min(100, Math.max(0,
+    Math.round((now - start) / (end - start) * 100)));
+
+  document.getElementById('year-fill').style.width = pct + '%';
+  document.getElementById('prog-pct').textContent  =
+    pct + ' % de l\'année écoulée';
+  document.getElementById('prog-start').textContent =
+    'Sept. ' + startY;
+  document.getElementById('prog-end').textContent =
+    'Juil. ' + endY;
+})();
+
+/* ═══════════════════════════════════════════
+   2. FILTRAGE PAR CATÉGORIE
+═══════════════════════════════════════════ */
+(function () {
+  var navBtns  = document.querySelectorAll('.nav-btn[data-filter]');
+  var cards    = document.querySelectorAll('.app-card');
+  var sections = document.querySelectorAll('.section-sep[data-section]');
+  var grids    = document.querySelectorAll('.app-grid[data-grid]');
+  var emptyEl  = document.getElementById('empty-state');
+
+  function applyFilter(f) {
+    var visible = 0;
+
+    /* Cartes */
+    cards.forEach(function (card) {
+      var show = f === 'all' || card.dataset.category === f;
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+
+    /* Sections et grilles */
+    sections.forEach(function (sec) {
+      var show = f === 'all' || sec.dataset.section === f;
+      sec.style.display = show ? '' : 'none';
+    });
+    grids.forEach(function (g) {
+      var show = f === 'all' || g.dataset.grid === f;
+      g.style.display = show ? '' : 'none';
+    });
+
+    /* État vide */
+    emptyEl.style.display = visible === 0 ? '' : 'none';
+  }
+
+  navBtns.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      navBtns.forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      applyFilter(btn.dataset.filter);
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

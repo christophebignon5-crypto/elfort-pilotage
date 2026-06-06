@@ -1,0 +1,3049 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Avis du Proviseur - Parcoursup v2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f8;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1500px;
+            margin: 0 auto;
+            background: #ffffff;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8e 100%);
+            padding: 16px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            height: 46px;
+            width: auto;
+        }
+
+        .logo-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.75);
+            letter-spacing: 0.3px;
+        }
+
+        .header-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+        }
+
+        .title {
+            color: #ffffff;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .subtitle {
+            color: rgba(255,255,255,0.65);
+            font-size: 12px;
+            font-weight: 400;
+        }
+
+        /* Badge filières identiques */
+        .badge-propagation {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #f59e0b;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 6px;
+            cursor: help;
+        }
+
+        .propagation-toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #1e3a5f;
+            color: white;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.35s ease;
+            max-width: 360px;
+        }
+        .propagation-toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .propagation-toast .toast-icon {
+            font-size: 18px;
+            margin-right: 8px;
+        }
+
+        .workspace-controls {
+            display: flex;
+            gap: 8px;
+            padding: 12px 28px;
+            background: #f8f9fb;
+            border-bottom: 1px solid #e5e8ef;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 9px 18px;
+            border: none;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: #2d5a8e;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1e3a5f;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(30,58,95,0.3);
+        }
+
+        .btn-success {
+            background: #38a169;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #276749;
+            transform: translateY(-1px);
+        }
+
+        .btn-info {
+            background: #3182ce;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #2c5282;
+            transform: translateY(-1px);
+        }
+
+        .btn-warning {
+            background: #dd6b20;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #c05621;
+            transform: translateY(-1px);
+        }
+
+        .btn-model {
+            background: #319795;
+            color: white;
+        }
+
+        .btn-model:hover {
+            background: #285e61;
+            transform: translateY(-1px);
+        }
+
+        .btn-purple {
+            background: #6b46c1;
+            color: white;
+        }
+
+        .btn-purple:hover {
+            background: #553c9a;
+            transform: translateY(-1px);
+        }
+
+        .btn-dashboard {
+            background: #b83280;
+            color: white;
+        }
+
+        .btn-dashboard:hover {
+            background: #97266d;
+            transform: translateY(-1px);
+        }
+
+        .btn-sm {
+            padding: 5px 12px;
+            font-size: 12px;
+        }
+
+        .upload-area {
+            padding: 18px 28px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: #f0f6ff;
+            border-bottom: 1px solid #d6e4ff;
+            flex-wrap: wrap;
+        }
+
+        .upload-area input {
+            display: none;
+        }
+
+        .upload-label {
+            padding: 10px 22px;
+            background: #2d5a8e;
+            color: white;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .upload-label:hover {
+            background: #1e3a5f;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(30,58,95,0.25);
+        }
+
+        .upload-info {
+            padding: 8px 14px;
+            background: white;
+            border-radius: 6px;
+            color: #4a5568;
+            font-size: 12.5px;
+            border: 1px solid #d6e4ff;
+        }
+
+        .tabs-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: 0 28px;
+            background: #f8f9fb;
+            border-bottom: 2px solid #e5e8ef;
+            align-items: flex-end;
+            min-height: 46px;
+        }
+
+        .tab-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: #e5e8ef;
+            border: none;
+            border-radius: 7px 7px 0 0;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            color: #64748b;
+            transition: all 0.2s ease;
+        }
+
+        .tab.active {
+            background: white;
+            color: #1e3a5f;
+            border-bottom: 3px solid #2d5a8e;
+            padding-bottom: 7px;
+        }
+
+        .tab:hover:not(.active) {
+            background: #d1d9e8;
+            color: #1e3a5f;
+        }
+
+        .tab-close {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 20px;
+            height: 20px;
+            background: #f56565;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tab-wrapper:hover .tab-close {
+            display: flex;
+        }
+
+        .tab-close:hover {
+            background: #e53e3e;
+            transform: scale(1.1);
+        }
+
+        .filters-section {
+            padding: 14px 28px;
+            background: white;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+            border-bottom: 1px solid #e5e8ef;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #374151;
+            white-space: nowrap;
+        }
+
+        .filter-group input, .filter-group select {
+            padding: 7px 12px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 13px;
+            transition: border-color 0.2s;
+            background: #fafafa;
+        }
+
+        .filter-group input {
+            min-width: 200px;
+        }
+
+        .filter-group select {
+            min-width: 160px;
+        }
+
+        .filter-group input:focus, .filter-group select:focus {
+            outline: none;
+            border-color: #2d5a8e;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(45,90,142,0.1);
+        }
+
+        .filter-stats {
+            margin-left: auto;
+            background: #eff6ff;
+            color: #1e40af;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid #bfdbfe;
+        }
+
+        .clear-filters {
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 13px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+
+        .clear-filters:hover {
+            color: #1e3a5f;
+            background: #f1f5f9;
+        }
+
+        .content {
+            padding: 20px 28px;
+            background: #f5f7fa;
+        }
+
+        .dashboard {
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .dashboard-header h2 {
+            color: #1e3a5f;
+            font-size: 22px;
+            border-bottom: 3px solid #2d5a8e;
+            padding-bottom: 8px;
+            margin: 0;
+        }
+
+        .dashboard-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .dashboard-controls select {
+            padding: 8px 14px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 13px;
+            min-width: 200px;
+            background: white;
+            color: #1e3a5f;
+            font-weight: 600;
+        }
+
+        /* Conseil de classe — panneau d'avancement */
+        .conseil-panel {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8e 60%, #3b82f6 100%);
+            border-radius: 12px;
+            padding: 20px 24px;
+            color: white;
+            margin-bottom: 24px;
+        }
+        .conseil-panel-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .conseil-kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .conseil-kpi {
+            background: rgba(255,255,255,0.12);
+            border-radius: 10px;
+            padding: 14px 16px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .conseil-kpi-value {
+            font-size: 30px;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .conseil-kpi-label {
+            font-size: 11.5px;
+            opacity: 0.82;
+            margin-top: 5px;
+        }
+        .conseil-kpi.kpi-alert .conseil-kpi-value { color: #fbbf24; }
+        .conseil-kpi.kpi-ok .conseil-kpi-value { color: #6ee7b7; }
+        .conseil-kpi.kpi-info .conseil-kpi-value { color: #93c5fd; }
+
+        /* Liste alertes élèves sans avis */
+        .alert-eleves-section {
+            background: white;
+            border-radius: 10px;
+            border: 1.5px solid #fde68a;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+        }
+        .alert-eleves-title {
+            font-weight: 700;
+            color: #92400e;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .alert-eleve-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #fef3c7;
+            color: #78350f;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12.5px;
+            font-weight: 600;
+            margin: 3px;
+            border: 1px solid #fcd34d;
+        }
+
+        /* Distribution des avis — barre colorée */
+        .avis-distribution {
+            margin-bottom: 24px;
+        }
+        .avis-distribution-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1e3a5f;
+            margin-bottom: 12px;
+        }
+        .avis-bar-container {
+            display: flex;
+            height: 36px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+        }
+        .avis-bar-segment {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: white;
+            transition: width 0.5s ease;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .avis-bar-peu { background: #e53e3e; }
+        .avis-bar-assez { background: #dd6b20; }
+        .avis-bar-satisfaisant { background: #38a169; }
+        .avis-bar-tres { background: #2b6cb0; }
+        .avis-bar-vide { background: #d1d5db; }
+
+        .avis-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .avis-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .avis-legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 18px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            border: 1px solid #e5e8ef;
+        }
+
+        .stat-card h3 {
+            color: #374151;
+            font-size: 14px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #f0f2f8;
+            padding-bottom: 10px;
+        }
+
+        .stat-number {
+            font-size: 38px;
+            font-weight: 800;
+            color: #1e3a5f;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .gender-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 16px 0;
+        }
+
+        .gender-item {
+            text-align: center;
+        }
+
+        .gender-value {
+            font-size: 26px;
+            font-weight: 800;
+        }
+
+        .gender-value.filles {
+            color: #b83280;
+        }
+
+        .gender-value.garcons {
+            color: #2b6cb0;
+        }
+
+        .gender-label {
+            color: #6b7280;
+            font-size: 13px;
+            margin-top: 3px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 26px;
+            background: #f0f2f8;
+            border-radius: 13px;
+            overflow: hidden;
+            margin: 8px 0;
+            display: flex;
+        }
+
+        .progress-filles {
+            height: 100%;
+            background: #b83280;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            transition: width 0.3s ease;
+        }
+
+        .progress-garcons {
+            height: 100%;
+            background: #2b6cb0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            transition: width 0.3s ease;
+        }
+
+        .filiere-stats {
+            margin-top: 16px;
+        }
+
+        .filiere-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 7px 10px;
+            background: #f8f9fb;
+            border-radius: 7px;
+            transition: background 0.15s;
+        }
+        .filiere-item:hover { background: #eff6ff; }
+
+        .filiere-nom {
+            flex: 1;
+            font-weight: 600;
+            font-size: 13px;
+            color: #1e3a5f;
+        }
+
+        .filiere-count {
+            width: 40px;
+            text-align: right;
+            font-weight: 700;
+            color: #2d5a8e;
+            font-size: 14px;
+        }
+
+        .filiere-bar {
+            width: 120px;
+            height: 16px;
+            background: #e5e8ef;
+            border-radius: 8px;
+            margin: 0 12px;
+            overflow: hidden;
+        }
+
+        .filiere-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2d5a8e, #3b82f6);
+            border-radius: 8px;
+            transition: width 0.3s ease;
+        }
+
+        .sci-tech-card {
+            background: #f8f9fb;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid #e5e8ef;
+        }
+
+        .sci-tech-number {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1e3a5f;
+        }
+
+        .multi-class-summary {
+            margin-top: 24px;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8e 100%);
+            border-radius: 12px;
+            color: white;
+        }
+
+        .multi-class-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+
+        .multi-class-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .multi-class-item {
+            background: rgba(255, 255, 255, 0.12);
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .multi-class-item h4 {
+            font-size: 13px;
+            opacity: 0.85;
+            margin-bottom: 8px;
+        }
+
+        .multi-class-number {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .multi-class-label {
+            font-size: 12px;
+            opacity: 0.75;
+        }
+
+        .cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .student-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            overflow: hidden;
+            border: 1px solid #e5e8ef;
+            transition: all 0.2s ease;
+        }
+
+        .student-card:hover {
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+            border-color: #bfdbfe;
+        }
+
+        .student-header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8e 100%);
+            color: white;
+            padding: 12px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .student-name {
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .student-class {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Badge avancement élève */
+        .student-progress-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+        }
+        .progress-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .progress-dot.done { background: #6ee7b7; }
+        .progress-dot.partial { background: #fcd34d; }
+        .progress-dot.none { background: #fca5a5; }
+
+        .voeux-container {
+            padding: 14px 18px;
+        }
+
+        .voeux-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .voeux-count {
+            background: #1e3a5f;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+        }
+
+        .voeux-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 10px;
+        }
+
+        /* Voeu identique highlight */
+        .voeu-item {
+            background: #f8f9fb;
+            border-radius: 8px;
+            padding: 12px 14px;
+            border: 1.5px solid #e5e8ef;
+            transition: all 0.15s ease;
+        }
+
+        .voeu-item:hover {
+            background: #f0f6ff;
+            border-color: #bfdbfe;
+        }
+
+        .voeu-item.filiere-identique {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        .voeu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #2d5a8e;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .voeu-formation-filiere {
+            font-weight: 700;
+            color: white;
+            font-size: 13px;
+            background: #2d5a8e;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .formation-nom {
+            background: rgba(255, 255, 255, 0.22);
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 10.5px;
+            margin-left: 4px;
+        }
+
+        .voeu-avis {
+            min-width: 175px;
+        }
+
+        .avis-select {
+            width: 100%;
+            padding: 6px 10px;
+            border: 2px solid #d1d5db;
+            border-radius: 20px;
+            font-size: 12.5px;
+            cursor: pointer;
+            background: white;
+            font-weight: 600;
+            transition: border-color 0.2s;
+        }
+
+        .avis-select.avis-peu {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+        .avis-select.avis-assez {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+        .avis-select.avis-satisfaisant {
+            background: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+        .avis-select.avis-tres {
+            background: #dbeafe;
+            border-color: #3b82f6;
+            color: #1e3a5f;
+        }
+
+        .voeu-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 8px 0;
+        }
+
+        .voeu-detail-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: white;
+            padding: 3px 9px;
+            border-radius: 20px;
+            border: 1px solid #e5e8ef;
+            font-size: 11.5px;
+            color: #374151;
+        }
+
+        .appreciation-container {
+            margin-top: 10px;
+            padding: 10px 12px;
+            background: white;
+            border-radius: 7px;
+            border-left: 4px solid #2d5a8e;
+            border: 1px solid #e5e8ef;
+            border-left: 4px solid #2d5a8e;
+        }
+
+        .appreciation-label {
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .propositions-container {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .proposition-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 7px 9px;
+            background: #f0f6ff;
+            border-radius: 6px;
+            border: 1.5px solid #e5e8ef;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .proposition-item:hover {
+            background: #dbeafe;
+            border-color: #93c5fd;
+        }
+
+        .proposition-item.selected {
+            background: #dbeafe;
+            border-color: #2d5a8e;
+            border-width: 2px;
+        }
+
+        .proposition-radio {
+            margin-top: 2px;
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+            accent-color: #2d5a8e;
+        }
+
+        .proposition-texte {
+            flex: 1;
+            font-size: 11.5px;
+            line-height: 1.45;
+            color: #1e3a5f;
+        }
+
+        .btn-copy-prop {
+            flex-shrink: 0;
+            background: transparent;
+            border: 1.5px solid #cbd5e0;
+            border-radius: 6px;
+            padding: 3px 7px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #718096;
+            transition: all 0.2s ease;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .btn-copy-prop:hover {
+            background: #e8f0fe;
+            border-color: #2d5a8e;
+            color: #2d5a8e;
+            transform: scale(1.05);
+        }
+        .btn-copy-prop.copied {
+            background: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+        .proposition-item.selected .btn-copy-prop {
+            border-color: #2d5a8e;
+            color: #2d5a8e;
+            background: #eff6ff;
+        }
+
+        .appreciation-personnalisee {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #d1d5db;
+        }
+
+        .appreciation-personnalisee label {
+            display: block;
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 4px;
+            font-style: italic;
+        }
+
+        .appreciation-textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 50px;
+            background: #fffdf0;
+            transition: border-color 0.2s;
+        }
+
+        .appreciation-textarea:focus {
+            outline: none;
+            border-color: #2d5a8e;
+            box-shadow: 0 0 0 3px rgba(45,90,142,0.1);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 50px;
+            background: white;
+            border-radius: 10px;
+            color: #9ca3af;
+            font-size: 15px;
+            border: 2px dashed #e5e8ef;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+
+        .footer {
+            background: #1e3a5f;
+            padding: 14px 28px;
+            text-align: center;
+            color: rgba(255,255,255,0.55);
+            font-size: 12px;
+        }
+            border-top: 1px dashed #cbd5e0;
+        }
+
+        /* end styles */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-container">
+                <svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="45" fill="#2d5a8e" stroke="#1e3a5f" stroke-width="2"/>
+                    <path d="M30 40 L50 25 L70 40 L70 65 L50 80 L30 65 L30 40" fill="white" stroke="#bfdbfe" stroke-width="1.5"/>
+                    <circle cx="50" cy="50" r="10" fill="#93c5fd"/>
+                    <text x="50" y="55" text-anchor="middle" fill="#1e3a5f" font-size="11" font-weight="bold">ÉDU</text>
+                </svg>
+                <span class="logo-text">Interface de pilotage — Conseil de classe</span>
+            </div>
+            <div class="header-right">
+                <h1 class="title">Gestion des Avis Parcoursup</h1>
+                <span class="subtitle">Proviseur — Année scolaire <span id="anneeScolaire"></span></span>
+            </div>
+        </div>
+
+        <div class="workspace-controls">
+            <button class="btn btn-purple" onclick="sauvegarderEspaceTravail()">
+                💾 Sauvegarder espace
+            </button>
+            <button class="btn btn-info" onclick="chargerEspaceTravail()">
+                📂 Charger espace
+            </button>
+            <button class="btn btn-warning" onclick="imprimerPages()">
+                🖨️ Imprimer fiches
+            </button>
+            <button class="btn btn-model" onclick="creerModeleClasse()">
+                📋 Modèle demo
+            </button>
+            <button class="btn btn-dashboard" onclick="afficherDashboard()">
+                📊 Tableau de bord
+            </button>
+        </div>
+
+        <div class="upload-area">
+            <input type="file" id="csvFile" accept=".csv" onchange="importerCSV(this)">
+            <label for="csvFile" class="upload-label">
+                📤 Importer un fichier CSV Parcoursup
+            </label>
+            <div class="upload-info">
+                <strong>Format attendu :</strong> Voeux_TPMET.csv, Voeux_TG1.csv… — colonnes : Numéro ; Civilité ; Nom ; Prénom ; Etablissement ; Ville ; Type de formation ; Apprentissage ; Formation ; Filière ; Libellé inscription ; Libellé affectation
+            </div>
+        </div>
+
+        <div class="tabs-container" id="tabsContainer"></div>
+
+        <div class="filters-section" id="filtersSection">
+            <div class="filter-group">
+                <label>🔍 Nom :</label>
+                <input type="text" id="nomFilter" placeholder="Rechercher un élève..." oninput="appliquerFiltres()">
+            </div>
+            <div class="filter-group">
+                <label>📚 Type :</label>
+                <select id="typeFormationFilter" onchange="appliquerFiltres()">
+                    <option value="all">Tous</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>🎯 Filière :</label>
+                <select id="filiereFilter" onchange="appliquerFiltres()">
+                    <option value="all">Toutes</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>📝 Avis :</label>
+                <select id="avisFilter" onchange="appliquerFiltres()">
+                    <option value="all">Tous</option>
+                    <option value="vide">Sans avis ⚠️</option>
+                    <option value="Peu démontrée">Peu démontrée</option>
+                    <option value="Assez satisfaisant">Assez satisfaisant</option>
+                    <option value="Satisfaisant">Satisfaisant</option>
+                    <option value="Très satisfaisant">Très satisfaisant</option>
+                </select>
+            </div>
+            <div class="filter-stats" id="filterStats">
+                Chargement...
+            </div>
+            <span class="clear-filters" onclick="reinitialiserFiltres()">✕ Réinitialiser</span>
+        </div>
+
+        <div class="content" id="content">
+            <div class="cards-container" id="cardsContainer"></div>
+        </div>
+
+        <div class="footer">
+            © 2026 — Interface de pilotage Parcoursup — Proviseur
+        </div>
+
+        <!-- Toast propagation -->
+        <div class="propagation-toast" id="propagationToast"></div>
+    </div>
+
+    <script>
+        // ─── Année scolaire automatique ──────────────────────────────────────────
+        // L'année scolaire commence en septembre : avant sept → N-1/N, à partir de sept → N/N+1
+        function getAnneeScolaire() {
+            const now = new Date();
+            const annee = now.getFullYear();
+            const mois = now.getMonth() + 1; // 1=jan … 12=déc
+            if (mois >= 9) {
+                return `${annee}-${annee + 1}`;
+            } else {
+                return `${annee - 1}-${annee}`;
+            }
+        }
+
+        // Initialiser l'affichage de l'année scolaire dans le header
+        document.addEventListener('DOMContentLoaded', function () {
+            const el = document.getElementById('anneeScolaire');
+            if (el) el.textContent = getAnneeScolaire();
+        });
+
+        // État global de l'application
+        let classesData = {};
+        let activeClass = null;
+        let filters = {
+            nom: '',
+            typeFormation: 'all',
+            filiere: 'all',
+            avis: 'all'
+        };
+        let affichageMode = 'cartes'; // 'cartes' ou 'dashboard'
+
+        // Avis possibles
+        const AVIS = {
+            'Peu démontrée': 'Peu démontrée',
+            'Assez satisfaisant': 'Assez satisfaisant',
+            'Satisfaisant': 'Satisfaisant',
+            'Très satisfaisant': 'Très satisfaisant'
+        };
+
+        // Propositions d'appréciations par avis
+        const PROPOSITIONS = {
+            'Peu démontrée': [
+                "Cet élève dispose de ressources personnelles qui peinent encore à se traduire dans les résultats scolaires. L'hétérogénéité des performances observées invite à la prudence concernant la faisabilité du projet d'études envisagé.",
+                "La motivation pour la filière choisie ne se reflète pas suffisamment dans les résultats ni dans l'implication quotidienne de cet élève. Une consolidation des acquis et un engagement plus affirmé conditionnent la réussite du projet.",
+                "Si le projet d'orientation de cet élève est identifié, les bases scolaires sur lesquelles il repose restent fragiles. La poursuite d'études dans la voie visée est possible, mais exigera un effort de fond significatif dès la rentrée.",
+                "Cet élève n'a pas encore démontré la régularité et la rigueur nécessaires pour aborder sereinement les exigences du supérieur. Le projet reste réalisable, à condition d'une prise de conscience rapide et d'une réelle remobilisation."
+            ],
+            'Assez satisfaisant': [
+                "Élève au profil encourageant, dont les aptitudes méritent d'être davantage exploitées. Les résultats, bien qu'en progression, demeurent perfectibles. La réussite dans la voie souhaitée reposera sur un investissement personnel plus constant.",
+                "Cet élève a su montrer, par intermittence, de réelles capacités. La régularité fait encore défaut pour garantir une transition réussie vers l'enseignement supérieur. Des efforts ciblés et soutenus lui permettront d'y trouver pleinement sa place.",
+                "Les résultats de cet élève reflètent un parcours honorable, sans atteindre la constance attendue. La poursuite d'études dans la formation visée est envisageable, sous réserve d'une plus grande implication et d'un travail méthodique renforcé.",
+                "Élève de bonne volonté dont les résultats restent en deçà de son potentiel. La voie envisagée est accessible, mais nécessitera un ajustement dans l'organisation du travail et une mobilisation durable dès l'entrée dans le supérieur."
+            ],
+            'Satisfaisant': [
+                "Cet élève présente un profil solide, construit sur des bases sérieuses et une implication régulière. Les résultats obtenus témoignent d'une réelle capacité à s'adapter aux exigences académiques. La poursuite d'études envisagée est cohérente et réaliste."
+            ],
+            'Très satisfaisant': [
+                "Élève d'excellent niveau, dont la curiosité intellectuelle, la régularité et l'exigence personnelle forcent l'admiration. Les résultats obtenus illustrent une vraie culture de l'effort. Cet élève possède tous les atouts pour exceller dans la formation qu'il a choisie."
+            ]
+        };
+
+        // ─── Toast de notification propagation ───────────────────────────────────
+        function afficherToast(message) {
+            const toast = document.getElementById('propagationToast');
+            toast.innerHTML = `<span class="toast-icon">🔗</span> ${message}`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+
+        // ─── Trouver les vœux de même filière pour le même élève (via Numéro) ────
+        // Retourne tous les vœux de cet élève ayant la même filière (sauf lui-même)
+        function trouverVoeuxIdentiques(className, voeuRef) {
+            if (!classesData[className]) return [];
+            return classesData[className].filter(v =>
+                v.id !== voeuRef.id &&
+                v.numero === voeuRef.numero &&
+                v.filiere === voeuRef.filiere &&
+                v.filiere !== ''
+            );
+        }
+
+        // Compter les élèves avec au moins un vœu sans avis
+        function compterVoeuxSansAvis(className) {
+            if (!classesData[className]) return { eleves: [], count: 0 };
+            const elevesMap = new Map();
+            classesData[className].forEach(v => {
+                if (!v.avis) {
+                    const key = v.numero;
+                    if (!elevesMap.has(key)) elevesMap.set(key, { nom: v.nom, prenom: v.prenom, nb: 0 });
+                    elevesMap.get(key).nb++;
+                }
+            });
+            return { eleves: Array.from(elevesMap.values()), count: elevesMap.size };
+        }
+        const FILIERES_SCIENTIFIQUES = ['Sciences', 'Scientifique', 'Biologie', 'Mathématiques', 'Physique', 'Chimie', 'Informatique', 'Ingénierie', 'STAPS', 'Médecine', 'Santé', 'PASS', 'LAS', 'BCPST', 'MPSI', 'PCSI'];
+        const FILIERES_TECHNOLOGIQUES = ['Technologique', 'BTP', 'Génie Civil', 'Réseaux', 'Télécommunications', 'Industriel', 'Génie électrique', 'Mécanique', 'Numérique', 'Automatisme', 'Robotique'];
+
+        // Fonction pour vérifier si une filière est scientifique
+        function estFiliereScientifique(filiere) {
+            if (!filiere) return false;
+            const f = filiere.toLowerCase();
+            return FILIERES_SCIENTIFIQUES.some(s => f.includes(s.toLowerCase()));
+        }
+
+        // Fonction pour vérifier si une filière est technologique
+        function estFiliereTechnologique(filiere) {
+            if (!filiere) return false;
+            const f = filiere.toLowerCase();
+            return FILIERES_TECHNOLOGIQUES.some(s => f.includes(s.toLowerCase()));
+        }
+
+        // Afficher le tableau de bord
+        function afficherDashboard() {
+            affichageMode = 'dashboard';
+            document.getElementById('filtersSection').style.display = 'none';
+            
+            const dashboardHTML = genererDashboardHTML();
+            document.getElementById('cardsContainer').innerHTML = dashboardHTML;
+        }
+
+        // Générer le HTML du tableau de bord enrichi conseil de classe
+        function genererDashboardHTML() {
+            const classesSelectionnees = Object.keys(classesData);
+            
+            if (classesSelectionnees.length === 0) {
+                return `
+                    <div class="dashboard">
+                        <h2>📊 Tableau de bord — Conseil de classe</h2>
+                        <div class="no-results">
+                            Aucune classe chargée. Veuillez importer des fichiers CSV.
+                        </div>
+                    </div>
+                `;
+            }
+
+            const statsClasseActive = activeClass && classesData[activeClass] ? 
+                calculerStatsClasse(activeClass) : null;
+            const statsMultiClasses = calculerStatsMultiClasses();
+
+            // KPIs conseil de classe pour la classe active
+            let conseilPanel = '';
+            let alertePanel = '';
+            let avisDistPanel = '';
+
+            if (statsClasseActive && activeClass) {
+                const data = classesData[activeClass];
+                const totalVoeux = data.length;
+                const avecAvis = data.filter(v => v.avis).length;
+                const sansAvisInfo = compterVoeuxSansAvis(activeClass);
+
+                // Comptage par type d'avis
+                const nbPeu = data.filter(v => v.avis === 'Peu démontrée').length;
+                const nbAssez = data.filter(v => v.avis === 'Assez satisfaisant').length;
+                const nbSat = data.filter(v => v.avis === 'Satisfaisant').length;
+                const nbTres = data.filter(v => v.avis === 'Très satisfaisant').length;
+                const nbVide = totalVoeux - avecAvis;
+                const taux = totalVoeux > 0 ? ((avecAvis / totalVoeux) * 100).toFixed(0) : 0;
+
+                // KPI panel conseil
+                conseilPanel = `
+                    <div class="conseil-panel">
+                        <div class="conseil-panel-title">🎓 Tableau de bord — Conseil de classe : ${activeClass}</div>
+                        <div class="conseil-kpis">
+                            <div class="conseil-kpi kpi-info">
+                                <div class="conseil-kpi-value">${statsClasseActive.totalEleves}</div>
+                                <div class="conseil-kpi-label">Élèves dans la classe</div>
+                            </div>
+                            <div class="conseil-kpi kpi-info">
+                                <div class="conseil-kpi-value">${totalVoeux}</div>
+                                <div class="conseil-kpi-label">Vœux au total</div>
+                            </div>
+                            <div class="conseil-kpi ${taux == 100 ? 'kpi-ok' : taux >= 70 ? 'kpi-info' : 'kpi-alert'}">
+                                <div class="conseil-kpi-value">${taux}%</div>
+                                <div class="conseil-kpi-label">Taux de saisie</div>
+                            </div>
+                            <div class="conseil-kpi ${sansAvisInfo.count === 0 ? 'kpi-ok' : 'kpi-alert'}">
+                                <div class="conseil-kpi-value">${sansAvisInfo.count}</div>
+                                <div class="conseil-kpi-label">Élèves incomplets</div>
+                            </div>
+                            <div class="conseil-kpi">
+                                <div class="conseil-kpi-value" style="color:#fca5a5;">${nbPeu}</div>
+                                <div class="conseil-kpi-label">Peu démontrée</div>
+                            </div>
+                            <div class="conseil-kpi">
+                                <div class="conseil-kpi-value" style="color:#fcd34d;">${nbAssez}</div>
+                                <div class="conseil-kpi-label">Assez satisfaisant</div>
+                            </div>
+                            <div class="conseil-kpi">
+                                <div class="conseil-kpi-value" style="color:#6ee7b7;">${nbSat}</div>
+                                <div class="conseil-kpi-label">Satisfaisant</div>
+                            </div>
+                            <div class="conseil-kpi">
+                                <div class="conseil-kpi-value" style="color:#93c5fd;">${nbTres}</div>
+                                <div class="conseil-kpi-label">Très satisfaisant</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Distribution visuelle des avis
+                const pPeu   = totalVoeux > 0 ? (nbPeu / totalVoeux * 100).toFixed(1) : 0;
+                const pAssez = totalVoeux > 0 ? (nbAssez / totalVoeux * 100).toFixed(1) : 0;
+                const pSat   = totalVoeux > 0 ? (nbSat / totalVoeux * 100).toFixed(1) : 0;
+                const pTres  = totalVoeux > 0 ? (nbTres / totalVoeux * 100).toFixed(1) : 0;
+                const pVide  = totalVoeux > 0 ? (nbVide / totalVoeux * 100).toFixed(1) : 0;
+
+                avisDistPanel = `
+                    <div class="stat-card" style="margin-bottom:20px;">
+                        <h3>📊 Distribution des avis — ${activeClass}</h3>
+                        <div class="avis-bar-container">
+                            ${nbPeu > 0 ? `<div class="avis-bar-segment avis-bar-peu" style="width:${pPeu}%;" title="Peu démontrée : ${nbPeu}">${pPeu}%</div>` : ''}
+                            ${nbAssez > 0 ? `<div class="avis-bar-segment avis-bar-assez" style="width:${pAssez}%;" title="Assez satisfaisant : ${nbAssez}">${pAssez}%</div>` : ''}
+                            ${nbSat > 0 ? `<div class="avis-bar-segment avis-bar-satisfaisant" style="width:${pSat}%;" title="Satisfaisant : ${nbSat}">${pSat}%</div>` : ''}
+                            ${nbTres > 0 ? `<div class="avis-bar-segment avis-bar-tres" style="width:${pTres}%;" title="Très satisfaisant : ${nbTres}">${pTres}%</div>` : ''}
+                            ${nbVide > 0 ? `<div class="avis-bar-segment avis-bar-vide" style="width:${pVide}%;color:#6b7280;" title="Non renseigné : ${nbVide}">${pVide}%</div>` : ''}
+                        </div>
+                        <div class="avis-legend">
+                            ${nbPeu > 0 ? `<div class="avis-legend-item"><div class="avis-legend-dot" style="background:#e53e3e;"></div>Peu démontrée (${nbPeu})</div>` : ''}
+                            ${nbAssez > 0 ? `<div class="avis-legend-item"><div class="avis-legend-dot" style="background:#dd6b20;"></div>Assez satisfaisant (${nbAssez})</div>` : ''}
+                            ${nbSat > 0 ? `<div class="avis-legend-item"><div class="avis-legend-dot" style="background:#38a169;"></div>Satisfaisant (${nbSat})</div>` : ''}
+                            ${nbTres > 0 ? `<div class="avis-legend-item"><div class="avis-legend-dot" style="background:#2b6cb0;"></div>Très satisfaisant (${nbTres})</div>` : ''}
+                            ${nbVide > 0 ? `<div class="avis-legend-item"><div class="avis-legend-dot" style="background:#d1d5db;"></div>Non renseigné (${nbVide})</div>` : ''}
+                        </div>
+                    </div>
+                `;
+
+                // Alertes élèves sans avis complet
+                if (sansAvisInfo.eleves.length > 0) {
+                    alertePanel = `
+                        <div class="alert-eleves-section">
+                            <div class="alert-eleves-title">
+                                ⚠️ Élèves avec vœux non renseignés (${sansAvisInfo.eleves.length})
+                                <button class="btn btn-warning btn-sm" onclick="filtrerSansAvis()" style="margin-left:auto;">Voir ces élèves</button>
+                            </div>
+                            <div>
+                                ${sansAvisInfo.eleves.map(e => `
+                                    <span class="alert-eleve-item">👤 ${e.prenom} ${e.nom} (${e.nb} vœu${e.nb > 1 ? 'x' : ''})</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            return `
+                <div class="dashboard">
+                    <div class="dashboard-header">
+                        <h2>📊 Tableau de bord</h2>
+                        <div class="dashboard-controls">
+                            ${classesSelectionnees.length > 0 ? `
+                                <select id="dashboardClassSelector" onchange="changerClasseDashboard(this.value)">
+                                    <option value="">Toutes les classes</option>
+                                    ${classesSelectionnees.map(c => `
+                                        <option value="${c}" ${c === activeClass ? 'selected' : ''}>${c}</option>
+                                    `).join('')}
+                                </select>
+                            ` : ''}
+                            <button class="btn btn-info" onclick="imprimerDashboard()">
+                                🖨️ Imprimer
+                            </button>
+                            <button class="btn btn-primary" onclick="retourCartes()">
+                                ↩️ Retour
+                            </button>
+                        </div>
+                    </div>
+
+                    ${conseilPanel}
+                    ${alertePanel}
+
+                    ${statsClasseActive ? `
+                        ${avisDistPanel}
+
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <h3>👥 Élèves — ${activeClass}</h3>
+                                <div class="stat-number">${statsClasseActive.totalEleves}</div>
+                                <div class="stat-label">Total élèves</div>
+                                <div class="gender-stats">
+                                    <div class="gender-item">
+                                        <div class="gender-value filles">${statsClasseActive.nbFilles}</div>
+                                        <div class="gender-label">Filles</div>
+                                    </div>
+                                    <div class="gender-item">
+                                        <div class="gender-value garcons">${statsClasseActive.nbGarcons}</div>
+                                        <div class="gender-label">Garçons</div>
+                                    </div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-filles" style="width: ${statsClasseActive.pourcentageFilles}%">
+                                        ${parseFloat(statsClasseActive.pourcentageFilles) > 10 ? statsClasseActive.pourcentageFilles + '%' : ''}
+                                    </div>
+                                    <div class="progress-garcons" style="width: ${statsClasseActive.pourcentageGarcons}%">
+                                        ${parseFloat(statsClasseActive.pourcentageGarcons) > 10 ? statsClasseActive.pourcentageGarcons + '%' : ''}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="stat-card">
+                                <h3>📋 Vœux — ${activeClass}</h3>
+                                <div class="stat-number">${statsClasseActive.totalVoeux}</div>
+                                <div class="stat-label">Total vœux</div>
+                                <div style="margin-top: 14px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size:13px;">
+                                        <span>Moyenne par élève</span>
+                                        <span style="font-weight: 700;color:#1e3a5f;">${statsClasseActive.moyenneVoeux}</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; font-size:13px;">
+                                        <span>Avis renseignés</span>
+                                        <span style="font-weight: 700;color:#38a169;">${statsClasseActive.voeuxAvecAvis} / ${statsClasseActive.totalVoeux}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="stat-card">
+                                <h3>📈 Avancement — ${activeClass}</h3>
+                                <div class="stat-number" style="color:${statsClasseActive.tauxSaisie == 100 ? '#38a169' : statsClasseActive.tauxSaisie >= 70 ? '#dd6b20' : '#e53e3e'};">${statsClasseActive.tauxSaisie}%</div>
+                                <div class="stat-label">Taux de saisie</div>
+                                <div style="margin-top:14px;">
+                                    <div style="width:100%;height:12px;background:#f0f2f8;border-radius:6px;overflow:hidden;">
+                                        <div style="width:${statsClasseActive.tauxSaisie}%;height:100%;background:${statsClasseActive.tauxSaisie == 100 ? '#38a169' : statsClasseActive.tauxSaisie >= 70 ? '#dd6b20' : '#e53e3e'};border-radius:6px;transition:width 0.5s;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        ${genererTypeFormationHTML(statsClasseActive)}
+
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <h3>🎯 Top 10 des filières — ${activeClass}</h3>
+                                <div class="filiere-stats">
+                                    ${statsClasseActive.topFilieres.map(([filiere, count]) => `
+                                        <div class="filiere-item">
+                                            <span class="filiere-nom">${filiere}</span>
+                                            <span class="filiere-count">${count}</span>
+                                            <div class="filiere-bar">
+                                                <div class="filiere-bar-fill" style="width: ${(count/statsClasseActive.totalVoeux*100).toFixed(1)}%"></div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <div class="stat-card">
+                                <h3>🔬 Filles en filières scientifiques — ${activeClass}</h3>
+                                <div class="sci-tech-card">
+                                    <div class="sci-tech-number">${statsClasseActive.nbFillesScientifiques}</div>
+                                    <div style="color: #6b7280; font-size: 13px; margin-top:4px;">filles concernées sur ${statsClasseActive.nbFilles}</div>
+                                    <div style="margin-top: 12px;">
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size:13px;">
+                                            <span>Vœux scientifiques</span>
+                                            <span style="font-weight:700;">${statsClasseActive.voeuxFillesScientifiques}</span>
+                                        </div>
+                                        <div class="progress-bar" style="height: 10px;">
+                                            <div class="progress-filles" style="width: ${statsClasseActive.pourcentageFillesScientifiques}%; height: 10px;"></div>
+                                        </div>
+                                        <div style="text-align: right; font-size: 12px; color: #6b7280; margin-top: 5px;">
+                                            ${statsClasseActive.pourcentageFillesScientifiques}% des filles
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="stat-card">
+                                <h3>⚙️ Filles en filières technologiques — ${activeClass}</h3>
+                                <div class="sci-tech-card">
+                                    <div class="sci-tech-number">${statsClasseActive.nbFillesTechnologiques}</div>
+                                    <div style="color: #6b7280; font-size: 13px; margin-top:4px;">filles concernées sur ${statsClasseActive.nbFilles}</div>
+                                    <div style="margin-top: 12px;">
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size:13px;">
+                                            <span>Vœux technologiques</span>
+                                            <span style="font-weight:700;">${statsClasseActive.voeuxFillesTechnologiques}</span>
+                                        </div>
+                                        <div class="progress-bar" style="height: 10px;">
+                                            <div class="progress-filles" style="width: ${statsClasseActive.pourcentageFillesTechnologiques}%; height: 10px;"></div>
+                                        </div>
+                                        <div style="text-align: right; font-size: 12px; color: #6b7280; margin-top: 5px;">
+                                            ${statsClasseActive.pourcentageFillesTechnologiques}% des filles
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${genererMultiClassesHTML(statsMultiClasses)}
+                </div>
+            `;
+        }
+
+        // Fonction pour générer le HTML des types de formation avec visuels
+        function genererTypeFormationHTML(stats) {
+            const typesTries = Object.entries(stats.voeuxParType)
+                .sort((a, b) => b[1] - a[1]);
+
+            const getCouleur = (index) => {
+                const couleurs = [
+                    '#2b6cb0', '#2d6a4f', '#b45309', '#6b46c1',
+                    '#c53030', '#285e61', '#1e3a5f', '#97266d', '#4a5568'
+                ];
+                return couleurs[index % couleurs.length];
+            };
+
+            return `
+                <div class="stat-card" style="margin-bottom:20px;">
+                    <h3>📚 Répartition par type de formation — ${activeClass}</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 14px;">
+                        ${typesTries.map(([type, count], index) => {
+                            const couleur = getCouleur(index);
+                            const pourcentage = ((count / stats.totalVoeux) * 100).toFixed(1);
+                            
+                            let icone = '🎓';
+                            if (type.toLowerCase().includes('licence')) icone = '📚';
+                            else if (type.toLowerCase().includes('but')) icone = '🔧';
+                            else if (type.toLowerCase().includes('bts')) icone = '📋';
+                            else if (type.toLowerCase().includes('cpge')) icone = '⚡';
+                            else if (type.toLowerCase().includes('université')) icone = '🏛️';
+                            else if (type.toLowerCase().includes('santé')) icone = '⚕️';
+                            else if (type.toLowerCase().includes('deust')) icone = '📜';
+                            
+                            return `
+                                <div style="background:#f8f9fb;border-radius:10px;padding:14px;border:1px solid #e5e8ef;">
+                                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                                        <div style="width:38px;height:38px;background:${couleur}18;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;">
+                                            ${icone}
+                                        </div>
+                                        <div style="flex:1;">
+                                            <div style="font-weight:700;color:#1e3a5f;font-size:13px;">${type}</div>
+                                            <div style="font-size:22px;font-weight:800;color:${couleur};">${count}</div>
+                                        </div>
+                                    </div>
+                                    <div style="width:100%;height:6px;background:#e5e8ef;border-radius:3px;overflow:hidden;margin-bottom:4px;">
+                                        <div style="width:${pourcentage}%;height:100%;background:${couleur};border-radius:3px;"></div>
+                                    </div>
+                                    <div style="font-size:11.5px;color:#6b7280;text-align:right;">${pourcentage}% des vœux</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Calculer les statistiques pour une classe
+        function calculerStatsClasse(className) {
+            const data = classesData[className];
+            if (!data) return null;
+
+            // Compter les élèves uniques via numero
+            const elevesMap = new Map();
+            data.forEach(voeu => {
+                const key = voeu.numero;
+                if (!elevesMap.has(key)) {
+                    const civilite = voeu.civilite || 'Mme';
+                    elevesMap.set(key, {
+                        nom: voeu.nom, prenom: voeu.prenom,
+                        genre: civilite.trim() === 'M.' ? 'garçon' : 'fille',
+                        voeux: []
+                    });
+                }
+                elevesMap.get(key).voeux.push(voeu);
+            });
+
+            const eleves = Array.from(elevesMap.values());
+            const nbFilles = eleves.filter(e => e.genre === 'fille').length;
+            const nbGarcons = eleves.filter(e => e.genre === 'garçon').length;
+            const totalVoeux = data.length;
+            const voeuxAvecAvis = data.filter(v => v.avis).length;
+
+            // Compter les vœux par filière
+            const voeuxParFiliere = {};
+            data.forEach(voeu => {
+                const filiere = voeu.filiere || 'Non spécifié';
+                voeuxParFiliere[filiere] = (voeuxParFiliere[filiere] || 0) + 1;
+            });
+
+            // Compter les vœux par type de formation
+            const voeuxParType = {};
+            data.forEach(voeu => {
+                const type = voeu.typeFormation || 'Non spécifié';
+                voeuxParType[type] = (voeuxParType[type] || 0) + 1;
+            });
+
+            // Top filières
+            const topFilieres = Object.entries(voeuxParFiliere)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+
+            // Statistiques filles dans filières scientifiques et technologiques
+            let nbFillesScientifiques = 0;
+            let voeuxFillesScientifiques = 0;
+            let nbFillesTechnologiques = 0;
+            let voeuxFillesTechnologiques = 0;
+
+            eleves.filter(e => e.genre === 'fille').forEach(fille => {
+                let aScience = false;
+                let aTechno = false;
+                
+                fille.voeux.forEach(voeu => {
+                    if (estFiliereScientifique(voeu.filiere)) {
+                        voeuxFillesScientifiques++;
+                        aScience = true;
+                    }
+                    if (estFiliereTechnologique(voeu.filiere)) {
+                        voeuxFillesTechnologiques++;
+                        aTechno = true;
+                    }
+                });
+                
+                if (aScience) nbFillesScientifiques++;
+                if (aTechno) nbFillesTechnologiques++;
+            });
+
+            return {
+                totalEleves: eleves.length,
+                nbFilles,
+                nbGarcons,
+                pourcentageFilles: ((nbFilles / eleves.length) * 100).toFixed(1),
+                pourcentageGarcons: ((nbGarcons / eleves.length) * 100).toFixed(1),
+                totalVoeux,
+                moyenneVoeux: (totalVoeux / eleves.length).toFixed(1),
+                voeuxAvecAvis,
+                tauxSaisie: ((voeuxAvecAvis / totalVoeux) * 100).toFixed(1),
+                topFilieres,
+                voeuxParType,
+                nbFillesScientifiques,
+                voeuxFillesScientifiques,
+                pourcentageFillesScientifiques: nbFilles ? ((nbFillesScientifiques / nbFilles) * 100).toFixed(1) : '0.0',
+                nbFillesTechnologiques,
+                voeuxFillesTechnologiques,
+                pourcentageFillesTechnologiques: nbFilles ? ((nbFillesTechnologiques / nbFilles) * 100).toFixed(1) : '0.0'
+            };
+        }
+
+        // Calculer les statistiques pour toutes les classes
+        function calculerStatsMultiClasses() {
+            const classes = Object.keys(classesData);
+            
+            let totalEleves = 0;
+            let totalFilles = 0;
+            let totalGarcons = 0;
+            let totalVoeux = 0;
+            let totalVoeuxAvecAvis = 0;
+            let voeuxParTypeGlobal = {};
+
+            classes.forEach(className => {
+                const stats = calculerStatsClasse(className);
+                if (stats) {
+                    totalEleves += stats.totalEleves;
+                    totalFilles += stats.nbFilles;
+                    totalGarcons += stats.nbGarcons;
+                    totalVoeux += stats.totalVoeux;
+                    totalVoeuxAvecAvis += stats.voeuxAvecAvis;
+
+                    // Agréger les types de formation
+                    Object.entries(stats.voeuxParType).forEach(([type, count]) => {
+                        voeuxParTypeGlobal[type] = (voeuxParTypeGlobal[type] || 0) + count;
+                    });
+                }
+            });
+
+            const typesTries = Object.entries(voeuxParTypeGlobal)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+
+            return {
+                nbClasses: classes.length,
+                totalEleves,
+                totalFilles,
+                totalGarcons,
+                pourcentageFilles: totalEleves ? ((totalFilles / totalEleves) * 100).toFixed(1) : '0',
+                totalVoeux,
+                totalVoeuxAvecAvis,
+                tauxSaisieGlobal: totalVoeux ? ((totalVoeuxAvecAvis / totalVoeux) * 100).toFixed(1) : '0',
+                topTypesFormation: typesTries
+            };
+        }
+
+        // Générer le HTML pour la synthèse multi-classes
+        function genererMultiClassesHTML(stats) {
+            if (stats.nbClasses === 0) return '';
+
+            return `
+                <div class="multi-class-summary">
+                    <div class="multi-class-title">
+                        📊 Synthèse globale lycée — ${stats.nbClasses} classe${stats.nbClasses > 1 ? 's' : ''}
+                    </div>
+                    <div class="multi-class-grid">
+                        <div class="multi-class-item">
+                            <h4>👥 Total élèves</h4>
+                            <div class="multi-class-number">${stats.totalEleves}</div>
+                            <div class="multi-class-label">${stats.totalFilles} filles, ${stats.totalGarcons} garçons</div>
+                        </div>
+                        <div class="multi-class-item">
+                            <h4>📋 Total vœux</h4>
+                            <div class="multi-class-number">${stats.totalVoeux}</div>
+                            <div class="multi-class-label">Moyenne ${(stats.totalVoeux/stats.totalEleves).toFixed(1)}/élève</div>
+                        </div>
+                        <div class="multi-class-item">
+                            <h4>📈 Taux de saisie</h4>
+                            <div class="multi-class-number">${stats.tauxSaisieGlobal}%</div>
+                            <div class="multi-class-label">${stats.totalVoeuxAvecAvis} vœux avec avis</div>
+                        </div>
+                        <div class="multi-class-item">
+                            <h4>👫 Répartition</h4>
+                            <div class="multi-class-number">${stats.pourcentageFilles}%</div>
+                            <div class="multi-class-label">de filles</div>
+                        </div>
+                    </div>
+                    ${stats.topTypesFormation.length > 0 ? `
+                        <div style="margin-top: 20px;">
+                            <h4 style="margin-bottom: 10px;">📚 Top 5 types de formation</h4>
+                            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                ${stats.topTypesFormation.map(([type, count]) => `
+                                    <span style="background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; font-size: 13px;">
+                                        ${type} (${count})
+                                    </span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // Changer la classe dans le tableau de bord
+        function changerClasseDashboard(className) {
+            if (className) {
+                activeClass = className;
+            } else {
+                activeClass = null;
+            }
+            afficherDashboard();
+        }
+
+        // Imprimer le tableau de bord
+        function imprimerDashboard() {
+            const printWindow = window.open('', '_blank');
+            const dashboardHTML = genererDashboardHTML();
+            
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Tableau de bord Parcoursup</title>
+                        <style>
+                            @page {
+                                size: A4 portrait;
+                                margin: 1.5cm;
+                            }
+                            body {
+                                font-family: 'Times New Roman', Times, serif;
+                                margin: 0;
+                                padding: 20px;
+                                background: white;
+                            }
+                            .dashboard {
+                                max-width: 100%;
+                            }
+                            .dashboard-header {
+                                text-align: center;
+                                margin-bottom: 30px;
+                                padding: 20px;
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                color: white;
+                                border-radius: 10px;
+                            }
+                            .dashboard-header h2 {
+                                font-size: 28px;
+                                margin-bottom: 10px;
+                            }
+                            .stats-grid {
+                                display: grid;
+                                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                                gap: 20px;
+                                margin-bottom: 30px;
+                            }
+                            .stat-card {
+                                background: #f9f9f9;
+                                border-radius: 10px;
+                                padding: 20px;
+                                border: 1px solid #ddd;
+                            }
+                            .stat-card h3 {
+                                color: #333;
+                                margin-bottom: 15px;
+                                border-bottom: 2px solid #667eea;
+                                padding-bottom: 10px;
+                            }
+                            .stat-number {
+                                font-size: 36px;
+                                font-weight: bold;
+                                color: #667eea;
+                            }
+                            .gender-stats {
+                                display: flex;
+                                justify-content: space-around;
+                                margin: 20px 0;
+                            }
+                            .gender-value.filles { color: #ed64a6; }
+                            .gender-value.garcons { color: #4299e1; }
+                            .progress-bar {
+                                background: #e0e0e0;
+                                border-radius: 15px;
+                                height: 30px;
+                                display: flex;
+                                overflow: hidden;
+                            }
+                            .progress-filles { background: #ed64a6; color: white; }
+                            .progress-garcons { background: #4299e1; color: white; }
+                            .filiere-item {
+                                display: flex;
+                                align-items: center;
+                                margin-bottom: 10px;
+                                padding: 5px;
+                                background: white;
+                                border-radius: 5px;
+                            }
+                            .filiere-nom { flex: 1; }
+                            .filiere-count { 
+                                width: 50px; 
+                                text-align: right;
+                                font-weight: bold;
+                                color: #667eea;
+                            }
+                            .filiere-bar {
+                                width: 150px;
+                                height: 20px;
+                                background: #e0e0e0;
+                                border-radius: 10px;
+                                margin: 0 15px;
+                                overflow: hidden;
+                            }
+                            .filiere-bar-fill {
+                                height: 100%;
+                                background: #667eea;
+                            }
+                            .multi-class-summary {
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                color: white;
+                                padding: 20px;
+                                border-radius: 10px;
+                                margin-top: 30px;
+                            }
+                            .multi-class-grid {
+                                display: grid;
+                                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                                gap: 15px;
+                                margin-top: 15px;
+                            }
+                            .multi-class-item {
+                                background: rgba(255,255,255,0.1);
+                                padding: 15px;
+                                border-radius: 8px;
+                            }
+                            .footer {
+                                text-align: center;
+                                margin-top: 30px;
+                                padding-top: 20px;
+                                border-top: 1px solid #ddd;
+                                font-size: 12px;
+                                color: #666;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        ${dashboardHTML}
+                        <div class="footer">
+                            Document généré le ${new Date().toLocaleDateString()} • Tableau de bord Parcoursup
+                        </div>
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // Retour à l'affichage des cartes
+        function retourCartes() {
+            affichageMode = 'cartes';
+            document.getElementById('filtersSection').style.display = 'flex';
+            if (activeClass) {
+                afficherCartes(activeClass);
+            } else {
+                document.getElementById('cardsContainer').innerHTML = '';
+            }
+        }
+
+        // Filtrer sur les élèves sans avis depuis le dashboard
+        function filtrerSansAvis() {
+            filters.avis = 'vide';
+            const af = document.getElementById('avisFilter');
+            if (af) af.value = 'vide';
+            retourCartes();
+        }
+
+        // Fonction pour créer un modèle de classe avec 20 élèves
+        // Créer un modèle de démonstration au format réel Parcoursup (Guyane)
+        function creerModeleClasse() {
+            const className = 'Modele_TPMET';
+            const ts = Date.now();
+
+            // Données réalistes inspirées du format Voeux_TPMET.csv
+            // Plusieurs élèves ont la même filière dans des établissements différents → démo propagation
+            const rawData = [
+                // DUPONT Marie — 2×D.E Infirmier (propagation) + 1 Licence
+                ['900001','Mme','DUPONT','Marie','IFSI Université de Guyane','Cayenne','Etudes de santé','Non','IFSI Université de Guyane','D.E Infirmier','IFSI Université de Guyane - D.E Infirmier','IFSI Université de Guyane - D.E Infirmier'],
+                ['900001','Mme','DUPONT','Marie','Regroupement IFSI Université Paris Cité','Paris 14e','Etudes de santé','Non','Regroupement IFSI Paris','D.E Infirmier','IFSI Paris - D.E Infirmier','IFSI Beaujon René Auffray (AP-HP) - D.E Infirmier'],
+                ['900001','Mme','DUPONT','Marie','Université de Guyane','Cayenne','Licence','Non','Université de Guyane','Sciences de la vie','Université de Guyane - Licence - Sciences de la vie','Université de Guyane - Licence - Sciences de la vie'],
+                // MARTIN Lucas — 3×BTS Gestion PME (propagation forte) + 1 Licence
+                ['900002','M.','MARTIN','Lucas','Lycée Félix EBOUE','Cayenne','BTS - BTSA - BTSM','Non','Lycée Félix EBOUE','Gestion de la PME','Lycée Félix EBOUE - BTS - Gestion de la PME','Lycée Félix EBOUE - BTS - Services - Gestion de la PME'],
+                ['900002','M.','MARTIN','Lucas','CFA DE LA CCI REGION GUYANE','Cayenne','BTS - BTSA - BTSM','Oui','CFA GUYANE','Gestion de la PME','CFA GUYANE - BTS - Gestion de la PME - en apprentissage','CFA GUYANE - BTS - Services - Gestion de la PME - en apprentissage'],
+                ['900002','M.','MARTIN','Lucas','GRETA CFA Marne-Lycée J. Talon','Châlons-en-Champagne','BTS - BTSA - BTSM','Oui','GRETA CFA Marne','Gestion de la PME','GRETA CFA Marne - BTS - Gestion de la PME - en apprentissage','GRETA CFA Marne - BTS - Services - Gestion de la PME - en apprentissage'],
+                ['900002','M.','MARTIN','Lucas','Université de Guyane','Cayenne','Licence','Non','Université de Guyane','Droit','Université de Guyane - Licence - Droit','Université de Guyane - Licence - Droit'],
+                // BERNARD Emma — 2×Psychologie (propagation) + 1 BUT
+                ['900003','Mme','BERNARD','Emma','IUT de Kourou - Campus TROUBIRAN','Cayenne','BUT','Non','IUT de Kourou','Carrières sociales Parcours animation sociale et socioculturelle','IUT de Kourou - BUT - Carrières sociales','IUT de Kourou - BUT - Carrières sociales animation'],
+                ['900003','Mme','BERNARD','Emma','Université de Guyane','Cayenne','Licence','Non','Université de Guyane','Psychologie','Université de Guyane - Licence - Psychologie','Université de Guyane - Licence - Psychologie'],
+                ['900003','Mme','BERNARD','Emma','Université de Bordeaux','Bordeaux','Licence','Non','Université de Bordeaux','Psychologie','Université de Bordeaux - Licence - Psychologie','Université de Bordeaux - Licence - Psychologie'],
+                // PETIT Thomas — vœux variés
+                ['900004','M.','PETIT','Thomas','Lycée Gaston Monnerville','Kourou','BTS - BTSA - BTSM','Non','Lycée Gaston Monnerville','Tourisme','Lycée Gaston Monnerville - BTS - Tourisme','Lycée Gaston Monnerville - BTS - Services - Tourisme'],
+                ['900004','M.','PETIT','Thomas','Lycée Gaston Monnerville','Kourou','BTS - BTSA - BTSM','Non','Lycée Gaston Monnerville','Management Commercial Opérationnel','Lycée Gaston Monnerville - BTS - MCO','Lycée Gaston Monnerville - BTS - Services - MCO'],
+                ['900004','M.','PETIT','Thomas','LYCEE PROFESSIONNEL DU LARIVOT','Matoury','BTS - BTSA - BTSM','Non','LYCEE LARIVOT','Management opérationnel de la sécurité','LYCEE LARIVOT - BTS - Management sécurité','LYCEE LARIVOT - BTS - Services - Management sécurité'],
+                // ROBERT Camille — 2×Commerce International (propagation)
+                ['900005','Mme','ROBERT','Camille','Lycée polyvalent Leopold Elfort','Mana','BTS - BTSA - BTSM','Non','Lycée Elfort','Commerce International','Lycée Elfort - BTS - Commerce International','Lycée Elfort - BTS - Services - Commerce International'],
+                ['900005','Mme','ROBERT','Camille','Lycée Félix EBOUE','Cayenne','BTS - BTSA - BTSM','Non','Lycée Félix EBOUE','Commerce International','Lycée Félix EBOUE - BTS - Commerce International','Lycée Félix EBOUE - BTS - Services - Commerce International'],
+                ['900005','Mme','ROBERT','Camille','Université de Guyane','Cayenne','Licence','Non','Université de Guyane','Langues étrangères appliquées - Parcours Anglais / Espagnol','Université de Guyane - Licence - LEA','Université de Guyane - Licence - LEA - Anglais/Espagnol'],
+                // RICHARD Nathan — vœux informatique
+                ['900006','M.','RICHARD','Nathan','Université de Guyane','Cayenne','Licence','Non','Université de Guyane','Informatique','Université de Guyane - Licence - Informatique','Université de Guyane - Licence - Informatique'],
+                ['900006','M.','RICHARD','Nathan','IUT de Kourou - Campus de TROUBIRAN à Cayenne','Cayenne','BUT','Non','IUT de Kourou','Informatique - Parcours Développement Web','IUT Kourou - BUT Informatique','IUT Kourou - BUT - Informatique - Développement Web'],
+                // DURAND Léa — travail social
+                ['900007','Mme','DURAND','Léa','IRDTS Cayenne','Cayenne','Formations diplômantes du travail social','Non','IRDTS Cayenne','D.E Educateur de Jeunes Enfants','IRDTS Cayenne - D.E Educateur de Jeunes Enfants','IRDTS Cayenne - D.E Educateur de Jeunes Enfants'],
+                ['900007','Mme','DURAND','Léa','Université de Guyane','Cayenne','Licence','Non','Université de Guyane','Sciences de l\'éducation et de la formation','Université de Guyane - Licence - Sciences éducation','Université de Guyane - Licence - Sciences éducation'],
+                // MOREAU Chloé — 4×D.E Infirmier (propagation maximale)
+                ['900008','Mme','MOREAU','Chloé','IFSI Université de Guyane','Cayenne','Etudes de santé','Non','IFSI Université de Guyane','D.E Infirmier','IFSI Université de Guyane - D.E Infirmier','IFSI Université de Guyane - D.E Infirmier'],
+                ['900008','Mme','MOREAU','Chloé','Regroupement IFSI Université Paris Cité','Paris 14e','Etudes de santé','Non','IFSI Paris','D.E Infirmier','IFSI Paris - D.E Infirmier','IFSI Saint Louis (AP-HP) - D.E Infirmier'],
+                ['900008','Mme','MOREAU','Chloé','Regroupement IFSI Université d\'Amiens','Amiens','Etudes de santé','Non','IFSI Amiens','D.E Infirmier','IFSI Amiens - D.E Infirmier','Institut Formation Soins Infirmiers LAON - D.E Infirmier'],
+                ['900008','Mme','MOREAU','Chloé','Regroupement IFSI Université de Reims','Reims','Etudes de santé','Non','IFSI Reims','D.E Infirmier','IFSI Reims - D.E Infirmier','IFSI Croix Rouge Française Chalons-en-Champagne - D.E Infirmier'],
+                ['900008','Mme','MOREAU','Chloé','Université de Guyane','Cayenne','Licence','Non','Université de Guyane','Sciences de la vie','Université de Guyane - Licence - Sciences de la vie','Université de Guyane - Licence - Sciences de la vie'],
+                // SIMON Hugo — environnement
+                ['900009','M.','SIMON','Hugo','Lycée d\'Enseignement Agricole de MACOURIA','Macouria','BTS - BTSA - BTSM','Non','Lycée Agricole Macouria','Gestion et protection de la nature','Lycée Agricole - BTS - Gestion protection nature','Lycée Agricole MACOURIA - BTS - Agricole - Gestion protection nature'],
+                ['900009','M.','SIMON','Hugo','Université de Guyane','Cayenne','Licence','Non','Université de Guyane','Géographie et aménagement','Université de Guyane - Licence - Géographie','Université de Guyane - Licence - Géographie et aménagement'],
+                // MICHEL Sarah — santé/pharmacie
+                ['900010','Mme','MICHEL','Sarah','LYCEE POLYVALENT LAMA PREVOT','Remire-Montjoly','DEUST','Oui','LYCEE POLYVALENT LAMA PREVOT','Préparateur/Technicien en pharmacie','LYCEE LAMA PREVOT - DEUST - Préparateur Pharmacie en apprentissage','LYCEE LAMA PREVOT - DEUST - Préparateur/Technicien en pharmacie - en apprentissage'],
+                ['900010','Mme','MICHEL','Sarah','Lycée Félix EBOUE','Cayenne','BTS - BTSA - BTSM','Non','Lycée Félix EBOUE','Bioanalyses en laboratoire de contrôle','Lycée Félix EBOUE - BTS - Bioanalyses laboratoire','Lycée Félix EBOUE - BTS - Production - Bioanalyses en laboratoire de contrôle'],
+                ['900010','Mme','MICHEL','Sarah','IFSI Université de Guyane','Cayenne','Etudes de santé','Non','IFSI Université de Guyane','D.E Infirmier','IFSI Université de Guyane - D.E Infirmier','IFSI Université de Guyane - D.E Infirmier'],
+            ];
+
+            const data = rawData.map((r, i) => ({
+                id: `${className}_${r[0]}_${i}_${ts}`,
+                numero: r[0], civilite: r[1], nom: r[2], prenom: r[3],
+                classe: className,
+                etablissement: r[4], ville: r[5],
+                typeFormation: r[6], apprentissage: r[7],
+                formation: r[8], filiere: r[9],
+                libelleInscription: r[10], libelleAffectation: r[11],
+                avis: '', appreciation: '', propositionIndex: -1
+            }));
+
+            classesData[className] = data;
+            mettreAJourOnglets();
+            activeClass = className;
+            mettreAJourFiltres();
+            afficherCartes(className);
+
+            const nb = detecterPropagationsPossibles(className);
+            const elevesUniques = [...new Set(data.map(d => d.numero))].length;
+            alert(`✅ Modèle de démonstration créé !\n\n📋 Classe : ${className}\n👥 Élèves : ${elevesUniques}\n📝 Vœux : ${data.length}\n🔗 ${nb} groupe(s) de filières identiques détectés.\n\nTestez la propagation :\n→ DUPONT ou MOREAU : D.E Infirmier\n→ MARTIN : BTS Gestion PME\n→ ROBERT : Commerce International`);
+        }
+
+        // Sauvegarder l'espace de travail complet (avec l'état du tableau de bord)
+        function sauvegarderEspaceTravail() {
+            if (Object.keys(classesData).length === 0) {
+                alert('Aucune donnée à sauvegarder');
+                return;
+            }
+
+            const workspaceData = {
+                version: '1.0',
+                date: new Date().toLocaleString(),
+                classesData: classesData,
+                activeClass: activeClass,
+                filters: filters,
+                affichageMode: affichageMode
+            };
+            
+            const blob = new Blob([JSON.stringify(workspaceData, null, 2)], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `espace_travail_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            
+            window.URL.revokeObjectURL(url);
+            
+            const nbClasses = Object.keys(classesData).length;
+            alert(`✅ Espace de travail sauvegardé !\n${nbClasses} classe${nbClasses > 1 ? 's' : ''}`);
+        }
+
+        // Charger l'espace de travail complet
+        function chargerEspaceTravail() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        const workspaceData = JSON.parse(e.target.result);
+                        
+                        if (!workspaceData.classesData) {
+                            throw new Error('Format invalide');
+                        }
+                        
+                        classesData = workspaceData.classesData;
+                        activeClass = workspaceData.activeClass || Object.keys(classesData)[0];
+                        filters = workspaceData.filters || { nom: '', typeFormation: 'all', filiere: 'all' };
+                        affichageMode = workspaceData.affichageMode || 'cartes';
+                        
+                        mettreAJourOnglets();
+                        mettreAJourFiltres();
+                        
+                        if (affichageMode === 'dashboard') {
+                            afficherDashboard();
+                        } else if (activeClass) {
+                            afficherCartes(activeClass);
+                        }
+                        
+                        const nbClasses = Object.keys(classesData).length;
+                        alert(`✅ Espace de travail chargé !\n${nbClasses} classe${nbClasses > 1 ? 's' : ''}`);
+                    } catch (error) {
+                        alert('❌ Erreur : ' + error.message);
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+
+        // Supprimer une classe
+        function supprimerClasse(className) {
+            if (confirm(`Supprimer la classe ${className} ?`)) {
+                delete classesData[className];
+                
+                if (activeClass === className) {
+                    const classes = Object.keys(classesData);
+                    activeClass = classes.length > 0 ? classes[0] : null;
+                }
+                
+                mettreAJourOnglets();
+                
+                if (affichageMode === 'dashboard') {
+                    afficherDashboard();
+                } else if (activeClass) {
+                    mettreAJourFiltres();
+                    afficherCartes(activeClass);
+                } else {
+                    document.getElementById('cardsContainer').innerHTML = '';
+                    document.getElementById('filterStats').innerHTML = 'Aucune classe';
+                    document.getElementById('typeFormationFilter').innerHTML = '<option value="all">Tous</option>';
+                    document.getElementById('filiereFilter').innerHTML = '<option value="all">Toutes</option>';
+                }
+            }
+        }
+
+        // Importer un fichier CSV
+        function importerCSV(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const fileName = file.name;
+            let className = 'Classe';
+            const match = fileName.match(/Voeux_([^.]+)\.csv$/i);
+            if (match) className = match[1];
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Détecter l'encodage : essayer UTF-8 d'abord, sinon ISO-8859-1
+                let text = e.target.result;
+                // Supprimer le BOM UTF-8 si présent
+                if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+
+                const lines = text.split('\n');
+                if (lines.length < 2) { alert('Fichier CSV vide ou invalide.'); return; }
+
+                // ── Détecter le format par analyse de l'en-tête ──────────────────
+                const header = lines[0].split(';').map(h => h.trim().toLowerCase().replace(/[^a-záàâéèêîôùûç]/gi,''));
+                // Nouveau format : col0=Numéro, col1=Civilité, col2=Nom, col3=Prénom,
+                //   col4=Etablissement, col5=Ville, col6=Type de formation, col7=Apprentissage,
+                //   col8=Formation, col9=Filière, col10=Libellé inscription, col11=Libellé affectation
+                const isNewFormat = header[0] && (header[0].includes('num') || header[0] === '');
+                // Ancien format : col1=Civilité, col2=Nom, col3=Prénom, col7=Type, col9=Formation, col10=Filière
+
+                const data = [];
+                const ts = Date.now();
+
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i];
+                    if (!line.trim()) continue;
+
+                    // Découpage CSV simple (pas de guillemets dans ce fichier)
+                    const v = line.split(';');
+
+                    let numero, civilite, nom, prenom, etablissement, ville,
+                        typeFormation, apprentissage, formation, filiere,
+                        libelleInscription, libelleAffectation;
+
+                    if (isNewFormat) {
+                        // ── Nouveau format Parcoursup (Voeux_TPMET.csv) ──────────
+                        numero          = v[0] ? v[0].trim() : '';
+                        civilite        = v[1] ? v[1].trim() : 'Mme';
+                        nom             = v[2] ? v[2].trim() : '';
+                        prenom          = v[3] ? v[3].trim() : '';
+                        etablissement   = v[4] ? v[4].trim() : '';
+                        ville           = v[5] ? v[5].trim() : '';
+                        typeFormation   = v[6] ? v[6].trim() : '';
+                        apprentissage   = v[7] ? v[7].trim() : 'Non';
+                        formation       = v[8] ? v[8].trim() : '';   // = nom établissement Parcoursup
+                        filiere         = v[9] ? v[9].trim() : '';
+                        libelleInscription  = v[10] ? v[10].trim() : '';
+                        libelleAffectation  = v[11] ? v[11].trim() : '';
+                    } else {
+                        // ── Ancien format ─────────────────────────────────────────
+                        numero          = `${v[2]||''}_${v[3]||''}`;
+                        civilite        = v[1] ? v[1].trim() : 'Mme';
+                        nom             = v[2] ? v[2].trim() : '';
+                        prenom          = v[3] ? v[3].trim() : '';
+                        etablissement   = v[4] ? v[4].trim() : '';
+                        ville           = v[5] ? v[5].trim() : '';
+                        typeFormation   = v[7] ? v[7].trim() : '';
+                        apprentissage   = 'Non';
+                        formation       = v[9] ? v[9].trim() : '';
+                        filiere         = v[10] ? v[10].trim() : '';
+                        libelleInscription  = '';
+                        libelleAffectation  = '';
+                    }
+
+                    // Ignorer les lignes sans vœu
+                    const exclus = ["N'a pas fait de voeu", "", "Inscription non terminée",
+                                    "Non inscrit", "Vœu annulé"];
+                    if (exclus.some(ex => typeFormation === ex) || !typeFormation) continue;
+                    if (!nom || !prenom) continue;
+
+                    const id = `${className}_${numero}_${i}_${ts}`;
+
+                    data.push({
+                        id,
+                        numero,          // ← identifiant élève fiable
+                        civilite, nom, prenom,
+                        classe: className,
+                        etablissement, ville,
+                        typeFormation,
+                        apprentissage,
+                        formation,       // établissement Parcoursup (col8)
+                        filiere,
+                        libelleInscription,
+                        libelleAffectation,
+                        avis: '',
+                        appreciation: '',
+                        propositionIndex: -1
+                    });
+                }
+
+                if (data.length === 0) {
+                    alert('Aucun vœu valide trouvé dans ce fichier.\nVérifiez le format (séparateur ; attendu).');
+                    return;
+                }
+
+                classesData[className] = data;
+                mettreAJourOnglets();
+                activeClass = className;
+                affichageMode = 'cartes';
+                mettreAJourFiltres();
+                afficherCartes(className);
+                input.value = '';
+
+                const elevesUniques = [...new Set(data.map(d => d.numero))].length;
+                const avecPropagation = detecterPropagationsPossibles(className);
+                alert(`✅ Importé avec succès !\n\n` +
+                      `📋 Classe : ${className}\n` +
+                      `👥 Élèves : ${elevesUniques}\n` +
+                      `📝 Vœux valides : ${data.length}\n` +
+                      (avecPropagation > 0 ? `\n🔗 ${avecPropagation} élève(s) ont des filières identiques dans plusieurs établissements → propagation automatique activée.` : ''));
+            };
+            reader.readAsText(file, 'UTF-8');
+        }
+
+        // Détecter combien d'élèves ont des filières en double (pour info import)
+        function detecterPropagationsPossibles(className) {
+            if (!classesData[className]) return 0;
+            const elevesFilieres = new Map();
+            classesData[className].forEach(v => {
+                const key = v.numero;
+                if (!elevesFilieres.has(key)) elevesFilieres.set(key, new Map());
+                const fMap = elevesFilieres.get(key);
+                fMap.set(v.filiere, (fMap.get(v.filiere) || 0) + 1);
+            });
+            let nb = 0;
+            elevesFilieres.forEach(fMap => {
+                fMap.forEach(count => { if (count > 1) nb++; });
+            });
+            return nb;
+        }
+
+        // Sauvegarder la classe active
+        function sauvegarderClasse() {
+            if (!activeClass || !classesData[activeClass]) {
+                alert('Aucune classe active');
+                return;
+            }
+
+            const classeData = {
+                nom: activeClass,
+                date: new Date().toLocaleString(),
+                eleves: classesData[activeClass]
+            };
+            
+            const blob = new Blob([JSON.stringify(classeData, null, 2)], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Classe_${activeClass}.json`;
+            a.click();
+            
+            window.URL.revokeObjectURL(url);
+            
+            alert(`✅ Sauvegardé : Classe_${activeClass}.json`);
+        }
+
+        // Mettre à jour les onglets
+        function mettreAJourOnglets() {
+            const tabsContainer = document.getElementById('tabsContainer');
+            tabsContainer.innerHTML = '';
+            
+            Object.keys(classesData).forEach(className => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'tab-wrapper';
+                
+                const tab = document.createElement('button');
+                tab.className = `tab ${activeClass === className ? 'active' : ''}`;
+                tab.textContent = className;
+                tab.onclick = () => changerOnglet(className);
+                
+                const closeBtn = document.createElement('button');
+                closeBtn.className = 'tab-close';
+                closeBtn.innerHTML = '×';
+                closeBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    supprimerClasse(className);
+                };
+                
+                wrapper.appendChild(tab);
+                wrapper.appendChild(closeBtn);
+                tabsContainer.appendChild(wrapper);
+            });
+            
+            if (Object.keys(classesData).length === 0) {
+                const emptyMessage = document.createElement('div');
+                emptyMessage.style.padding = '12px';
+                emptyMessage.style.color = '#718096';
+                emptyMessage.style.fontStyle = 'italic';
+                emptyMessage.textContent = 'Aucune classe chargée';
+                tabsContainer.appendChild(emptyMessage);
+            }
+        }
+
+        function changerOnglet(className) {
+            activeClass = className;
+            affichageMode = 'cartes';
+            document.getElementById('filtersSection').style.display = 'flex';
+            mettreAJourOnglets();
+            mettreAJourFiltres();
+            afficherCartes(className);
+        }
+
+        function mettreAJourFiltres() {
+            if (!activeClass || !classesData[activeClass]) {
+                document.getElementById('typeFormationFilter').innerHTML = '<option value="all">Tous</option>';
+                document.getElementById('filiereFilter').innerHTML = '<option value="all">Toutes</option>';
+                return;
+            }
+
+            const data = classesData[activeClass];
+            
+            const typesFormation = [...new Set(data.map(item => item.typeFormation))].sort();
+            const filieres = [...new Set(data.map(item => item.filiere))].sort();
+
+            const typeFilter = document.getElementById('typeFormationFilter');
+            const filiereFilter = document.getElementById('filiereFilter');
+
+            typeFilter.innerHTML = '<option value="all">Tous</option>';
+            typesFormation.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                typeFilter.appendChild(option);
+            });
+
+            filiereFilter.innerHTML = '<option value="all">Toutes</option>';
+            filieres.forEach(filiere => {
+                const option = document.createElement('option');
+                option.value = filiere;
+                option.textContent = filiere;
+                filiereFilter.appendChild(option);
+            });
+
+            document.getElementById('nomFilter').value = filters.nom || '';
+            typeFilter.value = filters.typeFormation;
+            filiereFilter.value = filters.filiere;
+        }
+
+        function reinitialiserFiltres() {
+            filters = {
+                nom: '',
+                typeFormation: 'all',
+                filiere: 'all',
+                avis: 'all'
+            };
+            
+            document.getElementById('nomFilter').value = '';
+            document.getElementById('typeFormationFilter').value = 'all';
+            document.getElementById('filiereFilter').value = 'all';
+            const af = document.getElementById('avisFilter');
+            if (af) af.value = 'all';
+            
+            if (activeClass && affichageMode === 'cartes') {
+                afficherCartes(activeClass);
+            }
+        }
+
+        function appliquerFiltres() {
+            if (affichageMode !== 'cartes') return;
+            
+            filters.nom = document.getElementById('nomFilter').value.toLowerCase();
+            filters.typeFormation = document.getElementById('typeFormationFilter').value;
+            filters.filiere = document.getElementById('filiereFilter').value;
+            const af = document.getElementById('avisFilter');
+            filters.avis = af ? af.value : 'all';
+            
+            if (activeClass) {
+                afficherCartes(activeClass);
+            }
+        }
+
+        // Copier le texte d'une proposition dans le presse-papier
+        function copierProposition(text, btn) {
+            navigator.clipboard.writeText(text).then(() => {
+                btn.classList.add('copied');
+                btn.innerHTML = '✅';
+                btn.title = 'Copié !';
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.innerHTML = '📋';
+                    btn.title = 'Copier dans le presse-papier';
+                }, 1800);
+            }).catch(() => {
+                // Fallback pour les navigateurs sans clipboard API
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                btn.classList.add('copied');
+                btn.innerHTML = '✅';
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.innerHTML = '📋';
+                }, 1800);
+            });
+        }
+
+        // Mettre à jour l'avis — avec propagation filière identique (même Numéro élève)
+        function mettreAJourAvisVoeu(className, voeuId, avis) {
+            if (!classesData[className]) return;
+
+            let voeuRef = null;
+            classesData[className].forEach(voeu => {
+                if (voeu.id === voeuId) {
+                    voeu.avis = avis;
+                    voeu.propositionIndex = -1;
+                    voeu.appreciation = '';
+                    voeuRef = voeu;
+                }
+            });
+
+            // Propagation : tous les vœux de même filière du même élève
+            if (voeuRef && avis) {
+                const identiques = trouverVoeuxIdentiques(className, voeuRef);
+                if (identiques.length > 0) {
+                    identiques.forEach(v => {
+                        v.avis = avis;
+                        v.propositionIndex = -1;
+                        v.appreciation = '';
+                    });
+                    const nb = identiques.length;
+                    afficherToast(
+                        `Avis « ${avis} » propagé sur ${nb} vœu${nb > 1 ? 'x' : ''} identique${nb > 1 ? 's' : ''} — filière « ${voeuRef.filiere} »`
+                    );
+                }
+            }
+            afficherCartes(className);
+        }
+
+        // Sélectionner une proposition — avec propagation filière identique
+        function selectionnerProposition(className, voeuId, propositionIndex) {
+            if (!classesData[className]) return;
+
+            let voeuCible = null;
+            classesData[className].forEach(voeu => {
+                if (voeu.id === voeuId) voeuCible = voeu;
+            });
+            if (!voeuCible || !voeuCible.avis) return;
+
+            const propositions = PROPOSITIONS[voeuCible.avis] || [];
+            const appreciation = propositions[propositionIndex] || '';
+
+            voeuCible.propositionIndex = propositionIndex;
+            voeuCible.appreciation = appreciation;
+
+            // Propager aussi la proposition aux vœux identiques
+            const identiques = trouverVoeuxIdentiques(className, voeuCible);
+            if (identiques.length > 0) {
+                identiques.forEach(v => {
+                    if (v.avis === voeuCible.avis) {
+                        v.propositionIndex = propositionIndex;
+                        v.appreciation = appreciation;
+                    }
+                });
+            }
+
+            afficherCartes(className);
+        }
+
+        // Mettre à jour l'appréciation personnalisée — avec propagation filière identique
+        function mettreAJourAppreciation(className, voeuId, appreciation) {
+            if (!classesData[className]) return;
+
+            let voeuCible = null;
+            classesData[className].forEach(voeu => {
+                if (voeu.id === voeuId) voeuCible = voeu;
+            });
+            if (!voeuCible) return;
+
+            voeuCible.appreciation = appreciation;
+            voeuCible.propositionIndex = -1;
+
+            // Propager l'appréciation libre aux vœux identiques (même filière, même élève)
+            const identiques = trouverVoeuxIdentiques(className, voeuCible);
+            identiques.forEach(v => {
+                v.appreciation = appreciation;
+                v.propositionIndex = -1;
+            });
+        }
+
+        // Afficher les cartes élèves
+        function afficherCartes(className) {
+            if (!className || !classesData[className]) return;
+
+            affichageMode = 'cartes';
+            document.getElementById('filtersSection').style.display = 'flex';
+            
+            const data = classesData[className];
+            
+            // Identifier les vœux avec filière identique (même numéro élève)
+            const filieresDupliquees = new Set();
+            data.forEach(v => {
+                if (trouverVoeuxIdentiques(className, v).length > 0) filieresDupliquees.add(v.id);
+            });
+
+            // Grouper par Numéro élève (identifiant fiable)
+            const elevesMap = new Map();
+            data.forEach(voeu => {
+                const key = voeu.numero;
+                if (!elevesMap.has(key)) {
+                    elevesMap.set(key, {
+                        numero: voeu.numero,
+                        nom: voeu.nom,
+                        prenom: voeu.prenom,
+                        civilite: voeu.civilite,
+                        classe: voeu.classe,
+                        voeux: []
+                    });
+                }
+                elevesMap.get(key).voeux.push(voeu);
+            });
+
+            let elevesList = Array.from(elevesMap.values());
+            
+            // Filtres
+            if (filters.nom) {
+                elevesList = elevesList.filter(e => 
+                    e.nom.toLowerCase().includes(filters.nom) || 
+                    e.prenom.toLowerCase().includes(filters.nom)
+                );
+            }
+
+            elevesList = elevesList.map(eleve => {
+                let voeuxFiltres = eleve.voeux;
+                if (filters.typeFormation !== 'all')
+                    voeuxFiltres = voeuxFiltres.filter(v => v.typeFormation === filters.typeFormation);
+                if (filters.filiere !== 'all')
+                    voeuxFiltres = voeuxFiltres.filter(v => v.filiere === filters.filiere);
+                if (filters.avis !== 'all') {
+                    if (filters.avis === 'vide')
+                        voeuxFiltres = voeuxFiltres.filter(v => !v.avis);
+                    else
+                        voeuxFiltres = voeuxFiltres.filter(v => v.avis === filters.avis);
+                }
+                return { ...eleve, voeux: voeuxFiltres };
+            }).filter(e => e.voeux.length > 0);
+
+            const totalVoeux = elevesList.reduce((acc, e) => acc + e.voeux.length, 0);
+            const sansAvis = elevesList.filter(e => e.voeux.some(v => !v.avis)).length;
+            document.getElementById('filterStats').innerHTML = 
+                `📊 ${elevesList.length} élève${elevesList.length > 1 ? 's' : ''} · ${totalVoeux} vœu${totalVoeux > 1 ? 'x' : ''}` +
+                (sansAvis > 0
+                    ? ` · <span style="color:#92400e;font-weight:700;">⚠️ ${sansAvis} incomplet${sansAvis > 1 ? 's' : ''}</span>`
+                    : ` · <span style="color:#065f46;">✅ Tous renseignés</span>`);
+
+            const cardsContainer = document.getElementById('cardsContainer');
+            if (elevesList.length === 0) {
+                cardsContainer.innerHTML = `<div class="no-results">🔍 Aucun élève ne correspond aux filtres sélectionnés</div>`;
+                return;
+            }
+
+            let html = '';
+            elevesList.forEach(eleve => {
+                const totalV = eleve.voeux.length;
+                const avecAvis = eleve.voeux.filter(v => v.avis).length;
+                let pClass = 'none', pLabel = 'Aucun avis';
+                if (avecAvis === totalV && totalV > 0) { pClass = 'done'; pLabel = 'Complet ✓'; }
+                else if (avecAvis > 0) { pClass = 'partial'; pLabel = `${avecAvis}/${totalV} avis`; }
+
+                // Grouper les vœux par filière pour visualiser la propagation
+                const voeuxParFiliere = new Map();
+                eleve.voeux.forEach(v => {
+                    const fk = v.filiere || '(sans filière)';
+                    if (!voeuxParFiliere.has(fk)) voeuxParFiliere.set(fk, []);
+                    voeuxParFiliere.get(fk).push(v);
+                });
+
+                html += `
+                    <div class="student-card">
+                        <div class="student-header">
+                            <div class="student-name">
+                                👤 ${eleve.prenom} ${eleve.nom}
+                                <span class="student-class">${eleve.classe}</span>
+                                <span style="font-size:11px;opacity:0.7;font-weight:400;">N°${eleve.numero}</span>
+                            </div>
+                            <div class="student-progress-badge">
+                                <span class="progress-dot ${pClass}"></span>
+                                <span style="font-size:12px;opacity:0.9;">${pLabel}</span>
+                            </div>
+                        </div>
+                        <div class="voeux-container">
+                            <div class="voeux-title">📋 Vœux <span class="voeux-count">${eleve.voeux.length}</span></div>
+                            <div class="voeux-grid">
+                `;
+
+                // Afficher vœu par vœu (triés par filière pour regroupement visuel)
+                const voeuxTries = [...eleve.voeux].sort((a, b) => (a.filiere || '').localeCompare(b.filiere || ''));
+
+                voeuxTries.forEach(voeu => {
+                    const avisActuel = voeu.avis || '';
+                    const appreciationActuelle = voeu.appreciation || '';
+                    const propIdx = voeu.propositionIndex !== undefined ? voeu.propositionIndex : -1;
+                    const estDuplique = filieresDupliquees.has(voeu.id);
+                    const nbDupl = estDuplique ? trouverVoeuxIdentiques(className, voeu).length : 0;
+
+                    let avisClass = '';
+                    if (avisActuel === 'Peu démontrée') avisClass = 'avis-peu';
+                    else if (avisActuel === 'Assez satisfaisant') avisClass = 'avis-assez';
+                    else if (avisActuel === 'Satisfaisant') avisClass = 'avis-satisfaisant';
+                    else if (avisActuel === 'Très satisfaisant') avisClass = 'avis-tres';
+
+                    // Libellé affiché : libelleAffectation si dispo, sinon filière
+                    const libelleDisplay = voeu.libelleAffectation && voeu.libelleAffectation.trim()
+                        ? voeu.libelleAffectation.trim()
+                        : voeu.filiere || 'Non spécifié';
+
+                    // Apprentissage badge
+                    const appBadge = voeu.apprentissage === 'Oui'
+                        ? `<span style="background:#fef3c7;color:#92400e;padding:1px 7px;border-radius:10px;font-size:10.5px;font-weight:700;border:1px solid #f59e0b;">🔧 Alternance</span>`
+                        : '';
+
+                    html += `
+                        <div class="voeu-item${estDuplique ? ' filiere-identique' : ''}">
+                            <div class="voeu-header">
+                                <div style="flex:1;min-width:0;">
+                                    <div class="voeu-formation-filiere">
+                                        🎯 ${voeu.filiere || 'Non spécifié'}
+                                        ${appBadge}
+                                        ${estDuplique ? `<span class="badge-propagation" title="Cette filière est présente dans ${nbDupl+1} vœux — l'avis et l'appréciation sont propagés automatiquement">🔗 ×${nbDupl+1}</span>` : ''}
+                                    </div>
+                                    <div style="font-size:11px;color:#6b7280;margin-top:4px;padding-left:2px;font-style:italic;overflow:hidden;text-overflow:ellipsis;" title="${libelleDisplay}">
+                                        ${libelleDisplay.length > 90 ? libelleDisplay.slice(0,90)+'…' : libelleDisplay}
+                                    </div>
+                                </div>
+                                <div class="voeu-avis">
+                                    <select class="avis-select ${avisClass}" 
+                                            onchange="mettreAJourAvisVoeu('${className}', '${voeu.id}', this.value)">
+                                        <option value="">— Avis —</option>
+                                        ${Object.values(AVIS).map(a => 
+                                            `<option value="${a}" ${avisActuel === a ? 'selected' : ''}>${a}</option>`
+                                        ).join('')}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="voeu-details">
+                                <span class="voeu-detail-item">📍 ${voeu.ville || '—'}</span>
+                                <span class="voeu-detail-item">🏫 ${voeu.typeFormation}</span>
+                                <span class="voeu-detail-item" title="${voeu.etablissement}">🏛️ ${voeu.etablissement.length > 35 ? voeu.etablissement.slice(0,35)+'…' : voeu.etablissement || '—'}</span>
+                            </div>
+                    `;
+
+                    if (avisActuel) {
+                        const propositions = PROPOSITIONS[avisActuel] || [];
+                        html += `
+                            <div class="appreciation-container">
+                                <div class="appreciation-label">📝 Proposition d'appréciation${estDuplique ? ' <span style="color:#b45309;font-size:10.5px;">(partagée avec les vœux identiques)</span>' : ''}</div>
+                                <div class="propositions-container">
+                        `;
+                        propositions.forEach((prop, propIndex) => {
+                            const radioName = `prop_${voeu.id}`;
+                            const isSelected = propIdx === propIndex;
+                            const propEscaped = prop.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                            html += `
+                                <div class="proposition-item ${isSelected ? 'selected' : ''}" 
+                                     onclick="document.getElementsByName('${radioName}')[${propIndex}].checked=true; selectionnerProposition('${className}','${voeu.id}',${propIndex})">
+                                    <input type="radio" class="proposition-radio" name="${radioName}" value="${propIndex}" ${isSelected ? 'checked' : ''}
+                                           onchange="selectionnerProposition('${className}','${voeu.id}',${propIndex})">
+                                    <span class="proposition-texte">${prop}</span>
+                                    <button class="btn-copy-prop" title="Copier dans le presse-papier"
+                                            onclick="event.stopPropagation(); copierProposition('${propEscaped}', this)">📋</button>
+                                </div>
+                            `;
+                        });
+                        html += `
+                                </div>
+                                <div class="appreciation-personnalisee">
+                                    <label>✏️ Ou saisissez votre appréciation personnalisée :</label>
+                                    <textarea class="appreciation-textarea" 
+                                              onchange="mettreAJourAppreciation('${className}','${voeu.id}',this.value)">${appreciationActuelle.replace(/\\n/g,'\n')}</textarea>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div style="margin-top:10px;padding:8px 12px;background:#fef9c3;border-radius:6px;color:#92400e;font-size:12px;display:flex;align-items:center;gap:6px;border:1px solid #fde68a;">
+                                ⚠️ Sélectionnez un avis pour accéder aux propositions
+                            </div>
+                        `;
+                    }
+                    html += `</div>`;
+                });
+
+                html += `</div></div></div>`;
+            });
+
+            cardsContainer.innerHTML = html;
+        }
+
+        // Imprimer - Version optimisée
+        function imprimerPages() {
+            if (!activeClass || !classesData[activeClass]) {
+                alert('Aucune classe active à imprimer');
+                return;
+            }
+
+            const data = classesData[activeClass];
+            
+            const elevesMap = new Map();
+            data.forEach(voeu => {
+                const key = voeu.numero;
+                if (!elevesMap.has(key)) {
+                    elevesMap.set(key, {
+                        nom: voeu.nom,
+                        prenom: voeu.prenom,
+                        classe: voeu.classe,
+                        voeux: []
+                    });
+                }
+                elevesMap.get(key).voeux.push(voeu);
+            });
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Fiches élèves - ${activeClass}</title>
+                        <style>
+                            @page {
+                                size: A4 portrait;
+                                margin: 1.5cm;
+                            }
+                            body {
+                                font-family: 'Times New Roman', Times, serif;
+                                margin: 0;
+                                padding: 0;
+                                background: white;
+                            }
+                            .page {
+                                page-break-after: always;
+                                min-height: 29.7cm;
+                                padding: 0;
+                                position: relative;
+                            }
+                            .header {
+                                text-align: center;
+                                margin-bottom: 15px;
+                                padding: 10px;
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                color: white;
+                                border-radius: 5px;
+                            }
+                            .header h1 {
+                                font-size: 20px;
+                                margin: 0;
+                                font-weight: normal;
+                            }
+                            .header p {
+                                font-size: 12px;
+                                margin: 5px 0 0 0;
+                                opacity: 0.9;
+                            }
+                            .student-info {
+                                margin-bottom: 15px;
+                                padding: 8px 12px;
+                                background: #f0f4ff;
+                                border-left: 4px solid #667eea;
+                                border-radius: 3px;
+                                display: flex;
+                                align-items: baseline;
+                                gap: 15px;
+                                flex-wrap: wrap;
+                            }
+                            .student-name {
+                                font-size: 18px;
+                                font-weight: bold;
+                                color: #2d3748;
+                                margin: 0;
+                            }
+                            .student-class {
+                                font-size: 14px;
+                                color: #4a5568;
+                                font-style: italic;
+                            }
+                            .voeux-section {
+                                margin-top: 10px;
+                            }
+                            .voeux-section h3 {
+                                font-size: 14px;
+                                color: #4a5568;
+                                margin-bottom: 10px;
+                                font-weight: normal;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                                border-bottom: 1px solid #cbd5e0;
+                                padding-bottom: 3px;
+                            }
+                            .voeu {
+                                margin-bottom: 15px;
+                                border: 1px solid #e2e8f0;
+                                border-radius: 5px;
+                                padding: 12px;
+                                background: white;
+                            }
+                            .voeu-titre {
+                                font-weight: bold;
+                                color: #2d3748;
+                                margin-bottom: 8px;
+                                font-size: 14px;
+                                border-bottom: 1px dotted #cbd5e0;
+                                padding-bottom: 5px;
+                            }
+                            .avis {
+                                margin: 8px 0;
+                                padding: 4px 10px;
+                                border-radius: 15px;
+                                display: inline-block;
+                                font-weight: 600;
+                                font-size: 12px;
+                            }
+                            .avis-peu {
+                                background: #feb2b2;
+                                color: #742a2a;
+                            }
+                            .avis-assez {
+                                background: #fbd38d;
+                                color: #744210;
+                            }
+                            .avis-satisfaisant {
+                                background: #9ae6b4;
+                                color: #22543d;
+                            }
+                            .avis-tres {
+                                background: #90cdf4;
+                                color: #1a365d;
+                            }
+                            .appreciation {
+                                margin: 10px 0;
+                                padding: 10px;
+                                background: #f7fafc;
+                                border-radius: 5px;
+                                font-style: italic;
+                                white-space: pre-wrap;
+                                line-height: 1.4;
+                                font-size: 12px;
+                                border-left: 3px solid #667eea;
+                            }
+                            .details {
+                                margin-top: 8px;
+                                font-size: 12px;
+                                color: #4a5568;
+                                display: flex;
+                                flex-wrap: wrap;
+                                gap: 10px;
+                            }
+                            .detail-item {
+                                background: #edf2f7;
+                                padding: 2px 8px;
+                                border-radius: 12px;
+                            }
+                            .detail-item strong {
+                                color: #2d3748;
+                                margin-right: 3px;
+                            }
+                            .footer {
+                                text-align: center;
+                                margin-top: 20px;
+                                font-size: 10px;
+                                color: #a0aec0;
+                                border-top: 1px solid #e2e8f0;
+                                padding-top: 8px;
+                                font-style: italic;
+                            }
+                        </style>
+                    </head>
+                    <body>
+            `);
+
+            let pageNum = 1;
+            const totalPages = elevesMap.size;
+
+            elevesMap.forEach(eleve => {
+                printWindow.document.write(`
+                    <div class="page">
+                        <div class="header">
+                            <h1>FICHE D'ÉVALUATION PARCOURSUP</h1>
+                            <p>Année scolaire ${getAnneeScolaire()}</p>
+                        </div>
+                        
+                        <div class="student-info">
+                            <span class="student-name">${eleve.prenom} ${eleve.nom}</span>
+                            <span class="student-class">Classe : ${eleve.classe}</span>
+                        </div>
+                        
+                        <div class="voeux-section">
+                            <h3>Détail des vœux (${eleve.voeux.length})</h3>
+                `);
+
+                eleve.voeux.forEach((voeu, index) => {
+                    const avis = voeu.avis || 'Non défini';
+                    const appreciation = voeu.appreciation || '';
+                    
+                    let avisClass = '';
+                    if (avis === 'Peu démontrée') avisClass = 'avis-peu';
+                    else if (avis === 'Assez satisfaisant') avisClass = 'avis-assez';
+                    else if (avis === 'Satisfaisant') avisClass = 'avis-satisfaisant';
+                    else if (avis === 'Très satisfaisant') avisClass = 'avis-tres';
+
+                    printWindow.document.write(`
+                        <div class="voeu">
+                            <div class="voeu-titre">Vœu ${index + 1} : ${voeu.filiere || 'Formation non spécifiée'}${voeu.apprentissage === 'Oui' ? ' (Alternance)' : ''}</div>
+                            ${voeu.libelleAffectation ? `<div style="font-size:11px;color:#4a5568;margin-bottom:6px;font-style:italic;">${voeu.libelleAffectation}</div>` : ''}
+                            
+                            <span class="avis ${avisClass}">Avis du Proviseur : ${avis}</span>
+                            
+                            ${appreciation ? `<div class="appreciation">${appreciation.replace(/\n/g, '<br>')}</div>` : ''}
+                            
+                            <div class="details">
+                                <span class="detail-item"><strong>Filière</strong> ${voeu.filiere || '-'}</span>
+                                <span class="detail-item"><strong>Ville</strong> ${voeu.ville || '-'}</span>
+                                <span class="detail-item"><strong>Établissement</strong> ${voeu.etablissement || '-'}</span>
+                                <span class="detail-item"><strong>Type</strong> ${voeu.typeFormation}</span>
+                            </div>
+                        </div>
+                    `);
+                });
+
+                printWindow.document.write(`
+                        </div>
+                        <div class="footer">
+                            Page ${pageNum}/${totalPages} • Document généré le ${new Date().toLocaleDateString()}
+                        </div>
+                    </div>
+                `);
+                pageNum++;
+            });
+
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.print();
+        }
+    </script>
+</body>
+</html>

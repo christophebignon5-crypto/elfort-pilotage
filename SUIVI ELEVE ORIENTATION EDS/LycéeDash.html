@@ -1,0 +1,2099 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LycéeDash</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',Arial,sans-serif;background:#f0f4f8;display:flex;height:100vh;overflow:hidden}
+  #sidebar{width:240px;min-width:240px;background:#1e3a5f;color:white;display:flex;flex-direction:column;height:100vh;overflow-y:auto}
+  #main{flex:1;overflow-y:auto;padding:1.5rem}
+  .sidebar-top{padding:1.2rem 1rem;border-bottom:1px solid rgba(255,255,255,0.15)}
+  .sidebar-logo{font-size:1.8rem;margin-bottom:0.3rem}
+  .sidebar-name{font-size:1rem;font-weight:700;line-height:1.2}
+  .sidebar-sub{font-size:0.75rem;opacity:0.7;margin-top:0.2rem}
+  .sidebar-nav{padding:0.8rem 0.6rem;flex:1}
+  .sidebar-nav-item{display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0.8rem;border-radius:8px;cursor:pointer;font-size:0.9rem;margin-bottom:0.2rem;transition:background 0.15s;color:white;user-select:none}
+  .sidebar-nav-item:hover{background:rgba(255,255,255,0.1)}
+  .sidebar-nav-item.active{background:white;color:#1e3a5f;font-weight:600}
+  .sidebar-bottom{padding:0.8rem 1rem;border-top:1px solid rgba(255,255,255,0.15);font-size:0.75rem;opacity:0.8}
+  .kpi-row{display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1rem}
+  .kpi-card{background:white;border-radius:12px;padding:1rem 1.2rem;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.06);flex:1;min-width:120px}
+  .kpi-icon{font-size:1.6rem}
+  .kpi-val{font-size:1.8rem;font-weight:800;color:#1e3a5f}
+  .kpi-label{font-size:0.72rem;color:#777;text-transform:uppercase;letter-spacing:0.5px}
+  .kpi-sub{font-size:0.82rem;color:#555;font-weight:600}
+  .chart-container{background:white;border-radius:12px;padding:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:1rem}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+  .three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem}
+  .tab-btns{display:flex;gap:0.4rem;margin-bottom:0.75rem;flex-wrap:wrap}
+  .tab-btn{padding:0.4rem 1rem;border:none;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:500;background:#e8f0fe;color:#1e3a5f;transition:all 0.15s}
+  .tab-btn.active{background:#1e3a5f;color:white}
+  .tab-btn:hover:not(.active){background:#c5d5f5}
+  .data-table{width:100%;border-collapse:collapse;font-size:0.85rem}
+  .data-table thead tr{background:#1e3a5f;color:white}
+  .data-table th{padding:0.5rem 0.75rem;text-align:left;font-weight:600}
+  .data-table td{padding:0.5rem 0.75rem;border-bottom:1px solid #e8f0fe}
+  .data-table tbody tr:nth-child(even){background:#f8faff}
+  .data-table tbody tr:hover{background:#eef4ff}
+  .form-group{margin-bottom:1rem}
+  .form-group label{display:block;font-size:0.85rem;font-weight:600;color:#1e3a5f;margin-bottom:0.35rem}
+  select,input[type=text],input[type=number]{padding:0.45rem 0.75rem;border:1.5px solid #c5d5e8;border-radius:7px;font-family:inherit;font-size:0.88rem;outline:none;transition:border 0.15s;background:white}
+  select:focus,input[type=text]:focus{border-color:#1e3a5f}
+  .btn-primary{background:#1e3a5f;color:white;border:none;border-radius:7px;padding:0.45rem 1.1rem;font-family:inherit;font-size:0.88rem;font-weight:600;cursor:pointer;transition:background 0.15s}
+  .btn-primary:hover{background:#2d6a9f}
+  .btn-danger{background:#c62828;color:white;border:none;border-radius:7px;padding:0.35rem 0.8rem;font-family:inherit;font-size:0.82rem;font-weight:600;cursor:pointer}
+  .btn-danger:hover{background:#b71c1c}
+  .btn-secondary{background:#e8f0fe;color:#1e3a5f;border:none;border-radius:7px;padding:0.45rem 1.1rem;font-family:inherit;font-size:0.88rem;font-weight:600;cursor:pointer}
+  .btn-secondary:hover{background:#c5d5f5}
+  .btn-export{background:linear-gradient(135deg,#1e3a5f,#2d6a9f);color:white;border:none;border-radius:7px;padding:0.45rem 1.1rem;font-family:inherit;font-size:0.85rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;transition:opacity 0.15s;white-space:nowrap;margin-left:auto}
+  .btn-export+.btn-export{margin-left:0.4rem}
+  .btn-export:hover{opacity:0.85}
+  .info-banner{background:#e8f0fe;border-left:4px solid #1e3a5f;border-radius:8px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.88rem;color:#333}
+  .warn-banner{background:#fff3e0;border-left:4px solid #f0a500;border-radius:8px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.88rem;color:#333}
+  .page-header{background:linear-gradient(135deg,#1e3a5f,#2d6a9f);border-radius:16px;padding:1.5rem 2rem;margin-bottom:1.5rem;color:white}
+  .page-header h1{font-size:1.8rem;margin-bottom:0.3rem}
+  .page-header p{opacity:0.8;font-size:0.9rem}
+  .section-header{display:flex;align-items:center;gap:0.6rem;margin:1.5rem 0 1rem;padding-bottom:0.5rem;border-bottom:2px solid #e8f0fe}
+  .section-header span{font-size:1.3rem}
+  .section-header h2{font-size:1.1rem;font-weight:700;color:#1e3a5f;margin:0}
+  .filter-bar{display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem;background:white;border-radius:10px;padding:0.75rem 1rem;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+  .filter-bar label{font-size:0.82rem;font-weight:600;color:#555}
+  .year-cards{display:flex;flex-direction:column;gap:0.5rem}
+  .year-card{background:#f0f4f8;border-radius:8px;padding:0.5rem 0.8rem;font-size:0.85rem}
+  .welcome-card{background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);text-align:center}
+  .feature-card{background:white;border-radius:12px;padding:1.2rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-top:4px solid #1e3a5f;text-align:center}
+  .feature-card .icon{font-size:2rem;margin-bottom:0.5rem}
+  .feature-card h3{font-size:1rem;color:#1e3a5f;font-weight:700;margin-bottom:0.4rem}
+  .feature-card p{font-size:0.83rem;color:#666}
+  .msg-success{background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:8px;padding:0.75rem 1rem;margin:0.5rem 0;font-size:0.88rem;color:#1b5e20}
+  .msg-error{background:#ffebee;border-left:4px solid #c62828;border-radius:8px;padding:0.75rem 1rem;margin:0.5rem 0;font-size:0.88rem;color:#b71c1c}
+  .expandable-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:0.8rem 1rem;background:#f0f4f8;border-radius:8px;margin-bottom:0.5rem}
+  .expandable-header:hover{background:#e0e8f5}
+  input[type=file]{font-family:inherit;font-size:0.85rem;padding:0.3rem}
+  .file-group{background:#f8faff;border:1.5px dashed #c5d5e8;border-radius:8px;padding:0.8rem 1rem;margin-bottom:0.75rem}
+  .file-group label{font-weight:600;color:#1e3a5f;font-size:0.88rem;display:block;margin-bottom:0.4rem}
+  @media(max-width:900px){
+    .two-col{grid-template-columns:1fr}
+    .three-col{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+  <div class="sidebar-top">
+    <div class="sidebar-logo">🏫</div>
+    <div class="sidebar-name" id="sb-name">Mon Lycée</div>
+    <div class="sidebar-sub">Tableau de bord</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="sidebar-nav-item active" data-page="accueil">🏠 Accueil</div>
+    <div class="sidebar-nav-item" data-page="eds">📊 EDS</div>
+    <div class="sidebar-nav-item" data-page="orientations">🎯 Orientations</div>
+    <div class="sidebar-nav-item" data-page="comparatif">📈 Comparatif</div>
+    <div class="sidebar-nav-item" data-page="params">⚙️ Paramètres</div>
+  </div>
+  <div class="sidebar-bottom" id="sb-year"></div>
+</div>
+
+<div id="main">
+  <div id="content"></div>
+</div>
+
+<script>
+// ===================== CONSTANTS =====================
+const SPE_MAP = {
+  "MATHEMATIQUES":"Maths","MATHÉMATIQUES":"Maths",
+  "PHYSIQUE-CHIMIE":"Physique-Chimie",
+  "SCIENCES VIE & TERRE":"SVT",
+  "SC. ECONO.& SOCIALES":"SES","SC. ÉCONO.& SOCIALES":"SES",
+  "HIST.GEO.GEOPOL.S.P.":"HGGSP","HIST.GÉO.GÉOPOL.S.P.":"HGGSP",
+  "HUMAN.LITTER.PHILO.":"HLP",
+  "LLC ANGLAIS":"LLCA","LLC ESPAGNOL":"LLCE",
+  "HUMANITES LITT ET PHILO":"HLP",
+  "HUMANITÉS LITTÉRATURE ET PHILOSOPHIE":"HLP",
+  "SCIENCES ECONOMIQUES ET SOCIALES":"SES",
+  "HISTOIRE-GEOGRAPHIE GEOPOLITIQUE SCIENCES POLITIQUES":"HGGSP",
+};
+
+const ORIENTATION_MAP = {
+  "PREMIERE GENERALE":"Première Générale","PREMIÈRE GÉNÉRALE":"Première Générale",
+  "1 ST2S":"1ère ST2S","1-STMG":"1ère STMG",
+  "1-STMG SC. & TECHNO. MANAGEMENT GESTION":"1ère STMG",
+  "1ERPRO METIERS DE L'ACCUEIL":"1ère Pro Accueil",
+  "1ERPRO MET.COM.VEN.OP.A ANI.GES.ESP.COM.":"1ère Pro Commerce",
+  "1STD2A":"1ère STD2A","1STD2A SC.&TEC.DESIGN-ARTS APPLIQ":"1ère STD2A",
+  "1 ASSP":"1ère ASSP",
+  "REORIENTATION":"Réorientation","REDOUBLEMENT":"Redoublement",
+};
+
+const COLORS = {
+  fille:"#e91e8c",garcon:"#1565c0",total:"#1e3a5f",
+  teal:"#00796b",accent:"#f0a500",green:"#2e7d32",
+  palette:["#1e3a5f","#2d6a9f","#e91e8c","#1565c0","#2e7d32","#f0a500","#00796b","#6a1b9a","#c62828","#00838f","#e65100","#37474f"]
+};
+
+const BASE_LAYOUT = {
+  font:{family:"Inter, Arial, sans-serif"},
+  plot_bgcolor:"white",paper_bgcolor:"white",
+  title:{font:{size:14,color:"#1e3a5f"}},
+  legend:{orientation:"h",yanchor:"bottom",y:-0.35,x:0.5,xanchor:"center"},
+};
+
+// ===================== STATE =====================
+let currentPage = 'accueil';
+let pageState = {
+  accueil:{annee:null},
+  eds:{annee:null,niveau:'Première & Terminale',genre:'Tous',activeClass:0},
+  orientations:{annee:null,classe:'Toutes',genre:'Tous',activeClass:0},
+  comparatif:{genre:'Tous',edsTab:0,heatmapTab:0},
+  params:{}
+};
+
+// ===================== DATA ACCESS =====================
+function getData(){
+  try{
+    const raw = localStorage.getItem('lyceedash_v1');
+    if(!raw) return {lycee_name:'Mon Lycée',annees:{}};
+    return JSON.parse(raw);
+  } catch(e){return {lycee_name:'Mon Lycée',annees:{}};}
+}
+function saveData(d){
+  localStorage.setItem('lyceedash_v1', JSON.stringify(d));
+}
+function getAnneesSorted(d){
+  return Object.keys(d.annees||{}).sort().reverse();
+}
+function getLatestAnnee(d){
+  const a=getAnneesSorted(d);
+  return a.length?a[0]:null;
+}
+
+// ===================== HELPERS =====================
+function _gender(v){
+  if(!v) return null;
+  v=String(v).trim().toUpperCase();
+  if(["F","FILLE","FEMININ","FÉMININ"].includes(v)) return "Fille";
+  if(["M","GARCON","GARÇON","MASCULIN"].includes(v)) return "Garçon";
+  return null;
+}
+function _cleanSpe(v){
+  if(!v||String(v).trim()===''||String(v).trim()==='nan') return null;
+  const key=String(v).trim().toUpperCase();
+  return SPE_MAP[key]||String(v).trim();
+}
+function _cleanOrientation(v){
+  if(!v||String(v).trim()===''||String(v).trim()==='nan') return 'Non renseigné';
+  const key=String(v).trim().toUpperCase();
+  return ORIENTATION_MAP[key]||String(v).trim();
+}
+function _cleanLV(v){
+  if(!v||String(v).trim()===''||String(v).trim()==='nan') return null;
+  let s=String(v).trim().replace(/\s+LV\d+$/i,'').trim().toUpperCase();
+  const map={
+    'ANGLAIS':'Anglais','ESPAGNOL':'Espagnol','PORTUGAIS':'Portugais',
+    'ALLEMAND':'Allemand','ITALIEN':'Italien','CHINOIS':'Chinois',
+    'ARABE':'Arabe','JAPONAIS':'Japonais','CREOLE':'Créole',
+    'NÉERLANDAIS':'Néerlandais','NEERLANDAIS':'Néerlandais','RUSSE':'Russe',
+  };
+  return map[s]||(s.charAt(0).toUpperCase()+s.slice(1).toLowerCase());
+}
+function voieFamille(dest){
+  const d=dest.toLowerCase();
+  if(d.includes('générale')||d.includes('generale')) return 'generale';
+  if(['pro','assp','accueil','commerce'].some(x=>d.includes(x))) return 'pro';
+  if(['st2s','stmg','std2a','sti2d','sthr','stav'].some(x=>d.includes(x))) return 'techno';
+  if(dest.startsWith('1ère ST')||dest.startsWith('1ère st')) return 'techno';
+  return 'autre';
+}
+function pct(n,t){return t?Math.round(n/t*100):0;}
+function countBy(arr,fn){
+  const m={};
+  arr.forEach(x=>{const k=fn(x);if(k!==null&&k!==undefined){m[k]=(m[k]||0)+1;}});
+  return m;
+}
+function filterGender(records,genre){
+  if(genre==='Tous') return records;
+  return records.filter(r=>r.sexe===genre);
+}
+function uniqueId(){return 'p'+Math.random().toString(36).slice(2);}
+
+function kpiCard(icon,val,label,sub,color){
+  color=color||COLORS.total;
+  return `<div class="kpi-card" style="border-top:4px solid ${color}">
+    <div class="kpi-icon">${icon}</div>
+    <div class="kpi-val">${val}</div>
+    <div class="kpi-label">${label}</div>
+    ${sub?`<div class="kpi-sub">${sub}</div>`:''}
+  </div>`;
+}
+function sectionHeader(icon,title){
+  return `<div class="section-header"><span>${icon}</span><h2>${title}</h2></div>`;
+}
+function pageHeader(icon,title,sub){
+  return `<div class="page-header"><h1>${icon} ${title}</h1><p>${sub}</p></div>`;
+}
+function infoBanner(content){
+  return `<div class="info-banner">${content}</div>`;
+}
+function warnBanner(content){
+  return `<div class="warn-banner">${content}</div>`;
+}
+
+function getAllSpes(records){
+  const set=new Set();
+  records.forEach(r=>(r.specialites||[]).forEach(s=>{if(s)set.add(s);}));
+  return [...set].sort();
+}
+function getTopSpe(records){
+  const cnt={};
+  records.forEach(r=>(r.specialites||[]).forEach(s=>{if(s)cnt[s]=(cnt[s]||0)+1;}));
+  let top=null,topN=0;
+  Object.entries(cnt).forEach(([s,n])=>{if(n>topN){top=s;topN=n;}});
+  return top;
+}
+function countCombos(records){
+  const set=new Set();
+  records.forEach(r=>{const s=(r.specialites||[]).filter(Boolean).sort().join(' + ');if(s)set.add(s);});
+  return set.size;
+}
+
+// ===================== EXCEL PARSING =====================
+function parseSeconde(rows){
+  const out=[];
+  for(let i=1;i<rows.length;i++){
+    const row=rows[i];
+    if(!row||!row.length) continue;
+    const sexe=_gender(row[1]);
+    if(!sexe) continue;
+    const redoublant=String(row[3]||'').trim().toUpperCase()==='OUI';
+    const classe=String(row[5]||'').trim();
+    const lv1=_cleanLV(row[6]);
+    const lv2=_cleanLV(row[7]);
+    const orientation=_cleanOrientation(row[8]);
+    const specialites=[row[9],row[10],row[11],row[12]].map(_cleanSpe).filter(Boolean);
+    out.push({sexe,redoublant,classe,orientation,specialites,lv1,lv2});
+  }
+  return out;
+}
+function parsePremiere(rows){
+  const out=[];
+  for(let i=1;i<rows.length;i++){
+    const row=rows[i];
+    if(!row||!row.length) continue;
+    const classe=String(row[3]||'').trim();
+    const sexe=_gender(row[4]);
+    if(!sexe) continue;
+    const specialites=[row[5],row[6],row[7]].map(_cleanSpe).filter(Boolean);
+    out.push({sexe,classe,specialites});
+  }
+  return out;
+}
+function parseTerminale(rows){
+  const out=[];
+  for(let i=1;i<rows.length;i++){
+    const row=rows[i];
+    if(!row||!row.length) continue;
+    const classe=String(row[3]||'').trim();
+    const sexe=_gender(row[4]);
+    if(!sexe) continue;
+    const specialites=[row[5],row[6]].map(_cleanSpe).filter(Boolean);
+    out.push({sexe,classe,specialites});
+  }
+  return out;
+}
+async function parseFile(file,parser){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      try{
+        const ab=e.target.result;
+        const wb=XLSX.read(ab,{type:'array'});
+        const sheet=wb.Sheets[wb.SheetNames[0]];
+        const rows=XLSX.utils.sheet_to_json(sheet,{header:1});
+        resolve(parser(rows));
+      }catch(err){reject(err);}
+    };
+    reader.onerror=reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+// ===================== CHART FUNCTIONS =====================
+function plotGenderDonut(records,divId,title){
+  const f=records.filter(r=>r.sexe==='Fille').length;
+  const g=records.filter(r=>r.sexe==='Garçon').length;
+  const traces=[{
+    labels:['Filles','Garçons'],values:[f,g],type:'pie',hole:0.55,
+    marker:{colors:[COLORS.fille,COLORS.garcon]},
+    textinfo:'percent+label',showlegend:false,
+    hovertemplate:'%{label}: %{value} (%{percent})<extra></extra>'
+  }];
+  const layout={...BASE_LAYOUT,title:{text:title,font:{size:13,color:'#1e3a5f'}},height:280,margin:{t:40,b:20,l:20,r:20}};
+  Plotly.newPlot(divId,traces,layout,{responsive:true,displayModeBar:false});
+}
+
+function plotSpeBarGender(records,divId,title){
+  const spes=getAllSpes(records);
+  if(!spes.length){document.getElementById(divId).innerHTML='<p style="color:#888;padding:1rem">Pas de données de spécialités</p>';return;}
+  const fCnt={},gCnt={};
+  records.forEach(r=>{
+    (r.specialites||[]).forEach(s=>{
+      if(!s) return;
+      if(r.sexe==='Fille') fCnt[s]=(fCnt[s]||0)+1;
+      else if(r.sexe==='Garçon') gCnt[s]=(gCnt[s]||0)+1;
+    });
+  });
+  const ordered=[...spes].sort((a,b)=>((fCnt[a]||0)+(gCnt[a]||0))-((fCnt[b]||0)+(gCnt[b]||0)));
+  const traces=[
+    {name:'Filles',x:ordered.map(s=>fCnt[s]||0),y:ordered,type:'bar',orientation:'h',marker:{color:COLORS.fille}},
+    {name:'Garçons',x:ordered.map(s=>gCnt[s]||0),y:ordered,type:'bar',orientation:'h',marker:{color:COLORS.garcon}}
+  ];
+  const h=Math.max(280,spes.length*42+80);
+  const layout={...BASE_LAYOUT,title:{text:title,font:{size:13,color:'#1e3a5f'}},barmode:'stack',height:h,margin:{t:40,b:60,l:120,r:20}};
+  Plotly.newPlot(divId,traces,layout,{responsive:true,displayModeBar:false});
+}
+
+function plotSpeCombinations(records,divId,title,topN){
+  topN=topN||10;
+  const cnt={};
+  records.forEach(r=>{
+    const s=(r.specialites||[]).filter(Boolean).sort().join(' + ');
+    if(s) cnt[s]=(cnt[s]||0)+1;
+  });
+  const sorted=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,topN);
+  if(!sorted.length){document.getElementById(divId).innerHTML='<p style="color:#888;padding:1rem">Pas de données</p>';return;}
+  const labels=sorted.map(x=>x[0]).reverse();
+  const vals=sorted.map(x=>x[1]).reverse();
+  const traces=[{x:vals,y:labels,type:'bar',orientation:'h',marker:{color:COLORS.total},text:vals,textposition:'outside'}];
+  const h=Math.max(300,sorted.length*38+80);
+  const layout={...BASE_LAYOUT,title:{text:title,font:{size:13,color:'#1e3a5f'}},height:h,margin:{t:40,b:40,l:220,r:60},showlegend:false};
+  Plotly.newPlot(divId,traces,layout,{responsive:true,displayModeBar:false});
+}
+
+function plotSpeGenderRatio(records,divId,title){
+  const spes=getAllSpes(records);
+  if(!spes.length){document.getElementById(divId).innerHTML='<p style="color:#888;padding:1rem">Pas de données</p>';return;}
+  const fCnt={},tot={};
+  records.forEach(r=>{
+    (r.specialites||[]).forEach(s=>{
+      if(!s) return;
+      tot[s]=(tot[s]||0)+1;
+      if(r.sexe==='Fille') fCnt[s]=(fCnt[s]||0)+1;
+    });
+  });
+  const ordered=[...spes].sort((a,b)=>(fCnt[a]||0)/tot[a]-(fCnt[b]||0)/tot[b]);
+  const pcts=ordered.map(s=>Math.round((fCnt[s]||0)/tot[s]*100));
+  const colors=pcts.map(p=>p>=50?COLORS.fille:COLORS.garcon);
+  const traces=[{x:pcts,y:ordered,type:'bar',orientation:'h',marker:{color:colors},text:pcts.map(p=>p+'%'),textposition:'outside'}];
+  const h=Math.max(280,spes.length*42+80);
+  const layout={
+    ...BASE_LAYOUT,
+    title:{text:title,font:{size:13,color:'#1e3a5f'}},
+    height:h,margin:{t:40,b:40,l:120,r:60},showlegend:false,
+    xaxis:{range:[0,110],ticksuffix:'%'},
+    shapes:[{type:'line',x0:50,x1:50,y0:-0.5,y1:ordered.length-0.5,line:{color:'#333',dash:'dash',width:1.5}}],
+    annotations:[{x:50,y:ordered.length-0.5,text:'50%',showarrow:false,font:{size:11,color:'#333'},xanchor:'left'}]
+  };
+  Plotly.newPlot(divId,traces,layout,{responsive:true,displayModeBar:false});
+}
+
+function plotOrientationBar(records,divId,title){
+  const orientations=[...new Set(records.map(r=>r.orientation||'Non renseigné'))].sort();
+  if(!orientations.length){document.getElementById(divId).innerHTML='<p style="color:#888;padding:1rem">Pas de données d\'orientation</p>';return;}
+  const fCnt={},gCnt={};
+  records.forEach(r=>{
+    const o=r.orientation||'Non renseigné';
+    if(r.sexe==='Fille') fCnt[o]=(fCnt[o]||0)+1;
+    else if(r.sexe==='Garçon') gCnt[o]=(gCnt[o]||0)+1;
+  });
+  const traces=[
+    {name:'Filles',x:orientations,y:orientations.map(o=>fCnt[o]||0),type:'bar',marker:{color:COLORS.fille}},
+    {name:'Garçons',x:orientations,y:orientations.map(o=>gCnt[o]||0),type:'bar',marker:{color:COLORS.garcon}}
+  ];
+  const layout={...BASE_LAYOUT,title:{text:title,font:{size:13,color:'#1e3a5f'}},barmode:'group',height:360,margin:{t:40,b:100,l:40,r:20},xaxis:{tickangle:-25}};
+  Plotly.newPlot(divId,traces,layout,{responsive:true,displayModeBar:false});
+}
+
+function plotMultiYearGenderBars(annees,getFn,divId,title){
+  const years=Object.keys(annees).sort();
+  const traces=[];
+  const totals=[];
+  const fillesPcts=[];
+  years.forEach(y=>{
+    const recs=getFn(annees[y]);
+    const f=recs.filter(r=>r.sexe==='Fille').length;
+    const g=recs.filter(r=>r.sexe==='Garçon').length;
+    const t=f+g;
+    totals.push(t);
+    fillesPcts.push(t?pct(f,t):0);
+  });
+  traces.push({
+    name:'Filles',x:years,y:years.map((y,i)=>getFn(annees[y]).filter(r=>r.sexe==='Fille').length),
+    type:'bar',marker:{color:COLORS.fille},
+    text:years.map((y,i)=>{const f=getFn(annees[y]).filter(r=>r.sexe==='Fille').length;const t=totals[i];return t?`${f} (${pct(f,t)}%F)`:'0';}),
+    textposition:'inside',insidetextanchor:'middle'
+  });
+  traces.push({
+    name:'Garçons',x:years,y:years.map(y=>getFn(annees[y]).filter(r=>r.sexe==='Garçon').length),
+    type:'bar',marker:{color:COLORS.garcon},
+    text:years.map(y=>{const g=getFn(annees[y]).filter(r=>r.sexe==='Garçon').length;return g||'';}),
+    textposition:'inside',insidetextanchor:'middle'
+  });
+  const annotations=years.map((y,i)=>({
+    x:y,y:totals[i],text:`<b>${totals[i]}</b>`,showarrow:false,yanchor:'bottom',font:{size:12,color:'#1e3a5f'}
+  }));
+  const layout={...BASE_LAYOUT,title:{text:title,font:{size:13,color:'#1e3a5f'}},barmode:'stack',height:320,margin:{t:40,b:60,l:30,r:20},annotations};
+  Plotly.newPlot(divId,traces,layout,{responsive:true,displayModeBar:false});
+}
+
+function plotSpeEvolution(annees,getFn,divId,title){
+  const years=Object.keys(annees).sort();
+  const allSpes=new Set();
+  years.forEach(y=>getAllSpes(getFn(annees[y])).forEach(s=>allSpes.add(s)));
+  const spes=[...allSpes].sort();
+  if(!spes.length){document.getElementById(divId).innerHTML='<p style="color:#888;padding:1rem">Pas de données</p>';return;}
+  const traces=years.map((y,yi)=>{
+    const recs=getFn(annees[y]);
+    const tot=recs.length||1;
+    const speCnt={};
+    recs.forEach(r=>(r.specialites||[]).forEach(s=>{if(s)speCnt[s]=(speCnt[s]||0)+1;}));
+    return {
+      name:y,x:spes.map(s=>Math.round((speCnt[s]||0)/tot*100)),y:spes,
+      type:'bar',orientation:'h',marker:{color:COLORS.palette[yi%COLORS.palette.length]},
+      text:spes.map(s=>Math.round((speCnt[s]||0)/tot*100)+'%'),textposition:'outside'
+    };
+  });
+  const h=Math.max(340,spes.length*32*years.length+100);
+  const layout={...BASE_LAYOUT,title:{text:title,font:{size:13,color:'#1e3a5f'}},barmode:'group',height:h,margin:{t:40,b:60,l:130,r:60},xaxis:{ticksuffix:'%'}};
+  Plotly.newPlot(divId,traces,layout,{responsive:true,displayModeBar:false});
+}
+
+function plotOrientationEvolution(annees,getFn,divId,famLabel){
+  const years=Object.keys(annees).sort();
+  const allDests=new Set();
+  years.forEach(y=>{
+    const recs=getFn(annees[y]);
+    recs.forEach(r=>{
+      const o=r.orientation||'Non renseigné';
+      if(voieFamille(o)===famLabel) allDests.add(o);
+    });
+  });
+  const dests=[...allDests].sort();
+  if(!dests.length){document.getElementById(divId).innerHTML='<p style="color:#888;padding:1rem">Pas de données</p>';return;}
+  const traces=years.map((y,yi)=>{
+    const recs=getFn(annees[y]);
+    const tot=recs.length||1;
+    const cnt={};
+    recs.forEach(r=>{const o=r.orientation||'Non renseigné';cnt[o]=(cnt[o]||0)+1;});
+    return {
+      name:y,x:dests,y:dests.map(d=>Math.round((cnt[d]||0)/tot*100)),
+      type:'bar',marker:{color:COLORS.palette[yi%COLORS.palette.length]},
+      text:dests.map(d=>Math.round((cnt[d]||0)/tot*100)+'%'),textposition:'outside'
+    };
+  });
+  const layout={...BASE_LAYOUT,title:{text:famLabel,font:{size:13,color:'#1e3a5f'}},barmode:'group',height:340,margin:{t:40,b:100,l:30,r:20},xaxis:{tickangle:-25},yaxis:{ticksuffix:'%'}};
+  Plotly.newPlot(divId,traces,layout,{responsive:true,displayModeBar:false});
+}
+
+function plotRatioEvolution(annees,divId){
+  const niveaux=['seconde','premiere','terminale'];
+  const labels=[];
+  const ecarts=[];
+  const colors=[];
+  const texts=[];
+  const years=Object.keys(annees).sort().reverse();
+  years.forEach(y=>{
+    niveaux.forEach(n=>{
+      const recs=annees[y][n]||[];
+      if(!recs.length) return;
+      const f=recs.filter(r=>r.sexe==='Fille').length;
+      const t=recs.length;
+      const p=pct(f,t);
+      const e=p-50;
+      const nomN=n==='seconde'?'Seconde':n==='premiere'?'Première':'Terminale';
+      labels.push(`${nomN} ${y}`);
+      ecarts.push(e);
+      colors.push(e>=0?COLORS.fille:COLORS.garcon);
+      texts.push(`${p}% F`);
+    });
+  });
+  if(!labels.length){document.getElementById(divId).innerHTML='<p style="color:#888;padding:1rem">Pas de données</p>';return;}
+  const traces=[{x:ecarts,y:labels,type:'bar',orientation:'h',marker:{color:colors},text:texts,textposition:'outside'}];
+  const h=Math.max(280,labels.length*42+80);
+  const layout={
+    ...BASE_LAYOUT,
+    title:{text:'Écart au ratio 50/50',font:{size:13,color:'#1e3a5f'}},
+    height:h,margin:{t:40,b:40,l:150,r:80},showlegend:false,
+    xaxis:{ticksuffix:'%',title:'Écart à 50%'},
+    shapes:[{type:'line',x0:0,x1:0,y0:-0.5,y1:labels.length-0.5,line:{color:'#333',width:1.5}}]
+  };
+  Plotly.newPlot(divId,traces,layout,{responsive:true,displayModeBar:false});
+}
+
+function plotHeatmap(annees,getFn,divId,title){
+  const years=Object.keys(annees).sort();
+  const allSpes=new Set();
+  years.forEach(y=>getAllSpes(getFn(annees[y])).forEach(s=>allSpes.add(s)));
+  const spes=[...allSpes].sort();
+  if(!spes.length){document.getElementById(divId).innerHTML='<p style="color:#888;padding:1rem">Pas de données</p>';return;}
+  const z=spes.map(s=>years.map(y=>{
+    const recs=getFn(annees[y]);
+    const tot=recs.length||1;
+    const cnt=recs.reduce((a,r)=>{const sp=(r.specialites||[]).filter(Boolean);if(sp.includes(s))return a+1;return a;},0);
+    return Math.round(cnt/tot*100);
+  }));
+  const textVals=z.map(row=>row.map(v=>v+'%'));
+  const traces=[{
+    z,x:years,y:spes,type:'heatmap',text:textVals,texttemplate:'%{text}',
+    colorscale:[[0,'#f0f4f8'],[0.5,'#2d6a9f'],[1,'#1e3a5f']],
+    showscale:true,hovertemplate:'%{y} — %{x}: %{z}%<extra></extra>'
+  }];
+  const h=Math.max(300,spes.length*30+120);
+  const layout={...BASE_LAYOUT,title:{text:title,font:{size:13,color:'#1e3a5f'}},height:h,margin:{t:40,b:60,l:130,r:20}};
+  Plotly.newPlot(divId,traces,layout,{responsive:true,displayModeBar:false});
+}
+
+// ===================== TABS =====================
+function makeTabs(tabItems,containerId,activeIdx){
+  // tabItems: [{label, content}]
+  const btnId=containerId+'_btns';
+  setTimeout(()=>{
+    const btns=document.querySelectorAll(`[data-tabgroup="${containerId}"]`);
+    btns.forEach((btn,i)=>{
+      btn.addEventListener('click',()=>{
+        btns.forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll(`[data-tabpanel="${containerId}"]`).forEach((p,j)=>{
+          p.style.display=j===i?'block':'none';
+        });
+      });
+    });
+  },0);
+  let html=`<div class="tab-btns">`;
+  tabItems.forEach((t,i)=>{
+    html+=`<button class="tab-btn${i===activeIdx?' active':''}" data-tabgroup="${containerId}">${t.label}</button>`;
+  });
+  html+=`</div>`;
+  tabItems.forEach((t,i)=>{
+    html+=`<div data-tabpanel="${containerId}" style="display:${i===activeIdx?'block':'none'}">${t.content}</div>`;
+  });
+  return html;
+}
+
+// ===================== ORIENTATION TABLE =====================
+function orientationTable(records){
+  const cnt={},fCnt={};
+  records.forEach(r=>{
+    const o=r.orientation||'Non renseigné';
+    cnt[o]=(cnt[o]||0)+1;
+    if(r.sexe==='Fille') fCnt[o]=(fCnt[o]||0)+1;
+  });
+  const total=records.length;
+  const sorted=Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
+  let html=`<table class="data-table"><thead><tr><th>Destination</th><th>Total</th><th>%</th><th>Filles</th><th>Garçons</th></tr></thead><tbody>`;
+  sorted.forEach(([o,n])=>{
+    const f=fCnt[o]||0;
+    const g=n-f;
+    html+=`<tr><td>${o}</td><td>${n}</td><td>${pct(n,total)}%</td><td>${f}</td><td>${g}</td></tr>`;
+  });
+  html+=`</tbody></table>`;
+  return html;
+}
+
+// ===================== PAGE: ACCUEIL =====================
+function renderAccueil(){
+  const d=getData();
+  const annees=d.annees||{};
+  const years=getAnneesSorted(d);
+  const content=document.getElementById('content');
+
+  if(!years.length){
+    content.innerHTML=`
+      ${pageHeader('🏠','Bienvenue sur LycéeDash','Tableau de bord pour lycée français')}
+      <div class="welcome-card" style="margin-bottom:1.5rem">
+        <div style="font-size:3rem;margin-bottom:0.5rem">📊</div>
+        <h2 style="color:#1e3a5f;margin-bottom:0.5rem">Aucune donnée chargée</h2>
+        <p style="color:#666;font-size:0.9rem">Importez vos fichiers PRONOTE dans <strong>Paramètres</strong> pour commencer.</p>
+      </div>
+      <div class="three-col">
+        <div class="feature-card"><div class="icon">📊</div><h3>EDS</h3><p>Analysez les spécialités choisies par vos élèves de Première et Terminale.</p></div>
+        <div class="feature-card"><div class="icon">🎯</div><h3>Orientations</h3><p>Suivez les vœux d'orientation de vos élèves de Seconde.</p></div>
+        <div class="feature-card"><div class="icon">📈</div><h3>Comparatif</h3><p>Comparez les données entre plusieurs années scolaires.</p></div>
+      </div>
+    `;
+    return;
+  }
+
+  if(!pageState.accueil.annee||!annees[pageState.accueil.annee]) pageState.accueil.annee=years[0];
+  const annee=pageState.accueil.annee;
+  const data=annees[annee];
+  const sec=data.seconde||[];
+  const pre=data.premiere||[];
+  const ter=data.terminale||[];
+  const allRecs=[...sec,...pre,...ter];
+  const total=allRecs.length;
+  const filles=allRecs.filter(r=>r.sexe==='Fille').length;
+  const garcons=allRecs.filter(r=>r.sexe==='Garçon').length;
+
+  const donutId=uniqueId();
+  const levelBarId=uniqueId();
+  const oriBarId=uniqueId();
+
+  let multiYearHtml='';
+  const my1Id=uniqueId();const my2Id=uniqueId();const my3Id=uniqueId();
+  if(years.length>1){
+    multiYearHtml=`
+      ${sectionHeader('📈','Évolution pluriannuelle')}
+      <div class="three-col">
+        <div class="chart-container"><div id="${my1Id}"></div></div>
+        <div class="chart-container"><div id="${my2Id}"></div></div>
+        <div class="chart-container"><div id="${my3Id}"></div></div>
+      </div>`;
+  }
+
+  let oriHtml='';
+  if(sec.length){
+    oriHtml=`
+      ${sectionHeader('🎯','Orientations des élèves de Seconde')}
+      <div style="display:grid;grid-template-columns:1fr 280px;gap:1rem;margin-bottom:1rem">
+        <div class="chart-container"><div id="${oriBarId}"></div></div>
+        <div class="chart-container" style="overflow-x:auto">${orientationTable(sec)}</div>
+      </div>`;
+  }
+
+  const yearsListHtml=years.map(y=>{
+    const yd=annees[y];
+    const ns=(yd.seconde||[]).length,np=(yd.premiere||[]).length,nt=(yd.terminale||[]).length;
+    return `<div class="year-card"><strong>${y}</strong><br><span style="font-size:0.78rem;color:#555">Sec:${ns} | 1ère:${np} | Tle:${nt}</span></div>`;
+  }).join('');
+
+  content.innerHTML=`
+    ${pageHeader('🏠','Accueil','Tableau de bord lycée — Vue générale')}
+    <div class="filter-bar">
+      <label>Année :</label>
+      <select id="acc-annee">${years.map(y=>`<option value="${y}"${y===annee?' selected':''}>${y}</option>`).join('')}</select>
+    </div>
+    ${sectionHeader('📊','Indicateurs globaux')}
+    <div class="kpi-row">
+      ${kpiCard('👥',total,'Élèves total','','#1e3a5f')}
+      ${kpiCard('👧',filles,'Filles',pct(filles,total)+'%',COLORS.fille)}
+      ${kpiCard('👦',garcons,'Garçons',pct(garcons,total)+'%',COLORS.garcon)}
+      ${kpiCard('📗',sec.length,'Seconde','',COLORS.green)}
+      ${kpiCard('📘',pre.length,'Première','',COLORS.teal)}
+      ${kpiCard('🎓',ter.length,'Terminale','','#6a1b9a')}
+    </div>
+    ${sectionHeader('📈','Répartition par niveau et genre')}
+    <div style="display:grid;grid-template-columns:30% 45% 25%;gap:1rem;margin-bottom:1rem">
+      <div class="chart-container"><div id="${donutId}"></div></div>
+      <div class="chart-container"><div id="${levelBarId}"></div></div>
+      <div class="chart-container">
+        <div style="font-size:1.5rem;text-align:center;margin-bottom:0.5rem">📅</div>
+        <div style="font-size:1.4rem;font-weight:800;color:#1e3a5f;text-align:center">${years.length}</div>
+        <div style="font-size:0.75rem;color:#777;text-align:center;text-transform:uppercase;margin-bottom:0.75rem">Années de données</div>
+        <div class="year-cards">${yearsListHtml}</div>
+      </div>
+    </div>
+    ${oriHtml}
+    ${multiYearHtml}
+  `;
+
+  document.getElementById('acc-annee').addEventListener('change',e=>{pageState.accueil.annee=e.target.value;renderAccueil();});
+
+  // Charts
+  plotGenderDonut(allRecs,donutId,'Répartition globale');
+
+  // Level bar
+  const niveaux=['Seconde','Première','Terminale'];
+  const recs=[sec,pre,ter];
+  const lvlTraces=[
+    {name:'Filles',x:niveaux,y:recs.map(r=>r.filter(x=>x.sexe==='Fille').length),type:'bar',marker:{color:COLORS.fille}},
+    {name:'Garçons',x:niveaux,y:recs.map(r=>r.filter(x=>x.sexe==='Garçon').length),type:'bar',marker:{color:COLORS.garcon}}
+  ];
+  Plotly.newPlot(levelBarId,lvlTraces,{...BASE_LAYOUT,title:{text:'Effectifs par niveau',font:{size:13,color:'#1e3a5f'}},barmode:'stack',height:280,margin:{t:40,b:40,l:30,r:20}},{responsive:true,displayModeBar:false});
+
+  if(sec.length) plotOrientationBar(sec,oriBarId,'Orientations Seconde');
+
+  if(years.length>1){
+    plotMultiYearGenderBars(annees,d=>d.seconde||[],my1Id,'Seconde');
+    plotMultiYearGenderBars(annees,d=>d.premiere||[],my2Id,'Première');
+    plotMultiYearGenderBars(annees,d=>d.terminale||[],my3Id,'Terminale');
+  }
+}
+
+// ===================== PAGE: EDS =====================
+function renderEds(){
+  const d=getData();
+  const annees=d.annees||{};
+  const years=getAnneesSorted(d);
+  const content=document.getElementById('content');
+
+  if(!years.length){
+    content.innerHTML=pageHeader('📊','EDS — Enseignements de Spécialité','Analyse des choix de spécialités')+warnBanner('Aucune donnée chargée. Importez vos fichiers dans Paramètres.');
+    return;
+  }
+
+  if(!pageState.eds.annee||!annees[pageState.eds.annee]) pageState.eds.annee=years[0];
+  const annee=pageState.eds.annee;
+  const data=annees[annee];
+  const niveauFilter=pageState.eds.niveau;
+  const genreFilter=pageState.eds.genre;
+
+  let records=[];
+  if(niveauFilter==='Première & Terminale'||niveauFilter==='Première') records=[...records,...(data.premiere||[])];
+  if(niveauFilter==='Première & Terminale'||niveauFilter==='Terminale') records=[...records,...(data.terminale||[])];
+  records=filterGender(records,genreFilter);
+
+  const total=records.length;
+  const filles=records.filter(r=>r.sexe==='Fille').length;
+  const garcons=records.filter(r=>r.sexe==='Garçon').length;
+  const topSpe=getTopSpe(records)||'-';
+  const nbCombos=countCombos(records);
+
+  const sbarId=uniqueId();const donutId=uniqueId();const ratioId=uniqueId();const comboId=uniqueId();
+  const p1BarId=uniqueId();const evolPre=uniqueId();const evolTer=uniqueId();
+
+  // Comparison 1ère → Tle
+  let compHtml='';
+  if(niveauFilter==='Première & Terminale'&&(data.premiere||[]).length&&(data.terminale||[]).length){
+    const pre=filterGender(data.premiere||[],genreFilter);
+    const ter=filterGender(data.terminale||[],genreFilter);
+    const allS=new Set([...getAllSpes(pre),...getAllSpes(ter)]);
+    const spes=[...allS].sort();
+    const preCnt={},terCnt={};
+    pre.forEach(r=>(r.specialites||[]).forEach(s=>{if(s)preCnt[s]=(preCnt[s]||0)+1;}));
+    ter.forEach(r=>(r.specialites||[]).forEach(s=>{if(s)terCnt[s]=(terCnt[s]||0)+1;}));
+    const p1barId=uniqueId();
+    compHtml=`
+      ${sectionHeader('🔄','Analyse Première → Terminale')}
+      ${infoBanner('Le "drop" représente les élèves qui ont abandonné une spécialité entre la Première et la Terminale (passage à 2 spécialités obligatoire en Terminale).')}
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:1rem;margin-bottom:1rem">
+        <div class="chart-container"><div id="${p1barId}"></div></div>
+        <div class="chart-container" style="overflow-x:auto">
+          <table class="data-table"><thead><tr><th>Spécialité</th><th>1ère</th><th>Tle</th><th>Δ</th></tr></thead><tbody>
+          ${spes.map(s=>{
+            const pp=preCnt[s]||0;const tt=terCnt[s]||0;const delta=tt-pp;
+            const icon=delta>0?'▲':delta<0?'▼':'=';
+            const col=delta>0?COLORS.green:delta<0?'#c62828':'#555';
+            return `<tr><td>${s}</td><td>${pp}</td><td>${tt}</td><td style="color:${col};font-weight:600">${icon} ${Math.abs(delta)}</td></tr>`;
+          }).join('')}
+          </tbody></table>
+        </div>
+      </div>`;
+    setTimeout(()=>{
+      const traces=[
+        {name:'Première',x:spes,y:spes.map(s=>preCnt[s]||0),type:'bar',marker:{color:COLORS.teal}},
+        {name:'Terminale',x:spes,y:spes.map(s=>terCnt[s]||0),type:'bar',marker:{color:'#6a1b9a'}}
+      ];
+      Plotly.newPlot(p1barId,traces,{...BASE_LAYOUT,title:{text:'Première vs Terminale',font:{size:13,color:'#1e3a5f'}},barmode:'group',height:340,margin:{t:40,b:100,l:30,r:20},xaxis:{tickangle:-25}},{responsive:true,displayModeBar:false});
+    },0);
+  }
+
+  // Class tabs
+  const allClasses=[...new Set(records.map(r=>r.classe).filter(Boolean))].sort();
+  let classTabs='';
+  if(allClasses.length){
+    const tabItems=allClasses.map((cls,idx)=>{
+      const clsRecs=records.filter(r=>r.classe===cls);
+      const f=clsRecs.filter(r=>r.sexe==='Fille').length;
+      const g=clsRecs.filter(r=>r.sexe==='Garçon').length;
+      const csb=uniqueId();const ccb=uniqueId();
+      setTimeout(()=>{
+        plotSpeBarGender(clsRecs,csb,`Spécialités — ${cls}`);
+        plotSpeCombinations(clsRecs,ccb,`Combinaisons — ${cls}`);
+      },0);
+      return {
+        label:cls,
+        content:`
+          <div class="kpi-row">
+            ${kpiCard('👥',clsRecs.length,'Élèves','','#1e3a5f')}
+            ${kpiCard('👧',f,'Filles',pct(f,clsRecs.length)+'%',COLORS.fille)}
+            ${kpiCard('👦',g,'Garçons',pct(g,clsRecs.length)+'%',COLORS.garcon)}
+          </div>
+          <div class="two-col">
+            <div class="chart-container"><div id="${csb}"></div></div>
+            <div class="chart-container"><div id="${ccb}"></div></div>
+          </div>`
+      };
+    });
+    classTabs=`${sectionHeader('🏫','Répartition par classe')}${makeTabs(tabItems,'eds-cls-'+annee,pageState.eds.activeClass||0)}`;
+  }
+
+  // Multi-year
+  let multiYearHtml='';
+  if(years.length>1){
+    multiYearHtml=`
+      ${sectionHeader('📈','Évolution pluriannuelle des spécialités')}
+      <div class="two-col">
+        <div class="chart-container"><div id="${evolPre}"></div></div>
+        <div class="chart-container"><div id="${evolTer}"></div></div>
+      </div>`;
+  }
+
+  // Top combos table
+  const comboCnt={};
+  records.forEach(r=>{
+    const s=(r.specialites||[]).filter(Boolean).sort().join(' + ');
+    if(s){
+      const f=r.sexe==='Fille'?1:0;
+      if(!comboCnt[s]) comboCnt[s]={total:0,f:0};
+      comboCnt[s].total++;comboCnt[s].f+=f;
+    }
+  });
+  const topCombos=Object.entries(comboCnt).sort((a,b)=>b[1].total-a[1].total).slice(0,20);
+  const comboTableHtml=`<table class="data-table"><thead><tr><th>Combinaison</th><th>Total</th><th>Filles</th><th>Garçons</th><th>%F</th></tr></thead><tbody>
+  ${topCombos.map(([c,x])=>`<tr><td>${c}</td><td>${x.total}</td><td>${x.f}</td><td>${x.total-x.f}</td><td>${pct(x.f,x.total)}%</td></tr>`).join('')}
+  </tbody></table>`;
+
+  content.innerHTML=`
+    ${pageHeader('📊','EDS — Enseignements de Spécialité','Analyse des choix de spécialités')}
+    <div class="filter-bar">
+      <label>Année :</label>
+      <select id="eds-annee">${years.map(y=>`<option value="${y}"${y===annee?' selected':''}>${y}</option>`).join('')}</select>
+      <label>Niveau :</label>
+      <select id="eds-niveau">
+        ${['Première & Terminale','Première','Terminale'].map(n=>`<option${n===niveauFilter?' selected':''}>${n}</option>`).join('')}
+      </select>
+      <label>Genre :</label>
+      <select id="eds-genre">
+        ${['Tous','Filles','Garçons'].map(g=>`<option${g===genreFilter?' selected':''}>${g}</option>`).join('')}
+      </select>
+      <button class="btn-export" onclick="exportEdsPPTX('Première')">📊 PPTX Première</button>
+      <button class="btn-export" onclick="exportEdsPPTX('Terminale')" style="margin-left:0.4rem">📊 PPTX Terminale</button>
+    </div>
+    ${sectionHeader('📊','Indicateurs')}
+    <div class="kpi-row">
+      ${kpiCard('👥',total,'Élèves','','#1e3a5f')}
+      ${kpiCard('👧',filles,'Filles',pct(filles,total)+'%',COLORS.fille)}
+      ${kpiCard('👦',garcons,'Garçons',pct(garcons,total)+'%',COLORS.garcon)}
+      ${kpiCard('🏆',topSpe,'Top spécialité','',COLORS.accent)}
+      ${kpiCard('🔗',nbCombos,'Combinaisons uniques','',COLORS.teal)}
+    </div>
+    ${sectionHeader('📊','Distribution des spécialités')}
+    <div style="display:grid;grid-template-columns:1fr 35%;gap:1rem;margin-bottom:1rem">
+      <div class="chart-container"><div id="${sbarId}"></div></div>
+      <div class="chart-container"><div id="${donutId}"></div></div>
+    </div>
+    <div class="two-col">
+      <div class="chart-container"><div id="${ratioId}"></div></div>
+      <div class="chart-container"><div id="${comboId}"></div></div>
+    </div>
+    ${sectionHeader('🔗','Détail des combinaisons')}
+    <div class="chart-container" style="overflow-x:auto">${comboTableHtml}</div>
+    ${compHtml}
+    ${classTabs}
+    ${multiYearHtml}
+  `;
+
+  document.getElementById('eds-annee').addEventListener('change',e=>{pageState.eds.annee=e.target.value;renderEds();});
+  document.getElementById('eds-niveau').addEventListener('change',e=>{pageState.eds.niveau=e.target.value;renderEds();});
+  document.getElementById('eds-genre').addEventListener('change',e=>{pageState.eds.genre=e.target.value;renderEds();});
+
+  plotSpeBarGender(records,sbarId,'Spécialités par genre');
+  plotGenderDonut(records,donutId,'Répartition');
+  plotSpeGenderRatio(records,ratioId,'% Filles par spécialité');
+  plotSpeCombinations(records,comboId,'Combinaisons de spécialités (Top 10)');
+
+  if(years.length>1){
+    plotSpeEvolution(annees,d=>d.premiere||[],evolPre,'Évolution spécialités — Première');
+    plotSpeEvolution(annees,d=>d.terminale||[],evolTer,'Évolution spécialités — Terminale');
+  }
+}
+
+// ===================== PAGE: ORIENTATIONS =====================
+function renderOrientations(){
+  const d=getData();
+  const annees=d.annees||{};
+  const allYears=getAnneesSorted(d);
+  const secYears=allYears.filter(y=>annees[y]&&(annees[y].seconde||[]).length>0);
+  const content=document.getElementById('content');
+
+  if(!secYears.length){
+    content.innerHTML=pageHeader('🎯','Orientations','Vœux d\'orientation des élèves de Seconde')+warnBanner('Aucune donnée de Seconde disponible. Importez vos fichiers dans Paramètres.');
+    return;
+  }
+
+  if(!pageState.orientations.annee||!annees[pageState.orientations.annee]||!(annees[pageState.orientations.annee].seconde||[]).length)
+    pageState.orientations.annee=secYears[0];
+
+  const annee=pageState.orientations.annee;
+  const data=annees[annee];
+  const genreFilter=pageState.orientations.genre;
+  const classeFilter=pageState.orientations.classe;
+
+  let sec=data.seconde||[];
+  const allClasses=[...new Set(sec.map(r=>r.classe).filter(Boolean))].sort();
+
+  if(classeFilter!=='Toutes') sec=sec.filter(r=>r.classe===classeFilter);
+  sec=filterGender(sec,genreFilter);
+
+  const total=sec.length;
+  const filles=sec.filter(r=>r.sexe==='Fille').length;
+  const garcons=sec.filter(r=>r.sexe==='Garçon').length;
+  const nbGen=sec.filter(r=>r.orientation==='Première Générale').length;
+  const nbReorient=sec.filter(r=>r.orientation==='Réorientation').length;
+  const nbRedoub=sec.filter(r=>r.redoublant).length;
+
+  const oriBarId=uniqueId();const donutOriId=uniqueId();const ratioOriId=uniqueId();
+  const lv2BarId=uniqueId();
+
+  // ---- Calcul langues vivantes ----
+  const lv1Cnt={},lv2Cnt={},lv1FCnt={},lv2FCnt={},lvCombos={};
+  sec.forEach(r=>{
+    if(r.lv1){lv1Cnt[r.lv1]=(lv1Cnt[r.lv1]||0)+1;if(r.sexe==='Fille')lv1FCnt[r.lv1]=(lv1FCnt[r.lv1]||0)+1;}
+    if(r.lv2){lv2Cnt[r.lv2]=(lv2Cnt[r.lv2]||0)+1;if(r.sexe==='Fille')lv2FCnt[r.lv2]=(lv2FCnt[r.lv2]||0)+1;}
+    if(r.lv1||r.lv2){
+      const k=(r.lv1||'Non renseigné')+' + '+(r.lv2||'Non renseigné');
+      if(!lvCombos[k])lvCombos[k]={total:0,f:0};
+      lvCombos[k].total++;if(r.sexe==='Fille')lvCombos[k].f++;
+    }
+  });
+  const hasLV=sec.some(r=>r.lv1||r.lv2);
+  const lvHtml=!hasLV
+    ? `<div class="warn-banner">⚠️ Aucune donnée LV dans les données importées pour cette année. Ré-importez le fichier PRONOTE incluant les colonnes LV1 et LV2 (colonnes G et H).</div>`
+    : `<div class="kpi-row" style="margin-bottom:0.75rem;align-items:stretch">
+        <div style="background:white;border-radius:12px;padding:0.7rem 1rem;font-size:0.78rem;font-weight:700;color:#1e3a5f;text-transform:uppercase;letter-spacing:0.5px;display:flex;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,0.06);white-space:nowrap;border-top:4px solid #00796b">🗣️ LV1</div>
+        ${Object.entries(lv1Cnt).sort((a,b)=>b[1]-a[1]).map(([lv,n])=>kpiCard('🗣️',n,lv,`${pct(n,total)}% · ${lv1FCnt[lv]||0}F / ${n-(lv1FCnt[lv]||0)}G`,COLORS.teal)).join('')}
+      </div>
+      <div class="kpi-row" style="margin-bottom:1rem;align-items:stretch">
+        <div style="background:white;border-radius:12px;padding:0.7rem 1rem;font-size:0.78rem;font-weight:700;color:#1e3a5f;text-transform:uppercase;letter-spacing:0.5px;display:flex;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,0.06);white-space:nowrap;border-top:4px solid #f0a500">💬 LV2</div>
+        ${Object.entries(lv2Cnt).sort((a,b)=>b[1]-a[1]).map(([lv,n])=>kpiCard('💬',n,lv,`${pct(n,total)}% · ${lv2FCnt[lv]||0}F / ${n-(lv2FCnt[lv]||0)}G`,COLORS.accent)).join('')}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 300px;gap:1rem;margin-bottom:1rem">
+        <div class="chart-container"><div id="${lv2BarId}"></div></div>
+        <div class="chart-container" style="overflow-x:auto">
+          <table class="data-table">
+            <thead><tr><th>LV1 + LV2</th><th>Total</th><th>%</th><th>Filles</th><th>Garçons</th></tr></thead>
+            <tbody>
+              ${Object.entries(lvCombos).sort((a,b)=>b[1].total-a[1].total).map(([k,x])=>`
+                <tr><td>${k}</td><td><strong>${x.total}</strong></td><td>${pct(x.total,total)}%</td>
+                <td style="color:${COLORS.fille};font-weight:600">${x.f}</td>
+                <td style="color:${COLORS.garcon};font-weight:600">${x.total-x.f}</td></tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+
+  // Seconde → 1ère Générale
+  const secGen=sec.filter(r=>r.orientation==='Première Générale');
+  let voeuxHtml='';
+  if(secGen.length){
+    const sgenBarId=uniqueId();const sgenComboId=uniqueId();const sgenRatioId=uniqueId();
+    const pre=data.premiere||[];
+    let capaciteHtml='';
+    if(pre.length){
+      const capId=uniqueId();
+      const spesGen=getAllSpes(secGen);
+      const demandCnt={},capCnt={};
+      secGen.forEach(r=>(r.specialites||[]).forEach(s=>{if(s)demandCnt[s]=(demandCnt[s]||0)+1;}));
+      pre.forEach(r=>(r.specialites||[]).forEach(s=>{if(s)capCnt[s]=(capCnt[s]||0)+1;}));
+      const allS=[...new Set([...Object.keys(demandCnt),...Object.keys(capCnt)])].sort();
+      setTimeout(()=>{
+        const traces=[
+          {name:'Vœux Seconde',x:allS,y:allS.map(s=>demandCnt[s]||0),type:'bar',marker:{color:COLORS.accent}},
+          {name:'Capacité Première',x:allS,y:allS.map(s=>capCnt[s]||0),type:'bar',marker:{color:COLORS.teal}}
+        ];
+        Plotly.newPlot(capId,traces,{...BASE_LAYOUT,title:{text:'Demande vs Capacité',font:{size:13,color:'#1e3a5f'}},barmode:'group',height:320,margin:{t:40,b:100,l:30,r:20},xaxis:{tickangle:-25}},{responsive:true,displayModeBar:false});
+      },0);
+      capaciteHtml=`<div class="chart-container"><div id="${capId}"></div></div>`;
+    }
+    voeuxHtml=`
+      ${sectionHeader('📚','Vœux EDS des élèves allant en Première Générale')}
+      ${infoBanner(`<strong>${secGen.length} élèves</strong> ont choisi Première Générale. Voici leurs vœux de spécialités.`)}
+      <div class="two-col">
+        <div class="chart-container"><div id="${sgenBarId}"></div></div>
+        <div class="chart-container"><div id="${sgenComboId}"></div></div>
+      </div>
+      <div class="two-col">
+        <div class="chart-container"><div id="${sgenRatioId}"></div></div>
+        ${capaciteHtml}
+      </div>`;
+    setTimeout(()=>{
+      plotSpeBarGender(secGen,sgenBarId,'Spécialités souhaitées');
+      plotSpeCombinations(secGen,sgenComboId,'Combinaisons souhaitées');
+      plotSpeGenderRatio(secGen,sgenRatioId,'% Filles par spécialité souhaitée');
+    },0);
+  }
+
+  // Classe tabs
+  let classeTabs='';
+  if(classeFilter==='Toutes'&&allClasses.length>1){
+    const tabItems=allClasses.map(cls=>{
+      const clsRecs=filterGender((data.seconde||[]).filter(r=>r.classe===cls),genreFilter);
+      const f=clsRecs.filter(r=>r.sexe==='Fille').length;
+      const g=clsRecs.filter(r=>r.sexe==='Garçon').length;
+      const n=clsRecs.length;
+      const clsOriId=uniqueId();const clsSpeId=uniqueId();
+      const clsGen=clsRecs.filter(r=>r.orientation==='Première Générale');
+      setTimeout(()=>{
+        plotOrientationBar(clsRecs,clsOriId,`Orientations — ${cls}`);
+        if(clsGen.length) plotSpeBarGender(clsGen,clsSpeId,`Vœux EDS → 1ère Gén — ${cls}`);
+      },0);
+      return {
+        label:cls,
+        content:`
+          <div class="kpi-row">
+            ${kpiCard('👥',n,'Élèves','','#1e3a5f')}
+            ${kpiCard('👧',f,'Filles',pct(f,n)+'%',COLORS.fille)}
+            ${kpiCard('👦',g,'Garçons',pct(g,n)+'%',COLORS.garcon)}
+            ${kpiCard('🎓',clsRecs.filter(r=>r.orientation==='Première Générale').length,'→ 1ère Gén','',COLORS.green)}
+          </div>
+          <div class="chart-container"><div id="${clsOriId}"></div></div>
+          ${clsGen.length?`<div class="chart-container"><div id="${clsSpeId}"></div></div>`:''}
+        `
+      };
+    });
+    classeTabs=`${sectionHeader('🏫','Détail par classe')}${makeTabs(tabItems,'ori-cls-'+annee,0)}`;
+  }
+
+  // Multi-year orientations
+  let multiOriHtml='';
+  if(secYears.length>1){
+    const famillesLabels={generale:'Filière Générale',techno:'Filières Technologiques',pro:'Filières Professionnelles',autre:'Autres destinations'};
+    const familles=['generale','techno','pro','autre'];
+    const famIds=familles.map(()=>uniqueId());
+    // check which families have data
+    const hasFam={};
+    familles.forEach(f=>{
+      secYears.forEach(y=>{
+        (annees[y].seconde||[]).forEach(r=>{
+          if(voieFamille(r.orientation||'')===f) hasFam[f]=true;
+        });
+      });
+    });
+    const activeFam=familles.filter(f=>hasFam[f]);
+    if(activeFam.length){
+      const filteredAnnees={};
+      secYears.forEach(y=>filteredAnnees[y]=annees[y]);
+      multiOriHtml=`${sectionHeader('📈','Évolution pluriannuelle des orientations')}
+        <div class="two-col">
+          ${activeFam.map((_f,i)=>`<div class="chart-container"><div id="${famIds[familles.indexOf(activeFam[i])]}"></div></div>`).join('')}
+        </div>`;
+      setTimeout(()=>{
+        activeFam.forEach(f=>{
+          plotOrientationEvolution(filteredAnnees,d=>d.seconde||[],famIds[familles.indexOf(f)],f);
+        });
+      },0);
+    }
+  }
+
+  content.innerHTML=`
+    ${pageHeader('🎯','Orientations','Vœux d\'orientation des élèves de Seconde')}
+    <div class="filter-bar">
+      <label>Année :</label>
+      <select id="ori-annee">${secYears.map(y=>`<option value="${y}"${y===annee?' selected':''}>${y}</option>`).join('')}</select>
+      <label>Classe :</label>
+      <select id="ori-classe">
+        <option value="Toutes"${classeFilter==='Toutes'?' selected':''}>Toutes</option>
+        ${allClasses.map(c=>`<option value="${c}"${c===classeFilter?' selected':''}>${c}</option>`).join('')}
+      </select>
+      <label>Genre :</label>
+      <select id="ori-genre">
+        ${['Tous','Filles','Garçons'].map(g=>`<option${g===genreFilter?' selected':''}>${g}</option>`).join('')}
+      </select>
+      <button class="btn-export" onclick="exportOrientationsPPTX()">📊 Exporter PPTX</button>
+    </div>
+    ${sectionHeader('📊','Indicateurs')}
+    <div class="kpi-row">
+      ${kpiCard('👥',total,'Élèves','','#1e3a5f')}
+      ${kpiCard('👧',filles,'Filles',pct(filles,total)+'%',COLORS.fille)}
+      ${kpiCard('👦',garcons,'Garçons',pct(garcons,total)+'%',COLORS.garcon)}
+      ${kpiCard('🎓',nbGen,'→ 1ère Gén',pct(nbGen,total)+'%',COLORS.green)}
+      ${kpiCard('🔄',nbReorient,'Réorientations','',COLORS.accent)}
+      ${kpiCard('📚',nbRedoub,'Redoublants','',COLORS.teal)}
+    </div>
+    ${sectionHeader('🗺️','Destinations')}
+    <div style="display:grid;grid-template-columns:1fr 280px;gap:1rem;margin-bottom:1rem">
+      <div class="chart-container"><div id="${oriBarId}"></div></div>
+      <div class="chart-container" style="overflow-x:auto">${orientationTable(sec)}</div>
+    </div>
+    <div class="two-col">
+      <div class="chart-container"><div id="${donutOriId}"></div></div>
+      <div class="chart-container"><div id="${ratioOriId}"></div></div>
+    </div>
+    ${voeuxHtml}
+    ${sectionHeader('🌍','Langues vivantes')}
+    ${lvHtml}
+    ${classeTabs}
+    ${multiOriHtml}
+  `;
+
+  document.getElementById('ori-annee').addEventListener('change',e=>{pageState.orientations.annee=e.target.value;renderOrientations();});
+  document.getElementById('ori-classe').addEventListener('change',e=>{pageState.orientations.classe=e.target.value;renderOrientations();});
+  document.getElementById('ori-genre').addEventListener('change',e=>{pageState.orientations.genre=e.target.value;renderOrientations();});
+
+  plotOrientationBar(sec,oriBarId,'Orientations');
+  plotGenderDonut(sec,donutOriId,'Répartition par genre');
+
+  // Ratio par destination
+  const dests=[...new Set(sec.map(r=>r.orientation||'Non renseigné'))].sort();
+  const fCntD={},totD={};
+  sec.forEach(r=>{const o=r.orientation||'Non renseigné';totD[o]=(totD[o]||0)+1;if(r.sexe==='Fille')fCntD[o]=(fCntD[o]||0)+1;});
+  const pctFilles=dests.map(o=>Math.round((fCntD[o]||0)/(totD[o]||1)*100));
+  const colorsD=pctFilles.map(p=>p>=50?COLORS.fille:COLORS.garcon);
+  Plotly.newPlot(ratioOriId,[{x:pctFilles,y:dests,type:'bar',orientation:'h',marker:{color:colorsD},text:pctFilles.map(p=>p+'%'),textposition:'outside'}],{
+    ...BASE_LAYOUT,title:{text:'% Filles par destination',font:{size:13,color:'#1e3a5f'}},
+    height:Math.max(280,dests.length*42+80),margin:{t:40,b:40,l:160,r:60},showlegend:false,
+    xaxis:{range:[0,110],ticksuffix:'%'},
+    shapes:[{type:'line',x0:50,x1:50,y0:-0.5,y1:dests.length-0.5,line:{color:'#333',dash:'dash',width:1.5}}],
+    annotations:[{x:50,y:dests.length-0.5,text:'50%',showarrow:false,font:{size:11,color:'#333'},xanchor:'left'}]
+  },{responsive:true,displayModeBar:false});
+
+  // Graphique LV2 par genre
+  if(hasLV&&Object.keys(lv2Cnt).length){
+    const lv2Keys=Object.keys(lv2Cnt).sort((a,b)=>lv2Cnt[b]-lv2Cnt[a]);
+    Plotly.newPlot(lv2BarId,[
+      {name:'Filles',x:lv2Keys,y:lv2Keys.map(lv=>lv2FCnt[lv]||0),type:'bar',marker:{color:COLORS.fille},text:lv2Keys.map(lv=>lv2FCnt[lv]||0),textposition:'inside',insidetextanchor:'middle'},
+      {name:'Garçons',x:lv2Keys,y:lv2Keys.map(lv=>lv2Cnt[lv]-(lv2FCnt[lv]||0)),type:'bar',marker:{color:COLORS.garcon},text:lv2Keys.map(lv=>lv2Cnt[lv]-(lv2FCnt[lv]||0)),textposition:'inside',insidetextanchor:'middle'}
+    ],{
+      ...BASE_LAYOUT,title:{text:'LV2 — Répartition par genre',font:{size:13,color:'#1e3a5f'}},
+      barmode:'stack',height:300,margin:{t:40,b:60,l:40,r:20},
+      annotations:lv2Keys.map(lv=>({x:lv,y:lv2Cnt[lv],text:`<b>${lv2Cnt[lv]}</b>`,showarrow:false,yanchor:'bottom',font:{size:12,color:'#1e3a5f'}}))
+    },{responsive:true,displayModeBar:false});
+  } else if(hasLV&&Object.keys(lv1Cnt).length){
+    // Si uniquement LV1 de disponible
+    const lv1Keys=Object.keys(lv1Cnt).sort((a,b)=>lv1Cnt[b]-lv1Cnt[a]);
+    Plotly.newPlot(lv2BarId,[
+      {name:'Filles',x:lv1Keys,y:lv1Keys.map(lv=>lv1FCnt[lv]||0),type:'bar',marker:{color:COLORS.fille}},
+      {name:'Garçons',x:lv1Keys,y:lv1Keys.map(lv=>lv1Cnt[lv]-(lv1FCnt[lv]||0)),type:'bar',marker:{color:COLORS.garcon}}
+    ],{
+      ...BASE_LAYOUT,title:{text:'LV1 — Répartition par genre',font:{size:13,color:'#1e3a5f'}},
+      barmode:'stack',height:300,margin:{t:40,b:60,l:40,r:20}
+    },{responsive:true,displayModeBar:false});
+  }
+}
+
+// ===================== PAGE: COMPARATIF =====================
+function renderComparatif(){
+  const d=getData();
+  const annees=d.annees||{};
+  const years=getAnneesSorted(d);
+  const content=document.getElementById('content');
+
+  if(years.length<2){
+    content.innerHTML=pageHeader('📈','Comparatif','Analyse comparative pluriannuelle')+infoBanner('Au moins 2 années de données sont nécessaires pour afficher le comparatif. Importez des données supplémentaires dans Paramètres.');
+    return;
+  }
+
+  const genreFilter=pageState.comparatif.genre;
+  const filteredAnnees={};
+  years.forEach(y=>{
+    filteredAnnees[y]={
+      seconde:filterGender(annees[y].seconde||[],genreFilter),
+      premiere:filterGender(annees[y].premiere||[],genreFilter),
+      terminale:filterGender(annees[y].terminale||[],genreFilter),
+    };
+  });
+
+  const effId1=uniqueId();const effId2=uniqueId();const effId3=uniqueId();
+  const ratioId=uniqueId();
+  const evolPre=uniqueId();const evolTer=uniqueId();
+  const heatPre=uniqueId();const heatTer=uniqueId();
+
+  const secYears=years.filter(y=>(annees[y].seconde||[]).length>0);
+  let oriEvolutionHtml='';
+  if(secYears.length>1){
+    const familles=['generale','techno','pro','autre'];
+    const famIds=familles.map(()=>uniqueId());
+    const hasFam={};
+    familles.forEach(f=>{secYears.forEach(y=>{(annees[y].seconde||[]).forEach(r=>{if(voieFamille(r.orientation||'')===f)hasFam[f]=true;});});});
+    const activeFam=familles.filter(f=>hasFam[f]);
+    if(activeFam.length){
+      const filteredSecAnnees={};
+      secYears.forEach(y=>filteredSecAnnees[y]=annees[y]);
+      oriEvolutionHtml=`
+        ${sectionHeader('🎯','Évolution des orientations Seconde')}
+        <div class="two-col">
+          ${activeFam.map(f=>`<div class="chart-container"><div id="${famIds[familles.indexOf(f)]}"></div></div>`).join('')}
+        </div>`;
+      setTimeout(()=>{
+        activeFam.forEach(f=>{
+          plotOrientationEvolution(filteredSecAnnees,d=>d.seconde||[],famIds[familles.indexOf(f)],f);
+        });
+      },0);
+    }
+  }
+
+  // Summary table
+  let summaryRows='';
+  years.slice().reverse().forEach(y=>{
+    const sec=annees[y].seconde||[];
+    const pre=annees[y].premiere||[];
+    const ter=annees[y].terminale||[];
+    const sfilles=sec.filter(r=>r.sexe==='Fille').length;
+    const pfilles=pre.filter(r=>r.sexe==='Fille').length;
+    const tfilles=ter.filter(r=>r.sexe==='Fille').length;
+    const nbGen=sec.filter(r=>r.orientation==='Première Générale').length;
+    const topPre=getTopSpe(pre)||'-';
+    summaryRows+=`<tr>
+      <td><strong>${y}</strong></td>
+      <td>${sec.length}</td><td>${pct(sfilles,sec.length)}%</td><td>${nbGen}</td>
+      <td>${pre.length}</td><td>${pct(pfilles,pre.length)}%</td><td>${topPre}</td>
+      <td>${ter.length}</td><td>${pct(tfilles,ter.length)}%</td>
+    </tr>`;
+  });
+
+  const edsTabContent=makeTabs([
+    {label:'Première',content:`<div class="chart-container"><div id="${evolPre}"></div></div>`},
+    {label:'Terminale',content:`<div class="chart-container"><div id="${evolTer}"></div></div>`}
+  ],'comp-eds',pageState.comparatif.edsTab);
+
+  const heatTabContent=makeTabs([
+    {label:'Première',content:`<div class="chart-container"><div id="${heatPre}"></div></div>`},
+    {label:'Terminale',content:`<div class="chart-container"><div id="${heatTer}"></div></div>`}
+  ],'comp-heat',pageState.comparatif.heatmapTab);
+
+  content.innerHTML=`
+    ${pageHeader('📈','Comparatif','Analyse comparative pluriannuelle')}
+    <div class="filter-bar">
+      <label>Genre :</label>
+      <select id="comp-genre">
+        ${['Tous','Filles','Garçons'].map(g=>`<option${g===genreFilter?' selected':''}>${g}</option>`).join('')}
+      </select>
+      <button class="btn-export" onclick="exportComparatifPPTX()">📊 Exporter PPTX</button>
+    </div>
+    ${sectionHeader('👥','Évolution des effectifs')}
+    <div class="three-col">
+      <div class="chart-container"><div id="${effId1}"></div></div>
+      <div class="chart-container"><div id="${effId2}"></div></div>
+      <div class="chart-container"><div id="${effId3}"></div></div>
+    </div>
+    ${sectionHeader('⚖️','Évolution du ratio Filles/Garçons')}
+    <div class="chart-container"><div id="${ratioId}"></div></div>
+    ${sectionHeader('📚','Évolution des choix de spécialités')}
+    ${edsTabContent}
+    ${oriEvolutionHtml}
+    ${sectionHeader('📋','Tableau récapitulatif')}
+    <div class="chart-container" style="overflow-x:auto">
+      <table class="data-table"><thead><tr>
+        <th>Année</th><th>Nb Sec.</th><th>%F Sec.</th><th>→1ère Gén</th>
+        <th>Nb 1ère</th><th>%F 1ère</th><th>Top SPE(1ère)</th>
+        <th>Nb Tle</th><th>%F Tle</th>
+      </tr></thead><tbody>${summaryRows}</tbody></table>
+    </div>
+    ${sectionHeader('🗺️','Heatmap spécialités')}
+    ${heatTabContent}
+  `;
+
+  document.getElementById('comp-genre').addEventListener('change',e=>{pageState.comparatif.genre=e.target.value;renderComparatif();});
+
+  plotMultiYearGenderBars(filteredAnnees,d=>d.seconde||[],effId1,'Seconde');
+  plotMultiYearGenderBars(filteredAnnees,d=>d.premiere||[],effId2,'Première');
+  plotMultiYearGenderBars(filteredAnnees,d=>d.terminale||[],effId3,'Terminale');
+  plotRatioEvolution(annees,ratioId);
+  plotSpeEvolution(filteredAnnees,d=>d.premiere||[],evolPre,'Évolution spécialités — Première');
+  plotSpeEvolution(filteredAnnees,d=>d.terminale||[],evolTer,'Évolution spécialités — Terminale');
+  plotHeatmap(filteredAnnees,d=>d.premiere||[],heatPre,'Heatmap spécialités — Première');
+  plotHeatmap(filteredAnnees,d=>d.terminale||[],heatTer,'Heatmap spécialités — Terminale');
+}
+
+// ===================== PAGE: PARAMS =====================
+function renderParams(){
+  const d=getData();
+  const years=getAnneesSorted(d);
+  const content=document.getElementById('content');
+
+  let yearsHtml='';
+  years.forEach(y=>{
+    const yd=d.annees[y];
+    const ns=(yd.seconde||[]).length,np=(yd.premiere||[]).length,nt=(yd.terminale||[]).length;
+    yearsHtml+=`
+      <div class="chart-container" style="margin-bottom:0.75rem">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem">
+          <strong style="color:#1e3a5f;font-size:1rem">📅 ${y}</strong>
+          <button class="btn-danger" onclick="deleteAnnee('${y}')">🗑️ Supprimer cette année</button>
+        </div>
+        <div class="kpi-row" style="margin-bottom:0.5rem">
+          ${kpiCard('📗',ns,'Seconde','',COLORS.green)}
+          ${kpiCard('📘',np,'Première','',COLORS.teal)}
+          ${kpiCard('🎓',nt,'Terminale','','#6a1b9a')}
+        </div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+          ${ns?`<button class="btn-danger" onclick="deleteLevel('${y}','seconde')">Supprimer Seconde</button>`:''}
+          ${np?`<button class="btn-danger" onclick="deleteLevel('${y}','premiere')">Supprimer Première</button>`:''}
+          ${nt?`<button class="btn-danger" onclick="deleteLevel('${y}','terminale')">Supprimer Terminale</button>`:''}
+        </div>
+      </div>`;
+  });
+
+  content.innerHTML=`
+    ${pageHeader('⚙️','Paramètres','Configuration et import des données')}
+
+    ${sectionHeader('🏫','Identification du lycée')}
+    <div class="chart-container">
+      <div class="form-group">
+        <label>Nom du lycée</label>
+        <div style="display:flex;gap:0.5rem">
+          <input type="text" id="lycee-name-input" value="${d.lycee_name||'Mon Lycée'}" style="flex:1">
+          <button class="btn-primary" onclick="saveLyceeName()">💾 Enregistrer</button>
+        </div>
+      </div>
+      <div style="background:#f0f4f8;border-radius:8px;padding:0.75rem;font-size:0.88rem">
+        <strong>Lycée actuel :</strong> ${d.lycee_name||'Mon Lycée'} &nbsp;|&nbsp; <strong>${years.length}</strong> année(s) de données
+      </div>
+    </div>
+
+    ${sectionHeader('📥','Importer des données PRONOTE')}
+    <div class="chart-container">
+      ${infoBanner('Importez les fichiers Excel exportés depuis PRONOTE. Chaque niveau peut être importé séparément. Les données existantes pour une année/niveau seront remplacées.')}
+      <div class="form-group">
+        <label>Année scolaire</label>
+        <input type="text" id="import-annee" placeholder="2025-2026" style="width:200px">
+      </div>
+      <div class="file-group">
+        <label>📗 Seconde GT</label>
+        <input type="file" id="file-seconde" accept=".xlsx,.xls" onchange="showFileName(this,'fn-sec')">
+        <div id="fn-sec" style="font-size:0.78rem;color:#555;margin-top:0.25rem"></div>
+      </div>
+      <div class="file-group">
+        <label>📘 Première</label>
+        <input type="file" id="file-premiere" accept=".xlsx,.xls" onchange="showFileName(this,'fn-pre')">
+        <div id="fn-pre" style="font-size:0.78rem;color:#555;margin-top:0.25rem"></div>
+      </div>
+      <div class="file-group">
+        <label>🎓 Terminale</label>
+        <input type="file" id="file-terminale" accept=".xlsx,.xls" onchange="showFileName(this,'fn-ter')">
+        <div id="fn-ter" style="font-size:0.78rem;color:#555;margin-top:0.25rem"></div>
+      </div>
+      <button class="btn-primary" onclick="importData()">📥 Importer</button>
+      <div id="import-messages" style="margin-top:0.75rem"></div>
+    </div>
+
+    ${sectionHeader('📊','Données actuellement chargées')}
+    ${years.length?yearsHtml:`<div class="warn-banner">Aucune donnée chargée.</div>`}
+
+    ${sectionHeader('💾','Sauvegarde & chargement')}
+    <div class="two-col">
+      <div class="chart-container">
+        <h3 style="color:#1e3a5f;margin-bottom:0.75rem;font-size:0.95rem">📤 Exporter en JSON</h3>
+        <p style="font-size:0.85rem;color:#555;margin-bottom:0.75rem">Téléchargez toutes vos données pour les sauvegarder ou les transférer.</p>
+        <button class="btn-primary" onclick="exportJSON()">📤 Télécharger JSON</button>
+      </div>
+      <div class="chart-container">
+        <h3 style="color:#1e3a5f;margin-bottom:0.75rem;font-size:0.95rem">📥 Importer depuis JSON</h3>
+        <p style="font-size:0.85rem;color:#555;margin-bottom:0.75rem">Chargez un fichier JSON précédemment exporté.</p>
+        <input type="file" id="import-json-file" accept=".json" onchange="showFileName(this,'fn-json')">
+        <div id="fn-json" style="font-size:0.78rem;color:#555;margin-top:0.25rem;margin-bottom:0.5rem"></div>
+        <button class="btn-primary" onclick="importJSON()">📥 Charger JSON</button>
+        <div id="json-msg" style="margin-top:0.5rem"></div>
+      </div>
+    </div>
+
+    ${sectionHeader('ℹ️','À propos')}
+    <div class="chart-container">
+      ${infoBanner(`<strong>LycéeDash</strong> est un tableau de bord local pour analyser les données d'un lycée français.<br>
+      <br>🔒 <strong>Confidentialité :</strong> Toutes les données restent sur votre appareil (localStorage). Aucune donnée n'est envoyée sur un serveur.<br>
+      <br>📋 <strong>Source des données :</strong> Les fichiers importés doivent être des exports Excel de PRONOTE (format standardisé).<br>
+      <br>📊 <strong>Visualisations :</strong> Générées avec Plotly.js. Feuilles de calcul : SheetJS.`)}
+    </div>
+  `;
+}
+
+function showFileName(input,targetId){
+  const el=document.getElementById(targetId);
+  if(el&&input.files.length) el.textContent='Fichier sélectionné : '+input.files[0].name;
+}
+
+function saveLyceeName(){
+  const name=document.getElementById('lycee-name-input').value.trim();
+  if(!name) return;
+  const d=getData();
+  d.lycee_name=name;
+  saveData(d);
+  document.getElementById('sb-name').textContent=name;
+  renderParams();
+}
+
+function deleteAnnee(annee){
+  if(!confirm(`Supprimer toutes les données de l'année ${annee} ?`)) return;
+  const d=getData();
+  delete d.annees[annee];
+  saveData(d);
+  updateSidebar();
+  renderParams();
+}
+
+function deleteLevel(annee,level){
+  const levelName=level==='seconde'?'Seconde':level==='premiere'?'Première':'Terminale';
+  if(!confirm(`Supprimer les données de ${levelName} pour ${annee} ?`)) return;
+  const d=getData();
+  if(d.annees[annee]) delete d.annees[annee][level];
+  saveData(d);
+  renderParams();
+}
+
+async function importData(){
+  const anneeVal=document.getElementById('import-annee').value.trim();
+  if(!anneeVal){alert('Veuillez saisir une année scolaire (ex: 2025-2026).');return;}
+  const fileSec=document.getElementById('file-seconde').files[0];
+  const filePre=document.getElementById('file-premiere').files[0];
+  const fileTer=document.getElementById('file-terminale').files[0];
+  if(!fileSec&&!filePre&&!fileTer){alert('Veuillez sélectionner au moins un fichier.');return;}
+
+  const msgs=document.getElementById('import-messages');
+  msgs.innerHTML='<div style="color:#1e3a5f;font-size:0.88rem">⏳ Import en cours...</div>';
+
+  const d=getData();
+  if(!d.annees) d.annees={};
+  if(!d.annees[anneeVal]) d.annees[anneeVal]={};
+
+  let results=[];
+  try{
+    if(fileSec){
+      const rows=await parseFile(fileSec,parseSeconde);
+      d.annees[anneeVal].seconde=rows;
+      results.push(`<div class="msg-success">✅ Seconde : ${rows.length} élèves importés</div>`);
+    }
+  } catch(e){results.push(`<div class="msg-error">❌ Erreur Seconde : ${e.message}</div>`);}
+  try{
+    if(filePre){
+      const rows=await parseFile(filePre,parsePremiere);
+      d.annees[anneeVal].premiere=rows;
+      results.push(`<div class="msg-success">✅ Première : ${rows.length} élèves importés</div>`);
+    }
+  } catch(e){results.push(`<div class="msg-error">❌ Erreur Première : ${e.message}</div>`);}
+  try{
+    if(fileTer){
+      const rows=await parseFile(fileTer,parseTerminale);
+      d.annees[anneeVal].terminale=rows;
+      results.push(`<div class="msg-success">✅ Terminale : ${rows.length} élèves importés</div>`);
+    }
+  } catch(e){results.push(`<div class="msg-error">❌ Erreur Terminale : ${e.message}</div>`);}
+
+  saveData(d);
+  updateSidebar();
+  msgs.innerHTML=results.join('');
+  renderParams();
+}
+
+function exportJSON(){
+  const d=getData();
+  const json=JSON.stringify(d,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='lyceedash_export_'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importJSON(){
+  const file=document.getElementById('import-json-file').files[0];
+  if(!file){alert('Veuillez sélectionner un fichier JSON.');return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const parsed=JSON.parse(e.target.result);
+      if(!parsed.annees) throw new Error('Format invalide');
+      saveData(parsed);
+      updateSidebar();
+      document.getElementById('json-msg').innerHTML='<div class="msg-success">✅ Données chargées avec succès</div>';
+      renderParams();
+    } catch(err){
+      document.getElementById('json-msg').innerHTML=`<div class="msg-error">❌ Erreur : ${err.message}</div>`;
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ===================== PPTX EXPORT =====================
+const C_PPTX={BLU:'1E3A5F',BLU2:'2D6A9F',PNK:'E91E8C',BLU3:'1565C0',GRN:'2E7D32',TEL:'00796B',ORG:'F0A500',PRP:'6A1B9A',WHT:'FFFFFF',GRY:'F0F4F8',GRY2:'C5D5E8',DRK:'333333'};
+
+function pptxAddSlideTitle(s,title){
+  s.addText(title,{x:0.4,y:0.15,w:12.5,h:0.65,fontSize:22,bold:true,color:C_PPTX.BLU});
+  s.addShape('rect',{x:0.4,y:0.82,w:12.5,h:0.04,fill:{color:C_PPTX.BLU2}});
+}
+
+function pptxCover(pptx,title,subtitle,lycee){
+  const s=pptx.addSlide();
+  s.background={color:C_PPTX.BLU};
+  s.addShape('rect',{x:0,y:0,w:13.33,h:1.4,fill:{color:C_PPTX.BLU2}});
+  s.addText('LycéeDash',{x:0.5,y:0.3,w:12.33,h:0.8,fontSize:20,bold:true,color:'AACCE8',align:'center'});
+  s.addText(title,{x:0.5,y:1.8,w:12.33,h:1.5,fontSize:36,bold:true,color:C_PPTX.WHT,align:'center'});
+  s.addText(subtitle,{x:0.5,y:3.5,w:12.33,h:0.8,fontSize:20,color:'CCE0FF',align:'center'});
+  s.addText(lycee,{x:0.5,y:4.5,w:12.33,h:0.5,fontSize:14,color:'8AAAC0',align:'center'});
+  s.addText('Généré le '+new Date().toLocaleDateString('fr-FR'),{x:0.5,y:6.9,w:12.33,h:0.4,fontSize:10,color:'446688',align:'center'});
+}
+
+function pptxSection(pptx,icon,title){
+  const s=pptx.addSlide();
+  s.background={color:C_PPTX.GRY};
+  s.addShape('rect',{x:0,y:0,w:0.18,h:7.5,fill:{color:C_PPTX.BLU}});
+  s.addText(icon,{x:0.5,y:2.5,w:12.33,h:1.0,fontSize:36,align:'center'});
+  s.addText(title,{x:0.5,y:3.6,w:12.33,h:0.9,fontSize:28,bold:true,color:C_PPTX.BLU,align:'center'});
+}
+
+function pptxEnd(pptx,lycee){
+  const s=pptx.addSlide();
+  s.background={color:C_PPTX.BLU};
+  s.addText('LycéeDash',{x:0.5,y:2.8,w:12.33,h:0.8,fontSize:24,bold:true,color:'AACCEE',align:'center'});
+  s.addText(lycee,{x:0.5,y:3.7,w:12.33,h:0.6,fontSize:16,color:C_PPTX.WHT,align:'center'});
+  s.addText('Document confidentiel — Données PRONOTE',{x:0.5,y:6.8,w:12.33,h:0.4,fontSize:10,color:'446688',align:'center'});
+}
+
+function pptxKPIs(pptx,title,kpis){
+  const s=pptx.addSlide();
+  pptxAddSlideTitle(s,title);
+  const cols=Math.min(kpis.length,3);
+  const w=(12.53/cols)-0.1;
+  kpis.forEach((kpi,i)=>{
+    const col=i%cols,row=Math.floor(i/cols);
+    const x=0.4+col*(w+0.1);
+    const y=1.0+row*2.9;
+    const h=2.7;
+    s.addShape('rect',{x,y,w,h,fill:{color:C_PPTX.GRY},line:{color:C_PPTX.GRY2,width:1}});
+    s.addShape('rect',{x,y,w,h:0.1,fill:{color:kpi.color||C_PPTX.BLU}});
+    s.addText(kpi.icon||'',{x,y:y+0.2,w,h:0.6,fontSize:22,align:'center'});
+    s.addText(String(kpi.val),{x,y:y+0.85,w,h:0.9,fontSize:34,bold:true,color:C_PPTX.BLU,align:'center'});
+    s.addText(kpi.label,{x:x+0.1,y:y+h-0.55,w:w-0.2,h:0.45,fontSize:11,color:'555555',align:'center'});
+  });
+}
+
+function pptxTable(pptx,title,headers,dataRows){
+  const s=pptx.addSlide();
+  pptxAddSlideTitle(s,title);
+  const rows=[
+    headers.map(h=>({text:h,options:{bold:true,color:C_PPTX.WHT,fill:{color:C_PPTX.BLU},align:'center',fontSize:12}})),
+    ...dataRows.map((row,ri)=>
+      row.map((cell,ci)=>{
+        const isObj=cell&&typeof cell==='object';
+        return {text:String(isObj?cell.text:cell),options:{fill:{color:ri%2===0?C_PPTX.WHT:C_PPTX.GRY},align:ci===0?'left':'center',fontSize:11,color:(isObj&&cell.color)||C_PPTX.DRK}};
+      })
+    )
+  ];
+  const colW=11.5/headers.length;
+  s.addTable(rows,{x:0.9,y:1.0,w:11.5,colW:headers.map(()=>colW),border:{type:'solid',color:C_PPTX.GRY2,pt:1},autoPage:true,autoPageRepeatHeader:true});
+}
+
+function pptxStackedBarH(pptx,title,series,labels){
+  const s=pptx.addSlide();
+  pptxAddSlideTitle(s,title);
+  const h=Math.min(6.0,Math.max(3.0,labels.length*0.48+1.5));
+  s.addChart('bar',series.map(sd=>({name:sd.name,labels,values:sd.values})),{
+    x:0.4,y:1.0,w:12.5,h,barDir:'bar',barGrouping:'stacked',
+    chartColors:series.map(sd=>sd.color||C_PPTX.BLU),
+    showLegend:true,legendPos:'b',showValue:true,dataLabelFormatCode:'0'
+  });
+}
+
+function pptxGroupedBar(pptx,title,series,labels,rotate){
+  const s=pptx.addSlide();
+  pptxAddSlideTitle(s,title);
+  s.addChart('bar',series.map(sd=>({name:sd.name,labels,values:sd.values})),{
+    x:0.4,y:1.0,w:12.5,h:5.8,barDir:'col',barGrouping:'clustered',
+    chartColors:series.map(sd=>sd.color||C_PPTX.BLU),
+    showLegend:true,legendPos:'b',showValue:true,dataLabelFormatCode:'0',
+    catAxisLabelRotate:rotate||0
+  });
+}
+
+function pptxHorizBar(pptx,title,labels,values,colors){
+  const s=pptx.addSlide();
+  pptxAddSlideTitle(s,title);
+  const h=Math.min(6.0,Math.max(2.5,labels.length*0.45+1.2));
+  const clrs=colors&&colors.length>0?colors:[C_PPTX.BLU];
+  s.addChart('bar',[{name:'',labels,values}],{
+    x:0.4,y:1.0,w:12.5,h,barDir:'bar',barGrouping:'clustered',
+    chartColors:clrs.length===1?clrs:undefined,
+    showLegend:false,showValue:true,dataLabelFormatCode:'0'
+  });
+}
+
+function pptxDonut(pptx,title,labels,values,colors){
+  const s=pptx.addSlide();
+  pptxAddSlideTitle(s,title);
+  s.addChart('doughnut',[{name:title,labels,values}],{
+    x:2.0,y:1.0,w:9.33,h:5.8,
+    chartColors:colors||[C_PPTX.PNK,C_PPTX.BLU3],
+    showLegend:true,legendPos:'b',showPercent:true,holeSize:55
+  });
+}
+
+async function exportOrientationsPPTX(){
+  if(typeof PptxGenJS==='undefined'){alert('Bibliothèque PptxGenJS non disponible. Vérifiez votre connexion internet.');return;}
+  const d=getData();
+  const annee=pageState.orientations.annee;
+  if(!annee||!d.annees||!d.annees[annee]){alert('Aucune donnée à exporter.');return;}
+  const data=d.annees[annee];
+  const genreFilter=pageState.orientations.genre;
+  const classeFilter=pageState.orientations.classe;
+  const lycee=d.lycee_name||'Mon Lycée';
+
+  let sec=data.seconde||[];
+  const allClasses=[...new Set(sec.map(r=>r.classe).filter(Boolean))].sort();
+  if(classeFilter!=='Toutes') sec=sec.filter(r=>r.classe===classeFilter);
+  sec=filterGender(sec,genreFilter);
+
+  const total=sec.length;
+  if(!total){alert('Aucun élève dans la sélection.');return;}
+
+  const filles=sec.filter(r=>r.sexe==='Fille').length;
+  const garcons=total-filles;
+  const nbGen=sec.filter(r=>r.orientation==='Première Générale').length;
+  const nbReorient=sec.filter(r=>r.orientation==='Réorientation').length;
+  const nbRedoub=sec.filter(r=>r.redoublant).length;
+
+  const cnt={},fCnt={};
+  sec.forEach(r=>{
+    const o=r.orientation||'Non renseigné';
+    cnt[o]=(cnt[o]||0)+1;
+    if(r.sexe==='Fille') fCnt[o]=(fCnt[o]||0)+1;
+  });
+  const destsSorted=Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
+  const destLabels=destsSorted.map(([o])=>o);
+  const destFilles=destsSorted.map(([o])=>fCnt[o]||0);
+  const destGarcons=destsSorted.map(([o,n])=>n-(fCnt[o]||0));
+
+  const pptx=new PptxGenJS();
+  pptx.layout='LAYOUT_WIDE';
+  pptx.author=lycee;
+  pptx.subject=`Orientations Seconde ${annee}`;
+
+  pptxCover(pptx,'Orientations — Seconde',`Année scolaire ${annee}`,lycee);
+
+  pptxKPIs(pptx,'Indicateurs clés',[
+    {icon:'👥',val:total,label:'Élèves total',color:C_PPTX.BLU},
+    {icon:'👧',val:filles,label:`Filles — ${pct(filles,total)}%`,color:C_PPTX.PNK},
+    {icon:'👦',val:garcons,label:`Garçons — ${pct(garcons,total)}%`,color:C_PPTX.BLU3},
+    {icon:'🎓',val:nbGen,label:`→ 1ère Générale — ${pct(nbGen,total)}%`,color:C_PPTX.GRN},
+    {icon:'🔄',val:nbReorient,label:'Réorientations',color:C_PPTX.ORG},
+    {icon:'📚',val:nbRedoub,label:'Redoublants',color:C_PPTX.TEL},
+  ]);
+
+  pptxTable(pptx,'Destinations des élèves de Seconde',
+    ['Destination','Total','%','Filles','Garçons'],
+    destsSorted.map(([o,n])=>{
+      const f=fCnt[o]||0;
+      return [o,{text:n,color:C_PPTX.BLU},pct(n,total)+'%',{text:f,color:C_PPTX.PNK},{text:n-f,color:C_PPTX.BLU3}];
+    })
+  );
+
+  pptxGroupedBar(pptx,'Répartition par destination et genre',[
+    {name:'Filles',values:destFilles,color:C_PPTX.PNK},
+    {name:'Garçons',values:destGarcons,color:C_PPTX.BLU3}
+  ],destLabels,-25);
+
+  pptxDonut(pptx,'Répartition par genre',['Filles','Garçons'],[filles,garcons],[C_PPTX.PNK,C_PPTX.BLU3]);
+
+  const pctFD=destLabels.map(o=>Math.round((fCnt[o]||0)/(cnt[o]||1)*100));
+  pptxHorizBar(pptx,'% Filles par destination',destLabels,pctFD,pctFD.map(p=>p>=50?C_PPTX.PNK:C_PPTX.BLU3));
+
+  // ---- Slides Langues vivantes ----
+  const lv1P={},lv2P={},lv1FP={},lv2FP={},lvCombosP={};
+  sec.forEach(r=>{
+    if(r.lv1){lv1P[r.lv1]=(lv1P[r.lv1]||0)+1;if(r.sexe==='Fille')lv1FP[r.lv1]=(lv1FP[r.lv1]||0)+1;}
+    if(r.lv2){lv2P[r.lv2]=(lv2P[r.lv2]||0)+1;if(r.sexe==='Fille')lv2FP[r.lv2]=(lv2FP[r.lv2]||0)+1;}
+    if(r.lv1||r.lv2){const k=(r.lv1||'Non renseigné')+' + '+(r.lv2||'Non renseigné');if(!lvCombosP[k])lvCombosP[k]={total:0,f:0};lvCombosP[k].total++;if(r.sexe==='Fille')lvCombosP[k].f++;}
+  });
+  if(sec.some(r=>r.lv1||r.lv2)){
+    pptxSection(pptx,'🌍','Langues vivantes');
+    const lv1Keys=Object.keys(lv1P).sort((a,b)=>lv1P[b]-lv1P[a]);
+    const lv2Keys=Object.keys(lv2P).sort((a,b)=>lv2P[b]-lv2P[a]);
+    pptxKPIs(pptx,'Répartition des langues vivantes',[
+      ...lv1Keys.map(lv=>({icon:'🗣️',val:lv1P[lv],label:`LV1 ${lv} — ${pct(lv1P[lv],total)}%`,color:C_PPTX.TEL})),
+      ...lv2Keys.map(lv=>({icon:'💬',val:lv2P[lv],label:`LV2 ${lv} — ${pct(lv2P[lv],total)}%`,color:C_PPTX.ORG})),
+    ]);
+    if(lv2Keys.length){
+      pptxGroupedBar(pptx,'LV2 — Effectifs par genre',[
+        {name:'Filles',values:lv2Keys.map(lv=>lv2FP[lv]||0),color:C_PPTX.PNK},
+        {name:'Garçons',values:lv2Keys.map(lv=>lv2P[lv]-(lv2FP[lv]||0)),color:C_PPTX.BLU3}
+      ],lv2Keys,0);
+    }
+    const combosP=Object.entries(lvCombosP).sort((a,b)=>b[1].total-a[1].total);
+    pptxTable(pptx,'Combinaisons LV1 + LV2',
+      ['LV1 + LV2','Total','%','Filles','Garçons'],
+      combosP.map(([k,x])=>[k,x.total,pct(x.total,total)+'%',{text:x.f,color:C_PPTX.PNK},{text:x.total-x.f,color:C_PPTX.BLU3}])
+    );
+  }
+
+  const secGen=sec.filter(r=>r.orientation==='Première Générale');
+  if(secGen.length){
+    pptxSection(pptx,'📚','Vœux EDS — Futurs élèves de 1ère');
+    const topSpe=getTopSpe(secGen)||'-';
+    const nbCombos=countCombos(secGen);
+    pptxKPIs(pptx,`Vœux EDS — ${secGen.length} élèves → 1ère Générale`,[
+      {icon:'👥',val:secGen.length,label:'Élèves concernés',color:C_PPTX.BLU},
+      {icon:'🏆',val:topSpe,label:'Spécialité la plus demandée',color:C_PPTX.ORG},
+      {icon:'🔗',val:nbCombos,label:'Combinaisons différentes',color:C_PPTX.TEL},
+    ]);
+    const spesGen=getAllSpes(secGen);
+    if(spesGen.length){
+      const fCntS={},gCntS={},totS={};
+      secGen.forEach(r=>(r.specialites||[]).forEach(s=>{
+        if(!s) return;
+        totS[s]=(totS[s]||0)+1;
+        if(r.sexe==='Fille') fCntS[s]=(fCntS[s]||0)+1;
+        else gCntS[s]=(gCntS[s]||0)+1;
+      }));
+      const spesSorted=[...spesGen].sort((a,b)=>(totS[a]||0)-(totS[b]||0));
+      pptxStackedBarH(pptx,'Spécialités souhaitées',[
+        {name:'Filles',values:spesSorted.map(s=>fCntS[s]||0),color:C_PPTX.PNK},
+        {name:'Garçons',values:spesSorted.map(s=>gCntS[s]||0),color:C_PPTX.BLU3}
+      ],spesSorted);
+      const pctFS=spesSorted.map(s=>Math.round((fCntS[s]||0)/(totS[s]||1)*100));
+      pptxHorizBar(pptx,'% Filles par spécialité souhaitée',spesSorted,pctFS,pctFS.map(p=>p>=50?C_PPTX.PNK:C_PPTX.BLU3));
+      const comboCnt={};
+      secGen.forEach(r=>{
+        const key=(r.specialites||[]).filter(Boolean).sort().join(' + ');
+        if(key){if(!comboCnt[key])comboCnt[key]={total:0,f:0};comboCnt[key].total++;if(r.sexe==='Fille')comboCnt[key].f++;}
+      });
+      const topCombos=Object.entries(comboCnt).sort((a,b)=>b[1].total-a[1].total).slice(0,15);
+      pptxTable(pptx,'Top combinaisons de spécialités souhaitées',
+        ['Combinaison','Total','Filles','Garçons','% Filles'],
+        topCombos.map(([c,x])=>[c,x.total,{text:x.f,color:C_PPTX.PNK},{text:x.total-x.f,color:C_PPTX.BLU3},pct(x.f,x.total)+'%'])
+      );
+      const pre=data.premiere||[];
+      if(pre.length){
+        const demCnt={},capCnt={};
+        secGen.forEach(r=>(r.specialites||[]).forEach(s=>{if(s)demCnt[s]=(demCnt[s]||0)+1;}));
+        pre.forEach(r=>(r.specialites||[]).forEach(s=>{if(s)capCnt[s]=(capCnt[s]||0)+1;}));
+        const allS=[...new Set([...Object.keys(demCnt),...Object.keys(capCnt)])].sort();
+        pptxGroupedBar(pptx,'Demande (Seconde) vs Capacité (Première actuelle)',[
+          {name:'Vœux Seconde',values:allS.map(s=>demCnt[s]||0),color:C_PPTX.ORG},
+          {name:'Capacité 1ère',values:allS.map(s=>capCnt[s]||0),color:C_PPTX.TEL}
+        ],allS,-25);
+      }
+    }
+  }
+
+  if(allClasses.length>1&&classeFilter==='Toutes'){
+    pptxSection(pptx,'🏫','Détail par classe');
+    allClasses.forEach(cls=>{
+      const clsRecs=filterGender((data.seconde||[]).filter(r=>r.classe===cls),genreFilter);
+      if(!clsRecs.length) return;
+      const cf=clsRecs.filter(r=>r.sexe==='Fille').length;
+      const cCnt={},cfCnt={};
+      clsRecs.forEach(r=>{const o=r.orientation||'Non renseigné';cCnt[o]=(cCnt[o]||0)+1;if(r.sexe==='Fille')cfCnt[o]=(cfCnt[o]||0)+1;});
+      const cSorted=Object.entries(cCnt).sort((a,b)=>b[1]-a[1]);
+      pptxTable(pptx,`Orientations — ${cls} (${clsRecs.length} élèves)`,
+        ['Destination','Total','%','Filles','Garçons'],
+        cSorted.map(([o,n])=>{const f=cfCnt[o]||0;return [o,n,pct(n,clsRecs.length)+'%',{text:f,color:C_PPTX.PNK},{text:n-f,color:C_PPTX.BLU3}];})
+      );
+    });
+  }
+
+  pptxEnd(pptx,lycee);
+  const suffix=classeFilter!=='Toutes'?`_${classeFilter.replace(/\s+/g,'_')}`:'';
+  await pptx.writeFile({fileName:`Orientations_Seconde_${annee}${suffix}.pptx`});
+}
+
+async function exportEdsPPTX(niveau){
+  if(typeof PptxGenJS==='undefined'){alert('Bibliothèque PptxGenJS non disponible. Vérifiez votre connexion internet.');return;}
+  const d=getData();
+  const annee=pageState.eds.annee;
+  if(!annee||!d.annees||!d.annees[annee]){alert('Aucune donnée à exporter.');return;}
+  const data=d.annees[annee];
+  const genreFilter=pageState.eds.genre;
+  const lycee=d.lycee_name||'Mon Lycée';
+
+  const rawRecords=niveau==='Première'?(data.premiere||[]):(data.terminale||[]);
+  const records=filterGender(rawRecords,genreFilter);
+  if(!records.length){alert(`Aucune donnée pour la ${niveau}.`);return;}
+
+  const total=records.length;
+  const filles=records.filter(r=>r.sexe==='Fille').length;
+  const garcons=total-filles;
+  const topSpe=getTopSpe(records)||'-';
+  const nbCombos=countCombos(records);
+  const niveauColor=niveau==='Première'?C_PPTX.TEL:C_PPTX.PRP;
+
+  const pptx=new PptxGenJS();
+  pptx.layout='LAYOUT_WIDE';
+  pptx.author=lycee;
+  pptx.subject=`EDS ${niveau} ${annee}`;
+
+  pptxCover(pptx,`EDS — ${niveau}`,`Enseignements de Spécialité — ${annee}`,lycee);
+
+  pptxKPIs(pptx,'Indicateurs clés',[
+    {icon:'👥',val:total,label:'Élèves',color:C_PPTX.BLU},
+    {icon:'👧',val:filles,label:`Filles — ${pct(filles,total)}%`,color:C_PPTX.PNK},
+    {icon:'👦',val:garcons,label:`Garçons — ${pct(garcons,total)}%`,color:C_PPTX.BLU3},
+    {icon:'🏆',val:topSpe,label:'Spécialité la plus choisie',color:C_PPTX.ORG},
+    {icon:'🔗',val:nbCombos,label:'Combinaisons différentes',color:C_PPTX.TEL},
+  ]);
+
+  const spes=getAllSpes(records);
+  if(spes.length){
+    const fCntS={},gCntS={},totS={};
+    records.forEach(r=>(r.specialites||[]).forEach(s=>{
+      if(!s) return;
+      totS[s]=(totS[s]||0)+1;
+      if(r.sexe==='Fille') fCntS[s]=(fCntS[s]||0)+1;
+      else gCntS[s]=(gCntS[s]||0)+1;
+    }));
+    const spesSorted=[...spes].sort((a,b)=>(totS[a]||0)-(totS[b]||0));
+
+    pptxStackedBarH(pptx,`Distribution des spécialités — ${niveau}`,[
+      {name:'Filles',values:spesSorted.map(s=>fCntS[s]||0),color:C_PPTX.PNK},
+      {name:'Garçons',values:spesSorted.map(s=>gCntS[s]||0),color:C_PPTX.BLU3}
+    ],spesSorted);
+
+    pptxDonut(pptx,'Répartition par genre',['Filles','Garçons'],[filles,garcons],[C_PPTX.PNK,C_PPTX.BLU3]);
+
+    const pctFS=spesSorted.map(s=>Math.round((fCntS[s]||0)/(totS[s]||1)*100));
+    pptxHorizBar(pptx,`% Filles par spécialité — ${niveau}`,spesSorted,pctFS,pctFS.map(p=>p>=50?C_PPTX.PNK:C_PPTX.BLU3));
+
+    pptxTable(pptx,`Tableau des spécialités — ${niveau}`,
+      ['Spécialité','Total','% total','Filles','Garçons','% Filles'],
+      spesSorted.slice().reverse().map(s=>[
+        s,totS[s]||0,pct(totS[s]||0,total)+'%',
+        {text:fCntS[s]||0,color:C_PPTX.PNK},
+        {text:gCntS[s]||0,color:C_PPTX.BLU3},
+        pct(fCntS[s]||0,totS[s]||1)+'%'
+      ])
+    );
+  }
+
+  const comboCnt={};
+  records.forEach(r=>{
+    const key=(r.specialites||[]).filter(Boolean).sort().join(' + ');
+    if(key){if(!comboCnt[key])comboCnt[key]={total:0,f:0};comboCnt[key].total++;if(r.sexe==='Fille')comboCnt[key].f++;}
+  });
+  const topCombos=Object.entries(comboCnt).sort((a,b)=>b[1].total-a[1].total);
+  if(topCombos.length){
+    const top10=topCombos.slice(0,10);
+    pptxHorizBar(pptx,`Top 10 combinaisons — ${niveau}`,
+      top10.map(([c])=>c).reverse(),top10.map(([,x])=>x.total).reverse(),[niveauColor]
+    );
+    pptxTable(pptx,`Combinaisons de spécialités — ${niveau}`,
+      ['Combinaison','Total','Filles','Garçons','% Filles'],
+      topCombos.slice(0,20).map(([c,x])=>[c,x.total,{text:x.f,color:C_PPTX.PNK},{text:x.total-x.f,color:C_PPTX.BLU3},pct(x.f,x.total)+'%'])
+    );
+  }
+
+  if(niveau==='Première'){
+    const ter=filterGender(data.terminale||[],genreFilter);
+    if(ter.length){
+      pptxSection(pptx,'🔄','Première → Terminale');
+      const allS=new Set([...getAllSpes(records),...getAllSpes(ter)]);
+      const spesAll=[...allS].sort();
+      const preCnt={},terCnt={};
+      records.forEach(r=>(r.specialites||[]).forEach(s=>{if(s)preCnt[s]=(preCnt[s]||0)+1;}));
+      ter.forEach(r=>(r.specialites||[]).forEach(s=>{if(s)terCnt[s]=(terCnt[s]||0)+1;}));
+      pptxGroupedBar(pptx,'Effectifs par spécialité : Première vs Terminale',[
+        {name:'Première',values:spesAll.map(s=>preCnt[s]||0),color:C_PPTX.TEL},
+        {name:'Terminale',values:spesAll.map(s=>terCnt[s]||0),color:C_PPTX.PRP}
+      ],spesAll,-25);
+      pptxTable(pptx,'Évolution des effectifs Première → Terminale',
+        ['Spécialité','1ère','Tle','Variation'],
+        spesAll.map(s=>{const pp=preCnt[s]||0,tt=terCnt[s]||0,delta=tt-pp;return [s,pp,tt,{text:(delta>0?'+':'')+delta,color:delta>0?C_PPTX.GRN:delta<0?'C62828':'555555'}];})
+      );
+    }
+  }
+
+  const allClasses=[...new Set(records.map(r=>r.classe).filter(Boolean))].sort();
+  if(allClasses.length>1){
+    pptxSection(pptx,'🏫','Détail par classe');
+    allClasses.forEach(cls=>{
+      const clsRecs=records.filter(r=>r.classe===cls);
+      if(!clsRecs.length) return;
+      const cf=clsRecs.filter(r=>r.sexe==='Fille').length;
+      const fS={},gS={},tS={};
+      clsRecs.forEach(r=>(r.specialites||[]).forEach(s=>{if(!s)return;tS[s]=(tS[s]||0)+1;if(r.sexe==='Fille')fS[s]=(fS[s]||0)+1;else gS[s]=(gS[s]||0)+1;}));
+      const clsSpes=[...getAllSpes(clsRecs)].sort((a,b)=>(tS[a]||0)-(tS[b]||0));
+      if(!clsSpes.length) return;
+      const s=pptx.addSlide();
+      pptxAddSlideTitle(s,`${niveau} — ${cls} (${clsRecs.length} élèves · ${cf}F / ${clsRecs.length-cf}G)`);
+      const h=Math.min(6.0,Math.max(2.5,clsSpes.length*0.48+1.5));
+      s.addChart('bar',[
+        {name:'Filles',labels:clsSpes,values:clsSpes.map(sp=>fS[sp]||0)},
+        {name:'Garçons',labels:clsSpes,values:clsSpes.map(sp=>gS[sp]||0)}
+      ],{x:0.4,y:1.0,w:12.5,h,barDir:'bar',barGrouping:'stacked',chartColors:[C_PPTX.PNK,C_PPTX.BLU3],showLegend:true,legendPos:'b',showValue:true});
+    });
+  }
+
+  pptxEnd(pptx,lycee);
+  const niveauFile=niveau==='Première'?'Premiere':'Terminale';
+  await pptx.writeFile({fileName:`EDS_${niveauFile}_${annee}.pptx`});
+}
+
+async function exportComparatifPPTX(){
+  if(typeof PptxGenJS==='undefined'){alert('Bibliothèque PptxGenJS non disponible. Vérifiez votre connexion internet.');return;}
+  const d=getData();
+  const annees=d.annees||{};
+  const years=getAnneesSorted(d);
+  if(years.length<2){alert('Au moins 2 années de données sont nécessaires pour le comparatif.');return;}
+  const genreFilter=pageState.comparatif.genre;
+  const lycee=d.lycee_name||'Mon Lycée';
+  const yearsAsc=years.slice().reverse();
+  const yearsLabel=yearsAsc[0]+' → '+yearsAsc[yearsAsc.length-1];
+  const pal=i=>COLORS.palette[i%COLORS.palette.length].slice(1).toUpperCase();
+
+  const pptx=new PptxGenJS();
+  pptx.layout='LAYOUT_WIDE';
+  pptx.author=lycee;
+  pptx.subject=`Comparatif ${yearsLabel}`;
+
+  // Diapo 1 : Couverture
+  pptxCover(pptx,'Comparatif pluriannuel',yearsLabel,lycee);
+
+  // Diapo 2 : Tableau récapitulatif
+  pptxTable(pptx,'Tableau récapitulatif',
+    ['Année','Nb Sec.','%F Sec.','→ 1ère Gén','Nb 1ère','%F 1ère','Top SPE 1ère','Nb Tle','%F Tle'],
+    yearsAsc.map(y=>{
+      const sec=filterGender(annees[y].seconde||[],genreFilter);
+      const pre=filterGender(annees[y].premiere||[],genreFilter);
+      const ter=filterGender(annees[y].terminale||[],genreFilter);
+      const sf=sec.filter(r=>r.sexe==='Fille').length;
+      const pf=pre.filter(r=>r.sexe==='Fille').length;
+      const tf=ter.filter(r=>r.sexe==='Fille').length;
+      const nbGen=sec.filter(r=>r.orientation==='Première Générale').length;
+      return [
+        {text:y,color:C_PPTX.BLU},
+        sec.length,pct(sf,sec.length)+'%',
+        {text:nbGen,color:C_PPTX.GRN},
+        pre.length,pct(pf,pre.length)+'%',
+        {text:getTopSpe(pre)||'-',color:C_PPTX.TEL},
+        ter.length,pct(tf,ter.length)+'%'
+      ];
+    })
+  );
+
+  // Section : Effectifs
+  pptxSection(pptx,'👥','Évolution des effectifs');
+  [{label:'Seconde',key:'seconde'},{label:'Première',key:'premiere'},{label:'Terminale',key:'terminale'}].forEach(({label,key})=>{
+    const fV=yearsAsc.map(y=>filterGender(annees[y][key]||[],genreFilter).filter(r=>r.sexe==='Fille').length);
+    const gV=yearsAsc.map(y=>filterGender(annees[y][key]||[],genreFilter).filter(r=>r.sexe==='Garçon').length);
+    if(fV.every(v=>v===0)&&gV.every(v=>v===0)) return;
+    pptxGroupedBar(pptx,`Évolution des effectifs — ${label}`,[
+      {name:'Filles',values:fV,color:C_PPTX.PNK},
+      {name:'Garçons',values:gV,color:C_PPTX.BLU3}
+    ],yearsAsc,0);
+  });
+
+  // Écart ratio 50/50
+  {
+    const labels=[],vals=[];
+    years.forEach(y=>{
+      ['seconde','premiere','terminale'].forEach(n=>{
+        const recs=filterGender(annees[y][n]||[],genreFilter);
+        if(!recs.length) return;
+        const f=recs.filter(r=>r.sexe==='Fille').length;
+        const nomN=n==='seconde'?'Seconde':n==='premiere'?'Première':'Terminale';
+        labels.push(`${nomN} ${y}`);
+        vals.push(pct(f,recs.length)-50);
+      });
+    });
+    labels.reverse();vals.reverse();
+    const s=pptx.addSlide();
+    pptxAddSlideTitle(s,'Écart au ratio 50/50 (points de % par rapport à 50%)');
+    const h=Math.min(6.0,Math.max(3.0,labels.length*0.44+1.2));
+    s.addChart('bar',[{name:'Écart',labels,values:vals}],{
+      x:0.4,y:1.0,w:12.5,h,barDir:'bar',barGrouping:'clustered',
+      chartColors:[C_PPTX.BLU2],showLegend:false,showValue:true,dataLabelFormatCode:'0'
+    });
+  }
+
+  // Section : EDS
+  pptxSection(pptx,'📚','Évolution des spécialités (EDS)');
+  ['premiere','terminale'].forEach(niveau=>{
+    const niveauLabel=niveau==='premiere'?'Première':'Terminale';
+    const allSpes=new Set();
+    years.forEach(y=>getAllSpes(filterGender(annees[y][niveau]||[],genreFilter)).forEach(s=>allSpes.add(s)));
+    const spes=[...allSpes].sort();
+    if(!spes.length) return;
+
+    // Graphique % par spécialité et par année
+    {
+      const s=pptx.addSlide();
+      pptxAddSlideTitle(s,`Évolution des spécialités — ${niveauLabel} (% du niveau)`);
+      s.addChart('bar',yearsAsc.map((y,i)=>{
+        const recs=filterGender(annees[y][niveau]||[],genreFilter);
+        const tot=recs.length||1;const cnt={};
+        recs.forEach(r=>(r.specialites||[]).forEach(sp=>{if(sp)cnt[sp]=(cnt[sp]||0)+1;}));
+        return {name:y,labels:spes,values:spes.map(sp=>Math.round((cnt[sp]||0)/tot*100))};
+      }),{x:0.4,y:1.0,w:12.5,h:5.8,barDir:'col',barGrouping:'clustered',
+        chartColors:yearsAsc.map((_,i)=>pal(i)),showLegend:true,legendPos:'b',
+        showValue:true,dataLabelFormatCode:'0"%"',catAxisLabelRotate:-25});
+    }
+
+    // Tableau effectifs par spécialité
+    pptxTable(pptx,`Effectifs par spécialité — ${niveauLabel}`,
+      ['Spécialité',...yearsAsc],
+      spes.map(sp=>[sp,...yearsAsc.map(y=>{
+        const recs=filterGender(annees[y][niveau]||[],genreFilter);
+        const n=recs.reduce((a,r)=>a+((r.specialites||[]).includes(sp)?1:0),0);
+        return {text:n===0?'—':n,color:n>0?C_PPTX.BLU:C_PPTX.GRY2};
+      })])
+    );
+  });
+
+  // Section : Orientations Seconde (si plusieurs années)
+  const secYears=years.filter(y=>(annees[y].seconde||[]).length>0);
+  if(secYears.length>1){
+    pptxSection(pptx,'🎯','Évolution des orientations — Seconde');
+    const secYearsAsc=secYears.slice().reverse();
+    [{fam:'generale',label:'Filière Générale'},{fam:'techno',label:'Filières Technologiques'},{fam:'pro',label:'Filières Professionnelles'}].forEach(({fam,label})=>{
+      const allDests=new Set();
+      secYears.forEach(y=>(annees[y].seconde||[]).forEach(r=>{if(voieFamille(r.orientation||'')===fam)allDests.add(r.orientation||'');}));
+      const dests=[...allDests].sort();
+      if(!dests.length) return;
+      pptxGroupedBar(pptx,label,
+        secYearsAsc.map((y,i)=>{
+          const recs=filterGender(annees[y].seconde||[],genreFilter);
+          const tot=recs.length||1;const cnt={};
+          recs.forEach(r=>{const o=r.orientation||'';cnt[o]=(cnt[o]||0)+1;});
+          return {name:y,values:dests.map(dest=>Math.round((cnt[dest]||0)/tot*100)),color:pal(i)};
+        }),dests,-25
+      );
+    });
+    // Tableau récap orientations toutes filières
+    const allDests=new Set();
+    secYears.forEach(y=>(annees[y].seconde||[]).forEach(r=>{if(r.orientation)allDests.add(r.orientation);}));
+    const allDestsArr=[...allDests].sort();
+    pptxTable(pptx,'Effectifs par destination — Seconde',
+      ['Destination',...secYearsAsc],
+      allDestsArr.map(dest=>[dest,...secYearsAsc.map(y=>{
+        const recs=filterGender(annees[y].seconde||[],genreFilter);
+        const n=recs.filter(r=>r.orientation===dest).length;
+        return {text:n===0?'—':n,color:n>0?C_PPTX.BLU:C_PPTX.GRY2};
+      })])
+    );
+  }
+
+  pptxEnd(pptx,lycee);
+  await pptx.writeFile({fileName:`Comparatif_${yearsAsc[0].replace(/[^0-9]/g,'_')}_${yearsAsc[yearsAsc.length-1].replace(/[^0-9]/g,'_')}.pptx`});
+}
+
+// ===================== NAVIGATION & SIDEBAR =====================
+function updateSidebar(){
+  const d=getData();
+  document.getElementById('sb-name').textContent=d.lycee_name||'Mon Lycée';
+  const latest=getLatestAnnee(d);
+  document.getElementById('sb-year').textContent=latest?`Année active : ${latest}`:'';
+}
+
+function navigate(page){
+  currentPage=page;
+  document.querySelectorAll('.sidebar-nav-item').forEach(el=>{
+    el.classList.toggle('active',el.dataset.page===page);
+  });
+  if(page==='accueil') renderAccueil();
+  else if(page==='eds') renderEds();
+  else if(page==='orientations') renderOrientations();
+  else if(page==='comparatif') renderComparatif();
+  else if(page==='params') renderParams();
+  document.getElementById('main').scrollTop=0;
+}
+
+document.querySelectorAll('.sidebar-nav-item').forEach(el=>{
+  el.addEventListener('click',()=>navigate(el.dataset.page));
+});
+
+// ===================== INIT =====================
+updateSidebar();
+navigate('accueil');
+</script>
+</body>
+</html>
