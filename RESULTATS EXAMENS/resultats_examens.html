@@ -1225,7 +1225,7 @@ function addPptxSlidesForTab(pptx, tab) {
 
   slide = pptx.addSlide();
   slide.addText(`${cfg.label} — Détail ${latestYear}`, { x:0.4, y:0.25, w:9.2, h:0.6, fontSize:22, bold:true, color:colorHex });
-  slide.addTable([headerRow, ...bodyRows], { x:0.4, y:1.0, w:9.2, fontSize:10, color:'1E293B', border:{type:'solid', color:'CBD5E1', pt:0.5}, autoPage:true });
+  slide.addTable([headerRow, ...bodyRows], { x:0.4, y:1.0, w:9.2, fontSize:10, color:'1E293B', border:{type:'solid', color:'CBD5E1', pt:0.5} });
 
   return true;
 }
@@ -1234,17 +1234,23 @@ async function exportPPTXTab(tab) {
   if (!Object.keys(DB[tab]||{}).length) { alert(`Aucune donnée pour ${TABS[tab].label}.`); return; }
   setPptxStatus('<i class="bi bi-hourglass-split me-1"></i>Génération en cours…');
   const restoreTab = currentTab;
-  await ensureTabRendered(tab);
+  try {
+    await ensureTabRendered(tab);
 
-  const pptx = new PptxGenJS();
-  addPptxTitleSlide(pptx, [TABS[tab].label]);
-  addPptxSlidesForTab(pptx, tab);
+    const pptx = new PptxGenJS();
+    addPptxTitleSlide(pptx, [TABS[tab].label]);
+    addPptxSlidesForTab(pptx, tab);
 
-  const slug = schoolSettings.name.replace(/\s+/g,'-').toLowerCase();
-  await pptx.writeFile({ fileName: `${slug}_${tab}_${new Date().getFullYear()}.pptx` });
+    const slug = schoolSettings.name.replace(/\s+/g,'-').toLowerCase();
+    await pptx.writeFile({ fileName: `${slug}_${tab}_${new Date().getFullYear()}.pptx` });
 
-  await ensureTabRendered(restoreTab);
-  setPptxStatus('<i class="bi bi-check-circle-fill text-success me-1"></i>Présentation téléchargée.');
+    setPptxStatus('<i class="bi bi-check-circle-fill text-success me-1"></i>Présentation téléchargée.');
+  } catch (err) {
+    console.error('Erreur export PPTX', err);
+    setPptxStatus(`<i class="bi bi-exclamation-triangle-fill text-danger me-1"></i>Erreur : ${err.message || err}`);
+  } finally {
+    await ensureTabRendered(restoreTab);
+  }
 }
 
 async function exportPPTXAll() {
@@ -1253,20 +1259,26 @@ async function exportPPTXAll() {
 
   setPptxStatus('<i class="bi bi-hourglass-split me-1"></i>Génération en cours…');
   const restoreTab = currentTab;
-  const pptx = new PptxGenJS();
-  addPptxTitleSlide(pptx, tabsWithData.map(t => TABS[t].label));
+  try {
+    const pptx = new PptxGenJS();
+    addPptxTitleSlide(pptx, tabsWithData.map(t => TABS[t].label));
 
-  for (const tab of tabsWithData) {
-    setPptxStatus(`<i class="bi bi-hourglass-split me-1"></i>Génération ${TABS[tab].label}…`);
-    await ensureTabRendered(tab);
-    addPptxSlidesForTab(pptx, tab);
+    for (const tab of tabsWithData) {
+      setPptxStatus(`<i class="bi bi-hourglass-split me-1"></i>Génération ${TABS[tab].label}…`);
+      await ensureTabRendered(tab);
+      addPptxSlidesForTab(pptx, tab);
+    }
+
+    const slug = schoolSettings.name.replace(/\s+/g,'-').toLowerCase();
+    await pptx.writeFile({ fileName: `${slug}_resultats_${new Date().getFullYear()}.pptx` });
+
+    setPptxStatus('<i class="bi bi-check-circle-fill text-success me-1"></i>Présentation téléchargée.');
+  } catch (err) {
+    console.error('Erreur export PPTX', err);
+    setPptxStatus(`<i class="bi bi-exclamation-triangle-fill text-danger me-1"></i>Erreur : ${err.message || err}`);
+  } finally {
+    await ensureTabRendered(restoreTab);
   }
-
-  const slug = schoolSettings.name.replace(/\s+/g,'-').toLowerCase();
-  await pptx.writeFile({ fileName: `${slug}_resultats_${new Date().getFullYear()}.pptx` });
-
-  await ensureTabRendered(restoreTab);
-  setPptxStatus('<i class="bi bi-check-circle-fill text-success me-1"></i>Présentation téléchargée.');
 }
 
 // ==================== EXPORT / IMPORT / RESET ====================
