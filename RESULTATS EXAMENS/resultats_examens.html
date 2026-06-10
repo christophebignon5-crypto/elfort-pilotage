@@ -7,7 +7,6 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
 <style>
   :root {
     --cap-color: #2563eb;
@@ -259,21 +258,6 @@
           <i class="bi bi-printer-fill me-1"></i>Imprimer l'onglet actif
         </button>
       </div>
-    </div>
-
-    <!-- Export PowerPoint -->
-    <div class="settings-section">
-      <h6><i class="bi bi-file-earmark-ppt me-1"></i>Export PowerPoint</h6>
-      <p class="text-muted small mb-2">Génère une présentation avec le graphique "Taux de réussite par année" et la "Répartition" de la dernière année saisie.</p>
-      <div class="d-grid gap-2">
-        <button class="btn btn-outline-secondary btn-sm" onclick="exportPPTXTab('cap')"><i class="bi bi-tools me-1"></i>PPTX — CAP</button>
-        <button class="btn btn-outline-secondary btn-sm" onclick="exportPPTXTab('bacpro')"><i class="bi bi-briefcase me-1"></i>PPTX — BAC PRO</button>
-        <button class="btn btn-outline-secondary btn-sm" onclick="exportPPTXTab('bacg')"><i class="bi bi-book me-1"></i>PPTX — BAC G/T</button>
-        <button class="btn btn-outline-secondary btn-sm" onclick="exportPPTXTab('bts')"><i class="bi bi-award me-1"></i>PPTX — BTS</button>
-        <button class="btn btn-outline-secondary btn-sm" onclick="exportPPTXTab('cs')"><i class="bi bi-star me-1"></i>PPTX — CS</button>
-        <button class="btn btn-warning btn-sm mt-1 fw-semibold" onclick="exportPPTXAll()"><i class="bi bi-collection-fill me-1"></i>PPTX — Tous les diplômes</button>
-      </div>
-      <div id="pptx-status" class="form-text mt-2"></div>
     </div>
 
     <!-- À propos -->
@@ -552,13 +536,23 @@ function renderTab(tab) {
   <div class="row g-3 mt-1">
     <div class="col-lg-8">
       <div class="chart-card">
-        <h6 class="fw-bold mb-3" style="color:${cfg.color}"><i class="bi bi-bar-chart-fill me-2"></i>Taux de réussite par année</h6>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h6 class="fw-bold mb-0" style="color:${cfg.color}"><i class="bi bi-bar-chart-fill me-2"></i>Taux de réussite par année</h6>
+          <button class="btn btn-sm btn-outline-secondary" onclick="copyChartImage('chart-main-${tab}', this)">
+            <i class="bi bi-clipboard me-1"></i>Copier
+          </button>
+        </div>
         <canvas id="chart-main-${tab}" height="120"></canvas>
       </div>
     </div>
     <div class="col-lg-4">
       <div class="chart-card h-100">
-        <h6 class="fw-bold mb-3" style="color:${cfg.color}"><i class="bi bi-pie-chart-fill me-2"></i>Répartition ${latestYear||''}</h6>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h6 class="fw-bold mb-0" style="color:${cfg.color}"><i class="bi bi-pie-chart-fill me-2"></i>Répartition ${latestYear||''}</h6>
+          <button class="btn btn-sm btn-outline-secondary" onclick="copyChartImage('chart-pie-${tab}', this)">
+            <i class="bi bi-clipboard me-1"></i>Copier
+          </button>
+        </div>
         <canvas id="chart-pie-${tab}" height="200"></canvas>
       </div>
     </div>
@@ -789,6 +783,25 @@ function renderCharts(tab) {
       }
     });
   }
+}
+
+// ==================== COPIE GRAPHIQUE ====================
+function copyChartImage(canvasId, btn) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const restoreHtml = btn.innerHTML;
+  canvas.toBlob(blob => {
+    if (!blob) return;
+    navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+      .then(() => {
+        btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Copié';
+        setTimeout(() => { btn.innerHTML = restoreHtml; }, 1500);
+      })
+      .catch(err => {
+        console.error('Erreur copie graphique', err);
+        alert("Impossible de copier l'image dans le presse-papiers.");
+      });
+  }, 'image/png');
 }
 
 // ==================== ADD MODAL ====================
@@ -1149,136 +1162,6 @@ function printTab(tab) {
   // Cleanup
   tabEl.classList.remove('print-active');
   printHeader.innerHTML = '';
-}
-
-// ==================== EXPORT POWERPOINT ====================
-function ensureTabRendered(tab) {
-  return new Promise(resolve => {
-    const btn = document.querySelector(`.nav-link[data-tab="${tab}"]`);
-    if (currentTab !== tab && btn) {
-      switchTab(tab, btn);
-    } else {
-      renderTab(tab);
-    }
-    setTimeout(resolve, 400); // laisser Chart.js dessiner
-  });
-}
-
-function setPptxStatus(msg) {
-  const el = document.getElementById('pptx-status');
-  if (el) el.innerHTML = msg;
-}
-
-function addPptxTitleSlide(pptx, tabLabels) {
-  const slide = pptx.addSlide();
-  slide.background = { color: '1E3A5F' };
-  slide.addText('Résultats aux Examens', { x:0.5, y:1.6, w:9, h:1, fontSize:40, bold:true, color:'FFFFFF', align:'center' });
-  slide.addText(schoolSettings.name, { x:0.5, y:2.7, w:9, h:0.6, fontSize:22, color:'FFFFFF', align:'center' });
-  slide.addText(tabLabels.join(' • '), { x:0.5, y:3.5, w:9, h:0.5, fontSize:14, color:'CBD5E1', align:'center' });
-  slide.addText(new Date().toLocaleDateString('fr-FR'), { x:0.5, y:4.9, w:9, h:0.4, fontSize:12, color:'94A3B8', align:'center' });
-}
-
-function addPptxSlidesForTab(pptx, tab) {
-  const cfg   = TABS[tab];
-  const years = Object.keys(DB[tab]||{}).map(Number).sort((a,b)=>a-b);
-  if (!years.length) return false;
-  const latestYear = years[years.length-1];
-  const colorHex   = cfg.color.replace('#','');
-
-  // Slide de section
-  let slide = pptx.addSlide();
-  slide.background = { color: colorHex };
-  slide.addText(cfg.label, { x:0.5, y:1.9, w:9, h:1.2, fontSize:40, bold:true, color:'FFFFFF', align:'center' });
-  slide.addText(schoolSettings.name, { x:0.5, y:3.1, w:9, h:0.5, fontSize:16, color:'FFFFFF', align:'center' });
-
-  // Taux de réussite par année
-  const mainChart = charts[tab+'_main'];
-  if (mainChart) {
-    slide = pptx.addSlide();
-    slide.addText(`${cfg.label} — Taux de réussite par année`, { x:0.4, y:0.25, w:9.2, h:0.6, fontSize:22, bold:true, color:colorHex });
-    slide.addImage({ data: mainChart.toBase64Image(), x:0.5, y:1.0, w:9, h:4.3 });
-  }
-
-  // Répartition de la dernière année
-  const pieChart = charts[tab+'_pie'];
-  const totals = computeTotals(tab, DB[tab][latestYear].rows);
-  if (pieChart) {
-    slide = pptx.addSlide();
-    slide.addText(`${cfg.label} — Répartition ${latestYear}`, { x:0.4, y:0.25, w:9.2, h:0.6, fontSize:22, bold:true, color:colorHex });
-    slide.addImage({ data: pieChart.toBase64Image(), x:2.5, y:0.85, w:5, h:4 });
-    slide.addText(
-      `Inscrits/Présents : ${totals.inscrits}    Admis : ${totals.admis}    Taux global : ${fmtTaux(totals.taux)} %`,
-      { x:0.5, y:5.0, w:9, h:0.4, fontSize:14, align:'center', color:'475569' });
-  }
-
-  // Détail par spécialité
-  const cols = COLS[tab];
-  const headerRow = [
-    { text:'Spécialité', options:{ bold:true, color:'FFFFFF', fill:{color:'1E293B'} } },
-    { text:'Secteur',    options:{ bold:true, color:'FFFFFF', fill:{color:'1E293B'} } },
-    ...cols.map(c => ({ text:c, options:{ bold:true, color:'FFFFFF', fill:{color:'1E293B'}, align:'center' } }))
-  ];
-  const bodyRows = DB[tab][latestYear].rows.map(r => {
-    const cells = [r.name, r.sector, ...r.v.map((v,i) => i===r.v.length-1 ? `${fmtTaux(v)} %` : String(v))];
-    return cells.map((c,i) => i < 2 ? c : { text:c, options:{ align:'center' } });
-  });
-
-  slide = pptx.addSlide();
-  slide.addText(`${cfg.label} — Détail ${latestYear}`, { x:0.4, y:0.25, w:9.2, h:0.6, fontSize:22, bold:true, color:colorHex });
-  slide.addTable([headerRow, ...bodyRows], { x:0.4, y:1.0, w:9.2, fontSize:10, color:'1E293B', border:{type:'solid', color:'CBD5E1', pt:0.5} });
-
-  return true;
-}
-
-async function exportPPTXTab(tab) {
-  if (!Object.keys(DB[tab]||{}).length) { alert(`Aucune donnée pour ${TABS[tab].label}.`); return; }
-  setPptxStatus('<i class="bi bi-hourglass-split me-1"></i>Génération en cours…');
-  const restoreTab = currentTab;
-  try {
-    await ensureTabRendered(tab);
-
-    const pptx = new PptxGenJS();
-    addPptxTitleSlide(pptx, [TABS[tab].label]);
-    addPptxSlidesForTab(pptx, tab);
-
-    const slug = schoolSettings.name.replace(/\s+/g,'-').toLowerCase();
-    await pptx.writeFile({ fileName: `${slug}_${tab}_${new Date().getFullYear()}.pptx` });
-
-    setPptxStatus('<i class="bi bi-check-circle-fill text-success me-1"></i>Présentation téléchargée.');
-  } catch (err) {
-    console.error('Erreur export PPTX', err);
-    setPptxStatus(`<i class="bi bi-exclamation-triangle-fill text-danger me-1"></i>Erreur : ${err.message || err}`);
-  } finally {
-    await ensureTabRendered(restoreTab);
-  }
-}
-
-async function exportPPTXAll() {
-  const tabsWithData = Object.keys(TABS).filter(t => Object.keys(DB[t]||{}).length);
-  if (!tabsWithData.length) { alert('Aucune donnée disponible.'); return; }
-
-  setPptxStatus('<i class="bi bi-hourglass-split me-1"></i>Génération en cours…');
-  const restoreTab = currentTab;
-  try {
-    const pptx = new PptxGenJS();
-    addPptxTitleSlide(pptx, tabsWithData.map(t => TABS[t].label));
-
-    for (const tab of tabsWithData) {
-      setPptxStatus(`<i class="bi bi-hourglass-split me-1"></i>Génération ${TABS[tab].label}…`);
-      await ensureTabRendered(tab);
-      addPptxSlidesForTab(pptx, tab);
-    }
-
-    const slug = schoolSettings.name.replace(/\s+/g,'-').toLowerCase();
-    await pptx.writeFile({ fileName: `${slug}_resultats_${new Date().getFullYear()}.pptx` });
-
-    setPptxStatus('<i class="bi bi-check-circle-fill text-success me-1"></i>Présentation téléchargée.');
-  } catch (err) {
-    console.error('Erreur export PPTX', err);
-    setPptxStatus(`<i class="bi bi-exclamation-triangle-fill text-danger me-1"></i>Erreur : ${err.message || err}`);
-  } finally {
-    await ensureTabRendered(restoreTab);
-  }
 }
 
 // ==================== EXPORT / IMPORT / RESET ====================
