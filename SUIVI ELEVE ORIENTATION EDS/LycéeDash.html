@@ -168,6 +168,38 @@ function getData(){
 function saveData(d){
   localStorage.setItem('lyceedash_v1', JSON.stringify(d));
 }
+
+// ===================== SAUVEGARDE GITHUB (partagee avec le Hub) =====================
+const GH_USER='christophebignon5-crypto', GH_REPO='elfort-pilotage', GH_PAT_KEY='_hub_elfort_pat';
+function ghToB64(str){ return btoa(unescape(encodeURIComponent(str))); }
+function saveToGithub(payload, ghPath, label){
+  let token = localStorage.getItem(GH_PAT_KEY) || '';
+  if(!token){
+    token = prompt('Token d\'acces GitHub (Personal Access Token classique, droit "repo") :\n\nCreez-le sur github.com/settings/tokens/new\nIl sera memorise sur cet appareil et partage avec le Hub et les autres applications.');
+    if(!token) return Promise.reject(new Error('Token requis'));
+    token = token.trim();
+    if(!token) return Promise.reject(new Error('Token requis'));
+    localStorage.setItem(GH_PAT_KEY, token);
+  }
+  const content = ghToB64(JSON.stringify({version:'1.0',date:new Date().toISOString(),app:label,data:payload}, null, 2));
+  const url = 'https://api.github.com/repos/'+GH_USER+'/'+GH_REPO+'/contents/'+ghPath;
+  const headers = {'Authorization':'token '+token,'Accept':'application/vnd.github+json'};
+  return fetch(url+'?ref=main',{headers:headers})
+    .then(r=> r.status===200 ? r.json() : null)
+    .then(existing=>{
+      const body = {message:'Sauvegarde '+label+' - '+new Date().toLocaleString('fr-FR'), content:content, branch:'main'};
+      if(existing && existing.sha) body.sha = existing.sha;
+      return fetch(url,{method:'PUT',headers:Object.assign({'Content-Type':'application/json'},headers),body:JSON.stringify(body)});
+    })
+    .then(r=>{ if(!r.ok) return r.json().then(e=>{throw new Error(e.message||r.statusText)}); return r.json(); });
+}
+function saveLyceeDashToGithub(){
+  const msg = document.getElementById('gh-msg');
+  if(msg) msg.innerHTML = '⏳ Envoi vers GitHub...';
+  saveToGithub(getData(), 'saves/lyceedash.json', 'LycéeDash')
+    .then(()=>{ if(msg) msg.innerHTML = '<span style="color:#2e7d32">✅ Sauvegarde envoyée sur GitHub</span>'; })
+    .catch(err=>{ if(msg) msg.innerHTML = '<span style="color:#c62828">❌ Erreur GitHub : '+err.message+'</span>'; });
+}
 function getAnneesSorted(d){
   return Object.keys(d.annees||{}).sort().reverse();
 }
@@ -1384,6 +1416,12 @@ function renderParams(){
         <div id="fn-json" style="font-size:0.78rem;color:#555;margin-top:0.25rem;margin-bottom:0.5rem"></div>
         <button class="btn-primary" onclick="importJSON()">📥 Charger JSON</button>
         <div id="json-msg" style="margin-top:0.5rem"></div>
+      </div>
+      <div class="chart-container">
+        <h3 style="color:#1e3a5f;margin-bottom:0.75rem;font-size:0.95rem">☁️ Sauvegarde GitHub</h3>
+        <p style="font-size:0.85rem;color:#555;margin-bottom:0.75rem">Envoie les données actuelles vers le dépôt GitHub du Hub (synchronisation entre appareils).</p>
+        <button class="btn-primary" onclick="saveLyceeDashToGithub()">☁️ Sauvegarder sur GitHub</button>
+        <div id="gh-msg" style="margin-top:0.5rem"></div>
       </div>
     </div>
 

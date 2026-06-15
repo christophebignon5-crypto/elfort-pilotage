@@ -299,6 +299,36 @@ function saveSt(d) {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); } catch(e) {}
 }
 
+/* ─── SAUVEGARDE GITHUB (partagee avec le Hub) ─── */
+var GH_USER = 'christophebignon5-crypto';
+var GH_REPO = 'elfort-pilotage';
+var GH_PAT_KEY = '_hub_elfort_pat';
+function ghToB64(str) { return btoa(unescape(encodeURIComponent(str))); }
+function saveToGithub(payload, ghPath, label) {
+  var token = localStorage.getItem(GH_PAT_KEY) || '';
+  if (!token) {
+    token = prompt('Token d\'acces GitHub (Personal Access Token classique, droit "repo") :\n\nCreez-le sur github.com/settings/tokens/new\nIl sera memorise sur cet appareil et partage avec le Hub et les autres applications.');
+    if (!token) return Promise.reject(new Error('Token requis'));
+    token = token.trim();
+    if (!token) return Promise.reject(new Error('Token requis'));
+    localStorage.setItem(GH_PAT_KEY, token);
+  }
+  var content = ghToB64(JSON.stringify({ version: '1.0', date: new Date().toISOString(), app: label, data: payload }, null, 2));
+  var url = 'https://api.github.com/repos/' + GH_USER + '/' + GH_REPO + '/contents/' + ghPath;
+  var headers = { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github+json' };
+  return fetch(url + '?ref=main', { headers: headers })
+    .then(function(r) { return r.status === 200 ? r.json() : null; })
+    .then(function(existing) {
+      var body = { message: 'Sauvegarde ' + label + ' - ' + new Date().toLocaleString('fr-FR'), content: content, branch: 'main' };
+      if (existing && existing.sha) body.sha = existing.sha;
+      return fetch(url, { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, headers), body: JSON.stringify(body) });
+    })
+    .then(function(r) {
+      if (!r.ok) return r.json().then(function(e) { throw new Error(e.message || r.statusText); });
+      return r.json();
+    });
+}
+
 /* ─── REDUCER ─── */
 var INIT = { annees: {}, active: null, tab: 'synthese' };
 function reducer(st, a) {
@@ -1346,6 +1376,14 @@ function App() {
         <button className="btn btn-outline" onClick={loadJSON}>Charger</button>
         {years.length > 0 && (
           <button className="btn btn-success" onClick={saveJSON}>Sauvegarder</button>
+        )}
+        {years.length > 0 && (
+          <button className="btn btn-outline" style={{borderColor:'#24292e',color:'#24292e'}} onClick={function() {
+            notify('Envoi vers GitHub...', 'info');
+            saveToGithub(JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'), 'saves/vie-scolaire.json', 'Vie Scolaire')
+              .then(function() { notify('Sauvegarde envoyee sur GitHub', 'success'); })
+              .catch(function(err) { notify('Erreur GitHub : ' + err.message, 'error'); });
+          }} title="Envoyer les donnees vers GitHub">☁ GitHub</button>
         )}
         {data && (
           <button className="btn btn-outline" style={{borderColor:'#7b1fa2',color:'#7b1fa2'}} onClick={exportPPTXAnnee} title={'Exporter un PPTX pour ' + st.active}>

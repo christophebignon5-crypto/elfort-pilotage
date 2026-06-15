@@ -210,6 +210,7 @@
   <div style="display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap;align-items:center;">
     <button class="btn btn-primary" onclick="loadAllFiles()">▶ Charger et Analyser</button>
     <button class="btn btn-danger" onclick="clearAll()">✕ Tout effacer</button>
+    <button class="btn btn-primary" style="background:#24292e" onclick="saveParcoursupToGithub()">☁ Sauvegarder sur GitHub</button>
     <span style="font-size:12px;color:var(--muted)">Traitement 100% local — aucune donnée envoyée sur un serveur.</span>
   </div>
   <div class="section-title" style="font-size:16px;margin-bottom:12px;">Jeux de données chargés</div>
@@ -242,6 +243,53 @@
 // DATA
 // =============================================================
 let datasets=[], charts={};
+const LS_KEY='parcoursup_dashboard_v1';
+function saveDatasetsLS(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(datasets)); }catch(e){}
+}
+function loadDatasetsLS(){
+  try{
+    const raw=localStorage.getItem(LS_KEY);
+    if(!raw) return false;
+    const d=JSON.parse(raw);
+    if(!Array.isArray(d)||!d.length) return false;
+    datasets=d;
+    return true;
+  }catch(e){ return false; }
+}
+
+// =============================================================
+// SAUVEGARDE GITHUB (partagee avec le Hub)
+// =============================================================
+const GH_USER='christophebignon5-crypto', GH_REPO='elfort-pilotage', GH_PAT_KEY='_hub_elfort_pat';
+function ghToB64(str){ return btoa(unescape(encodeURIComponent(str))); }
+function saveToGithub(payload, ghPath, label){
+  let token = localStorage.getItem(GH_PAT_KEY) || '';
+  if(!token){
+    token = prompt('Token d\'acces GitHub (Personal Access Token classique, droit "repo") :\n\nCreez-le sur github.com/settings/tokens/new\nIl sera memorise sur cet appareil et partage avec le Hub et les autres applications.');
+    if(!token) return Promise.reject(new Error('Token requis'));
+    token = token.trim();
+    if(!token) return Promise.reject(new Error('Token requis'));
+    localStorage.setItem(GH_PAT_KEY, token);
+  }
+  const content = ghToB64(JSON.stringify({version:'1.0',date:new Date().toISOString(),app:label,data:payload}, null, 2));
+  const url = 'https://api.github.com/repos/'+GH_USER+'/'+GH_REPO+'/contents/'+ghPath;
+  const headers = {'Authorization':'token '+token,'Accept':'application/vnd.github+json'};
+  return fetch(url+'?ref=main',{headers:headers})
+    .then(r=> r.status===200 ? r.json() : null)
+    .then(existing=>{
+      const body = {message:'Sauvegarde '+label+' - '+new Date().toLocaleString('fr-FR'), content:content, branch:'main'};
+      if(existing && existing.sha) body.sha = existing.sha;
+      return fetch(url,{method:'PUT',headers:Object.assign({'Content-Type':'application/json'},headers),body:JSON.stringify(body)});
+    })
+    .then(r=>{ if(!r.ok) return r.json().then(e=>{throw new Error(e.message||r.statusText)}); return r.json(); });
+}
+function saveParcoursupToGithub(){
+  showToast('Envoi vers GitHub...','success');
+  saveToGithub(datasets, 'saves/parcoursup-dashboard.json', 'Parcoursup Dashboard')
+    .then(()=>showToast('Sauvegarde envoyée sur GitHub ✓','success'))
+    .catch(err=>showToast('Erreur GitHub : '+err.message,'error'));
+}
 const PALETTE=['#1e4fa0','#e8a020','#d43f3f','#1a8a8a','#7c3aed','#059669','#ea580c','#0284c7','#c2410c','#4f46e5','#0891b2','#b45309'];
 const SERIE_COLORS={'Bac Général':'#1e4fa0','Bac STMG':'#e8a020','Bac STI2D':'#1a8a8a','Bac ST2S':'#d43f3f','Bac STD2A':'#7c3aed','Bac Professionnel Agricole':'#059669'};
 const TECH_SERIES=['Bac STMG','Bac STI2D','Bac ST2S','Bac STD2A','Bac STL','Bac STHR'];
@@ -428,14 +476,14 @@ function loadAllFiles(){
     results.forEach(ds=>{
       if(!datasets.find(d=>d.label===ds.label&&d.year===ds.year)) datasets.push(ds);
     });
-    renderDatasetsList(); renderAllSections();
+    renderDatasetsList(); renderAllSections(); saveDatasetsLS();
     showToast(results.length+' fichier(s) chargé(s) ✓','success');
   });
 }
 
 function loadDemo(){
   datasets=[parseCSV(DEMO_GTLA,'GTLA',2026),parseCSV(DEMO_CI,'CI',2026)];
-  renderDatasetsList(); renderAllSections();
+  renderDatasetsList(); renderAllSections(); saveDatasetsLS();
   showToast('Données de démonstration chargées ✓','success');
   document.getElementById('demoBtn').style.display='none';
 }
@@ -451,11 +499,12 @@ function clearAll(){
   renderDatasetsList();
   ['overviewContent','formationsContent','compareContent','detailContent'].forEach(id=>document.getElementById(id).innerHTML='');
   document.getElementById('demoBtn').style.display='';
+  saveDatasetsLS();
   showToast('Données effacées','error');
 }
 
 function removeDataset(idx){
-  datasets.splice(idx,1); renderDatasetsList(); renderAllSections();
+  datasets.splice(idx,1); renderDatasetsList(); renderAllSections(); saveDatasetsLS();
 }
 
 function editDataset(idx){
@@ -493,6 +542,7 @@ function saveDataset(idx){
   datasets[idx].year=newYear;
   renderDatasetsList();
   renderAllSections();
+  saveDatasetsLS();
   showToast(`Modifié : ${newLabel} — ${newYear} ✓`,'success');
 }
 
@@ -1268,9 +1318,15 @@ function showToast(msg,type='success'){
   setTimeout(()=>t.classList.remove('show'),3500);
 }
 
-// Auto-load demo
+// Auto-chargement : données sauvegardées en priorité, sinon démo
 setTimeout(()=>{
-  loadDemo();
+  if(loadDatasetsLS()){
+    renderDatasetsList(); renderAllSections();
+    document.getElementById('demoBtn').style.display='none';
+    showToast('Données précédentes restaurées ✓','success');
+  } else {
+    loadDemo();
+  }
   const tabs=document.querySelectorAll('.nav-tab');
   tabs[0].classList.remove('active'); tabs[1].classList.add('active');
   showSection('overview');
