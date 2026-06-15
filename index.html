@@ -202,7 +202,7 @@ body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color
     <div class="header-meta">
       <div class="header-date" id="current-date">—</div>
       <div class="header-year-badge" id="school-year">Année scolaire</div>
-      <div class="header-apps-count">7 applications disponibles</div>
+      <div class="header-apps-count">8 applications disponibles</div>
     </div>
   </div>
   <div class="year-progress-bar">
@@ -220,12 +220,12 @@ body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color
 <!-- ══════ NAV FILTRE ══════ -->
 <nav class="nav-bar" aria-label="Filtre par domaine">
   <div class="nav-inner">
-    <button class="nav-btn active" data-filter="all">🗂️ Toutes <span class="nav-count">7</span></button>
+    <button class="nav-btn active" data-filter="all">🗂️ Toutes <span class="nav-count">8</span></button>
     <button class="nav-btn" data-filter="viescolaire"><span class="nav-dot" style="background:var(--c-vs)"></span>Vie Scolaire <span class="nav-count">2</span></button>
     <button class="nav-btn" data-filter="examens"><span class="nav-dot" style="background:var(--c-ex)"></span>Examens <span class="nav-count">1</span></button>
     <button class="nav-btn" data-filter="parcoursup"><span class="nav-dot" style="background:var(--c-pc)"></span>Parcoursup <span class="nav-count">2</span></button>
     <button class="nav-btn" data-filter="projets"><span class="nav-dot" style="background:var(--c-pj)"></span>Projets <span class="nav-count">1</span></button>
-    <button class="nav-btn" data-filter="personnel"><span class="nav-dot" style="background:var(--c-pers)"></span>Personnel <span class="nav-count">1</span></button>
+    <button class="nav-btn" data-filter="personnel"><span class="nav-dot" style="background:var(--c-pers)"></span>Personnel <span class="nav-count">2</span></button>
   </div>
 </nav>
 
@@ -390,7 +390,7 @@ body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color
   <div class="section-sep" data-section="personnel">
     <span class="section-sep-pill" style="background:#fce4ec;color:var(--c-pers)">🧑‍💼 Gestion du Personnel</span>
     <div class="section-sep-line"></div>
-    <span class="section-sep-count">1 outil</span>
+    <span class="section-sep-count">2 outils</span>
   </div>
   <div class="app-grid" data-grid="personnel">
 
@@ -410,6 +410,25 @@ body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color
       <div class="card-footer">
         <div class="card-source"><div class="source-dot" style="background:#4caf50"></div>Saisie manuelle · Sauvegarde locale</div>
         <a href="GESTION ABSENCES PERSONNEL/GESTION_ABSENCES_PERSONNEL.html" class="btn-launch" style="background:var(--c-pers)">Ouvrir <span class="btn-launch-arrow">→</span></a>
+      </div>
+    </article>
+
+    <article class="app-card" data-category="personnel">
+      <div class="card-stripe" style="background:linear-gradient(90deg,#1a237e,#1565c0,#90caf9)"></div>
+      <div class="card-body">
+        <div class="card-head">
+          <div class="card-icon-wrap" style="background:#e3f2fd">🧑‍🏫</div>
+          <div class="card-header-right"><span class="card-badge" style="background:#e3f2fd;color:#1565c0">Personnel</span></div>
+        </div>
+        <h3 class="card-title">Indicateurs Absences Professeurs</h3>
+        <p class="card-desc">Tableau de bord statistique des absences des enseignants : heures non assurées, taux de remplacement, répartition par motif et comparaison pluriannuelle.</p>
+        <div class="card-features">
+          <span class="feat-tag">Heures non assurées</span><span class="feat-tag">Taux de remplacement</span><span class="feat-tag">Par motif</span><span class="feat-tag">Comparaison N−1</span><span class="feat-tag">Export PPTX</span><span class="feat-tag">Import Excel</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="card-source"><div class="source-dot" style="background:#4caf50"></div>Import Excel · Recharts</div>
+        <a href="AbsencesProfs-Elfort/index.html" class="btn-launch" style="background:#1565c0">Ouvrir <span class="btn-launch-arrow">→</span></a>
       </div>
     </article>
 

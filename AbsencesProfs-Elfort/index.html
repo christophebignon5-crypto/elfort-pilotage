@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Indicateurs Absences Professeurs — LPO Léopold Elfort</title>
+
+<!-- React, Recharts et XLSX AVANT Babel -->
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/prop-types@15/prop-types.min.js"></script>
+<script crossorigin src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3/dist/pptxgen.bundle.js"></script>
+<!-- Babel en DERNIER -->
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f0f4f8;color:#222;font-size:14px}
+.header{background:linear-gradient(135deg,#1a237e,#1565c0);color:white;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.header-left{display:flex;align-items:center;gap:14px}
+.logo{width:52px;height:52px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px}
+.header h1{font-size:1.25rem;font-weight:700}
+.header p{font-size:.82rem;opacity:.85}
+.annee-badge{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);border-radius:20px;padding:4px 14px;font-size:.88rem;font-weight:600}
+.toolbar{background:white;border-bottom:1px solid #ddd;padding:9px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:6px;border:none;cursor:pointer;font-size:.82rem;font-weight:500;transition:opacity .15s;white-space:nowrap}
+.btn:hover{opacity:.85}.btn:disabled{opacity:.5;cursor:default}
+.btn-primary{background:#1565c0;color:white}
+.btn-success{background:#2e7d32;color:white}
+.btn-outline{background:white;color:#1565c0;border:1.5px solid #1565c0}
+.btn-outline.active,.btn-outline:focus{background:#1565c0;color:white}
+.btn-sm{padding:4px 10px;font-size:.78rem}
+.tabs{background:white;border-bottom:2px solid #1565c0;padding:0 20px;display:flex;overflow-x:auto}
+.tab{padding:11px 18px;cursor:pointer;font-size:.82rem;font-weight:500;color:#607d8b;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .15s}
+.tab:hover{color:#1565c0}.tab.active{color:#1565c0;border-bottom-color:#1565c0;font-weight:700}
+.content{padding:20px;max-width:1400px;margin:0 auto}
+.card{background:white;border-radius:10px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.07);margin-bottom:18px}
+.card-title{font-size:.95rem;font-weight:700;color:#1a237e;margin-bottom:14px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:18px}
+.kpi-card{background:white;border-radius:10px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.07);border-left:4px solid}
+.kpi-label{font-size:.74rem;color:#78909c;text-transform:uppercase;letter-spacing:.5px;display:block}
+.kpi-value{font-size:1.9rem;font-weight:700;display:block;margin:6px 0}
+.kpi-sub{font-size:.76rem;color:#90a4ae;display:block}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+.empty{text-align:center;padding:60px 20px;color:#aaa}
+.empty .icon{font-size:3.5rem;margin-bottom:14px}
+.empty h3{font-size:1.1rem;margin-bottom:6px;color:#888}
+.alert{padding:10px 14px;border-radius:6px;margin-bottom:14px;font-size:.85rem}
+.alert-info{background:#e3f2fd;color:#1565c0;border-left:4px solid #1565c0}
+.alert-warn{background:#fff8e1;color:#e65100;border-left:4px solid #e65100}
+.data-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.data-table th{background:#1565c0;color:white;padding:9px 10px;text-align:left;font-weight:600}
+.data-table td{padding:7px 10px;border-bottom:1px solid #eee}
+.data-table tr:hover td{background:#f5f7fa}
+.data-table tr:last-child td{border-bottom:none}
+.chip{padding:3px 10px;border-radius:4px;font-size:.74rem;font-weight:600;white-space:nowrap}
+.chip-admin{background:#e3f2fd;color:#1565c0}
+.chip-accomp{background:#fff3e0;color:#f57c00}
+.chip-personnel{background:#ffebee;color:#c62828}
+.progress-track{background:#eceff1;border-radius:4px;height:8px;width:100%;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px}
+.filter-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.guide-step{display:flex;gap:14px;margin-bottom:20px;padding:14px;border-radius:8px;background:#f5f7fa}
+.guide-num{min-width:34px;height:34px;border-radius:50%;background:#1565c0;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0}
+.guide-content h4{margin-bottom:4px;color:#1a237e;font-size:.9rem}
+.guide-content p{font-size:.84rem;color:#555;line-height:1.55}
+.ctooltip{background:white;border:1px solid #ddd;border-radius:6px;padding:9px 13px;font-size:.82rem;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.ctooltip .lb{font-weight:700;margin-bottom:5px;color:#333}
+.sep{color:#ccc;margin:0 4px}
+.toast{position:fixed;bottom:22px;right:22px;z-index:9999;padding:11px 18px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.25);font-size:.86rem;color:white;max-width:340px}
+.err-box{background:#ffebee;border:2px solid #c62828;border-radius:8px;padding:20px;margin:20px;font-family:monospace;font-size:.85rem;color:#c62828;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<div id="root"><div style="padding:40px;color:#888;text-align:center">Chargement en cours…</div></div>
+<input type="file" id="file-input" style="display:none" />
+
+<script>
+// Capture toute erreur non gérée et l'affiche à l'écran
+window.onerror = function(msg, src, line, col, err) {
+  var box = document.createElement('div');
+  box.className = 'err-box';
+  box.textContent = 'ERREUR JavaScript :\n' + msg + '\nFichier : ' + src + '\nLigne : ' + line;
+  document.getElementById('root').prepend(box);
+};
+window.addEventListener('unhandledrejection', function(e) {
+  var box = document.createElement('div');
+  box.className = 'err-box';
+  box.textContent = 'ERREUR Promise :\n' + (e.reason && e.reason.message ? e.reason.message : String(e.reason));
+  document.getElementById('root').prepend(box);
+});
+</script>
+
+<script type="text/babel">
+const { useReducer, useState, useRef } = React;
+const {
+  LineChart, Line, BarChart, Bar, Cell, PieChart, Pie,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  ResponsiveContainer
+} = Recharts;
+
+/* ─── CONSTANTES ─── */
+var CATEGORIES = {
+  admin:     { lbl: 'Raisons administratives',   color: '#1565c0' },
+  accomp:    { lbl: "Raisons d'accompagnement",  color: '#f57c00' },
+  personnel: { lbl: 'Raisons personnelles',       color: '#c62828' }
+};
+
+/* ─── DONNEES INITIALES (extraites du fichier "absences du personnel.xlsx") ─── */
+var INITIAL_DATA = {"2025-2026": {"annee": "2025-2026", "total": {"coursPrevus": 57668.5, "nonAssures": 6260.5, "tauxGlobal": 0.1085, "remplaces": 1347, "tauxRemplGlobal": 0.2151, "heuresAdmin": 1783.5, "heuresAccomp": 318.5, "tauxPerso": 0.0721}, "motifs": [{"motif": "Activité culturelle", "nonAssures": 5, "tauxPct": 0, "remplaces": 0, "tauxRempl": 0, "heuresAdmin": 0, "heuresAccomp": 5, "tauxPerso": 0, "categorie": "accomp"}, {"motif": "Activité sportive", "nonAssures": 17, "tauxPct": 0.0002, "remplaces": 2, "tauxRempl": 0.1176, "heuresAdmin": 0, "heuresAccomp": 17, "tauxPerso": 0, "categorie": "accomp"}, {"motif": "Arrêt Maladie", "nonAssures": 2552.5, "tauxPct": 0.0442, "remplaces": 441, "tauxRempl": 0.1727, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0442, "categorie": "personnel"}, {"motif": "Autres", "nonAssures": 3, "tauxPct": 0, "remplaces": 0, "tauxRempl": 0, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "personnel"}, {"motif": "COMPETITIONS UNSS", "nonAssures": 10.5, "tauxPct": 0.0001, "remplaces": 2, "tauxRempl": 0.1904, "heuresAdmin": 10.5, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}, {"motif": "Congé de maternité", "nonAssures": 106, "tauxPct": 0.0018, "remplaces": 13, "tauxRempl": 0.1226, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0018, "categorie": "personnel"}, {"motif": "Congé Parental", "nonAssures": 54, "tauxPct": 0.0009, "remplaces": 7, "tauxRempl": 0.1296, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0009, "categorie": "personnel"}, {"motif": "Conseil Discipline", "nonAssures": 1, "tauxPct": 0, "remplaces": 0, "tauxRempl": 0, "heuresAdmin": 1, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}, {"motif": "Convenance personnelle", "nonAssures": 84, "tauxPct": 0.0014, "remplaces": 45, "tauxRempl": 0.5357, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0014, "categorie": "personnel"}, {"motif": "En attente de motif d'absence", "nonAssures": 76, "tauxPct": 0.0013, "remplaces": 12, "tauxRempl": 0.1578, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0013, "categorie": "personnel"}, {"motif": "Entretien Inspection", "nonAssures": 3, "tauxPct": 0, "remplaces": 1, "tauxRempl": 0.3333, "heuresAdmin": 3, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}, {"motif": "Evènement familial", "nonAssures": 216.5, "tauxPct": 0.0037, "remplaces": 75, "tauxRempl": 0.3464, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0037, "categorie": "personnel"}, {"motif": "Examens", "nonAssures": 391, "tauxPct": 0.0067, "remplaces": 102.5, "tauxRempl": 0.2621, "heuresAdmin": 391, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}, {"motif": "Fonctions électives", "nonAssures": 52.5, "tauxPct": 0.0009, "remplaces": 27.5, "tauxRempl": 0.5238, "heuresAdmin": 52.5, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}, {"motif": "Formateur SST", "nonAssures": 4, "tauxPct": 0, "remplaces": 3, "tauxRempl": 0.75, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "personnel"}, {"motif": "Formation Syndicale", "nonAssures": 51, "tauxPct": 0.0008, "remplaces": 8, "tauxRempl": 0.1568, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0008, "categorie": "personnel"}, {"motif": "Formations", "nonAssures": 1237, "tauxPct": 0.0214, "remplaces": 377.5, "tauxRempl": 0.3051, "heuresAdmin": 1237, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}, {"motif": "Forum des métiers", "nonAssures": 43.5, "tauxPct": 0.0007, "remplaces": 10.5, "tauxRempl": 0.2413, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0007, "categorie": "personnel"}, {"motif": "Garde d'enfant", "nonAssures": 51.5, "tauxPct": 0.0008, "remplaces": 7, "tauxRempl": 0.1359, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0008, "categorie": "personnel"}, {"motif": "GREVE", "nonAssures": 14, "tauxPct": 0.0002, "remplaces": 0, "tauxRempl": 0, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0002, "categorie": "personnel"}, {"motif": "HMIS (Syndicat)", "nonAssures": 10, "tauxPct": 0.0001, "remplaces": 1, "tauxRempl": 0.1, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0001, "categorie": "personnel"}, {"motif": "JPO", "nonAssures": 3, "tauxPct": 0, "remplaces": 0, "tauxRempl": 0, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "personnel"}, {"motif": "Présentation Formations (Etablissement)", "nonAssures": 1, "tauxPct": 0, "remplaces": 1, "tauxRempl": 1, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "personnel"}, {"motif": "Problèmes Météorologique", "nonAssures": 26.5, "tauxPct": 0.0004, "remplaces": 3, "tauxRempl": 0.1132, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0004, "categorie": "personnel"}, {"motif": "Professeur non nommé", "nonAssures": 588, "tauxPct": 0.0101, "remplaces": 69, "tauxRempl": 0.1173, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0101, "categorie": "personnel"}, {"motif": "Raison de santé", "nonAssures": 214.5, "tauxPct": 0.0037, "remplaces": 30.5, "tauxRempl": 0.1421, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0037, "categorie": "personnel"}, {"motif": "RDV Médical", "nonAssures": 48.5, "tauxPct": 0.0008, "remplaces": 23, "tauxRempl": 0.4742, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0008, "categorie": "personnel"}, {"motif": "Rélience Tour", "nonAssures": 37.5, "tauxPct": 0.0006, "remplaces": 6.5, "tauxRempl": 0.1733, "heuresAdmin": 0, "heuresAccomp": 37.5, "tauxPerso": 0, "categorie": "accomp"}, {"motif": "Restaurant Ephémère", "nonAssures": 7, "tauxPct": 0.0001, "remplaces": 0, "tauxRempl": 0, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0001, "categorie": "personnel"}, {"motif": "Réunions pédagogiques", "nonAssures": 56, "tauxPct": 0.0009, "remplaces": 9, "tauxRempl": 0.1607, "heuresAdmin": 56, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}, {"motif": "Sortie pédagogique", "nonAssures": 259, "tauxPct": 0.0044, "remplaces": 56, "tauxRempl": 0.2162, "heuresAdmin": 0, "heuresAccomp": 259, "tauxPerso": 0, "categorie": "accomp"}, {"motif": "Syndicat", "nonAssures": 4, "tauxPct": 0, "remplaces": 4, "tauxRempl": 1, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "personnel"}, {"motif": "Visite Conseil", "nonAssures": 10, "tauxPct": 0.0001, "remplaces": 1, "tauxRempl": 0.1, "heuresAdmin": 10, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}, {"motif": "Visites des PFMP", "nonAssures": 22.5, "tauxPct": 0.0003, "remplaces": 9, "tauxRempl": 0.4, "heuresAdmin": 22.5, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}]}, "2024-2025": {"annee": "2024-2025", "total": {"coursPrevus": 58878.5, "nonAssures": 7853, "tauxGlobal": 0.1333, "remplaces": 2852, "tauxRemplGlobal": 0.3631, "heuresAdmin": 1576.5, "heuresAccomp": 345.5, "tauxPerso": 0.1007}, "motifs": [{"motif": "Activité culturelle", "nonAssures": 4, "tauxPct": 0, "remplaces": 4, "tauxRempl": 1, "heuresAdmin": 0, "heuresAccomp": 4, "tauxPerso": 0, "categorie": "accomp"}, {"motif": "Activité sportive", "nonAssures": 22.5, "tauxPct": 0.0003, "remplaces": 21.5, "tauxRempl": 0.9555, "heuresAdmin": 0, "heuresAccomp": 22.5, "tauxPerso": 0, "categorie": "accomp"}, {"motif": "Arrêt Maladie", "nonAssures": 2932, "tauxPct": 0.0497, "remplaces": 1162.5, "tauxRempl": 0.3964, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0497, "categorie": "personnel"}, {"motif": "Autres", "nonAssures": 195.5, "tauxPct": 0.0033, "remplaces": 71.5, "tauxRempl": 0.3657, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0033, "categorie": "personnel"}, {"motif": "Concours", "nonAssures": 29.5, "tauxPct": 0.0005, "remplaces": 11, "tauxRempl": 0.3728, "heuresAdmin": 29.5, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}, {"motif": "Congé Parental", "nonAssures": 232.5, "tauxPct": 0.0039, "remplaces": 74, "tauxRempl": 0.3182, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0039, "categorie": "personnel"}, {"motif": "Convenance personnelle", "nonAssures": 113.5, "tauxPct": 0.0019, "remplaces": 74, "tauxRempl": 0.6519, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0019, "categorie": "personnel"}, {"motif": "DISPOTIF NAH", "nonAssures": 1, "tauxPct": 0, "remplaces": 1, "tauxRempl": 1, "heuresAdmin": 1, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}, {"motif": "En attente de motif d'absence", "nonAssures": 171, "tauxPct": 0.0029, "remplaces": 72, "tauxRempl": 0.421, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0029, "categorie": "personnel"}, {"motif": "Entretien Inspection", "nonAssures": 7, "tauxPct": 0.0001, "remplaces": 2, "tauxRempl": 0.2857, "heuresAdmin": 7, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}, {"motif": "Evènement familial", "nonAssures": 38, "tauxPct": 0.0006, "remplaces": 8, "tauxRempl": 0.2105, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0006, "categorie": "personnel"}, {"motif": "Examens", "nonAssures": 381, "tauxPct": 0.0064, "remplaces": 93.5, "tauxRempl": 0.2454, "heuresAdmin": 381, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}, {"motif": "Fonctions électives", "nonAssures": 19, "tauxPct": 0.0003, "remplaces": 0, "tauxRempl": 0, "heuresAdmin": 19, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}, {"motif": "Formateur SST", "nonAssures": 26, "tauxPct": 0.0004, "remplaces": 3, "tauxRempl": 0.1153, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0004, "categorie": "personnel"}, {"motif": "Formation Syndicale", "nonAssures": 44, "tauxPct": 0.0007, "remplaces": 25, "tauxRempl": 0.5681, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0007, "categorie": "personnel"}, {"motif": "Formations", "nonAssures": 1087.5, "tauxPct": 0.0184, "remplaces": 371, "tauxRempl": 0.3411, "heuresAdmin": 1087.5, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}, {"motif": "Garde d'enfant", "nonAssures": 99.5, "tauxPct": 0.0016, "remplaces": 6.5, "tauxRempl": 0.0653, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0016, "categorie": "personnel"}, {"motif": "HMIS (Syndicat)", "nonAssures": 1, "tauxPct": 0, "remplaces": 1, "tauxRempl": 1, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "personnel"}, {"motif": "Présentation Formations (Etablissement)", "nonAssures": 7, "tauxPct": 0.0001, "remplaces": 4, "tauxRempl": 0.5714, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0001, "categorie": "personnel"}, {"motif": "Problèmes Météorologique", "nonAssures": 24, "tauxPct": 0.0004, "remplaces": 5, "tauxRempl": 0.2083, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0004, "categorie": "personnel"}, {"motif": "Professeur non nommé", "nonAssures": 1676, "tauxPct": 0.0284, "remplaces": 619, "tauxRempl": 0.3693, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0284, "categorie": "personnel"}, {"motif": "Raison de santé", "nonAssures": 286.5, "tauxPct": 0.0048, "remplaces": 75.5, "tauxRempl": 0.2635, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0048, "categorie": "personnel"}, {"motif": "RDV Médical", "nonAssures": 84.5, "tauxPct": 0.0014, "remplaces": 49, "tauxRempl": 0.5798, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0014, "categorie": "personnel"}, {"motif": "Réunions pédagogiques", "nonAssures": 24.5, "tauxPct": 0.0004, "remplaces": 9, "tauxRempl": 0.3673, "heuresAdmin": 24.5, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}, {"motif": "Sortie pédagogique", "nonAssures": 319, "tauxPct": 0.0054, "remplaces": 77, "tauxRempl": 0.2413, "heuresAdmin": 0, "heuresAccomp": 319, "tauxPerso": 0, "categorie": "accomp"}, {"motif": "Visites des PFMP", "nonAssures": 27, "tauxPct": 0.0004, "remplaces": 12, "tauxRempl": 0.4444, "heuresAdmin": 27, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}]}, "2023-2024": {"annee": "2023-2024", "total": {"coursPrevus": 56112.5, "nonAssures": 6294.5, "tauxGlobal": 0.1121, "remplaces": 2063, "tauxRemplGlobal": 0.3277, "heuresAdmin": 1222, "heuresAccomp": 227.5, "tauxPerso": 0.0863}, "motifs": [{"motif": "Autres", "nonAssures": 552, "tauxPct": 0.0098, "remplaces": 222.5, "tauxRempl": 0.403, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0098, "categorie": "personnel"}, {"motif": "Confinement COVID 19", "nonAssures": 13, "tauxPct": 0.0002, "remplaces": 1, "tauxRempl": 0.0769, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0002, "categorie": "personnel"}, {"motif": "Congé de maternité", "nonAssures": 147, "tauxPct": 0.0026, "remplaces": 75, "tauxRempl": 0.5102, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0026, "categorie": "personnel"}, {"motif": "Congé Parental", "nonAssures": 168.5, "tauxPct": 0.003, "remplaces": 63, "tauxRempl": 0.3738, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.003, "categorie": "personnel"}, {"motif": "Conseil Discipline", "nonAssures": 8, "tauxPct": 0.0001, "remplaces": 1, "tauxRempl": 0.125, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0001, "categorie": "personnel"}, {"motif": "Convenance personnelle", "nonAssures": 98, "tauxPct": 0.0017, "remplaces": 61.5, "tauxRempl": 0.6275, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0017, "categorie": "personnel"}, {"motif": "En attente de motif d'absence", "nonAssures": 241.5, "tauxPct": 0.0043, "remplaces": 87.5, "tauxRempl": 0.3623, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0043, "categorie": "personnel"}, {"motif": "Entretien Inspection", "nonAssures": 3, "tauxPct": 0, "remplaces": 0, "tauxRempl": 0, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "personnel"}, {"motif": "Evènement familial", "nonAssures": 136, "tauxPct": 0.0024, "remplaces": 74.5, "tauxRempl": 0.5477, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0024, "categorie": "personnel"}, {"motif": "Examens", "nonAssures": 260, "tauxPct": 0.0046, "remplaces": 88.5, "tauxRempl": 0.3403, "heuresAdmin": 260, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}, {"motif": "Fonctions électives", "nonAssures": 9, "tauxPct": 0.0001, "remplaces": 0, "tauxRempl": 0, "heuresAdmin": 9, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}, {"motif": "Formation Syndicale", "nonAssures": 56.5, "tauxPct": 0.001, "remplaces": 25, "tauxRempl": 0.4424, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.001, "categorie": "personnel"}, {"motif": "Formations", "nonAssures": 799, "tauxPct": 0.0142, "remplaces": 334.5, "tauxRempl": 0.4186, "heuresAdmin": 799, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}, {"motif": "Garde d'enfant", "nonAssures": 162, "tauxPct": 0.0028, "remplaces": 32.5, "tauxRempl": 0.2006, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0028, "categorie": "personnel"}, {"motif": "GREVE", "nonAssures": 51, "tauxPct": 0.0009, "remplaces": 7.5, "tauxRempl": 0.147, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0009, "categorie": "personnel"}, {"motif": "HMIS (Syndicat)", "nonAssures": 3, "tauxPct": 0, "remplaces": 0, "tauxRempl": 0, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "personnel"}, {"motif": "Mouvement social", "nonAssures": 51, "tauxPct": 0.0009, "remplaces": 4, "tauxRempl": 0.0784, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0009, "categorie": "personnel"}, {"motif": "PFMP", "nonAssures": 1, "tauxPct": 0, "remplaces": 0, "tauxRempl": 0, "heuresAdmin": 0, "heuresAccomp": 1, "tauxPerso": 0, "categorie": "accomp"}, {"motif": "Présentation Formations (Etablissement)", "nonAssures": 38, "tauxPct": 0.0006, "remplaces": 18, "tauxRempl": 0.4736, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0006, "categorie": "personnel"}, {"motif": "Professeur non nommé", "nonAssures": 373.5, "tauxPct": 0.0066, "remplaces": 89, "tauxRempl": 0.2382, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0066, "categorie": "personnel"}, {"motif": "Raison de santé", "nonAssures": 2668.5, "tauxPct": 0.0475, "remplaces": 714.5, "tauxRempl": 0.2677, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0475, "categorie": "personnel"}, {"motif": "RDV Médical", "nonAssures": 74.5, "tauxPct": 0.0013, "remplaces": 30, "tauxRempl": 0.4026, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0.0013, "categorie": "personnel"}, {"motif": "Réunions pédagogiques", "nonAssures": 48.5, "tauxPct": 0.0008, "remplaces": 12, "tauxRempl": 0.2474, "heuresAdmin": 48.5, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}, {"motif": "Sortie pédagogique", "nonAssures": 226.5, "tauxPct": 0.004, "remplaces": 74, "tauxRempl": 0.3267, "heuresAdmin": 0, "heuresAccomp": 226.5, "tauxPerso": 0, "categorie": "accomp"}, {"motif": "Syndicat", "nonAssures": 81.5, "tauxPct": 0.0014, "remplaces": 35.5, "tauxRempl": 0.4355, "heuresAdmin": 81.5, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}, {"motif": "Visites des PFMP", "nonAssures": 24, "tauxPct": 0.0004, "remplaces": 12, "tauxRempl": 0.5, "heuresAdmin": 0, "heuresAccomp": 0, "tauxPerso": 0, "categorie": "admin"}]}};
+
+/* ─── UTILITAIRES ─── */
+function r1(v) { return Math.round((v || 0) * 10) / 10; }
+function fmtH(v) { return r1(v).toLocaleString('fr-FR'); }
+function fmtPct(v) {
+  return (Math.round((v || 0) * 1000) / 10).toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' %';
+}
+function remplColor(t) {
+  if (t >= 0.4) return '#2e7d32';
+  if (t >= 0.2) return '#f57c00';
+  return '#c62828';
+}
+function catTotals(d) {
+  var tot = { admin: 0, accomp: 0, personnel: 0 };
+  d.motifs.forEach(function (m) { tot[m.categorie] += m.nonAssures; });
+  return tot;
+}
+function detectAnnee(name) {
+  var m = name.match(/(\d{2})\D+(\d{2})\s*$/);
+  return m ? ('20' + m[1] + '-20' + m[2]) : null;
+}
+
+/* ─── PARSEUR EXCEL ─── */
+function parseExcel(buf) {
+  var wb = XLSX.read(buf, { type: 'array', cellDates: false });
+  var annees = {};
+  wb.SheetNames.forEach(function (name) {
+    var annee = detectAnnee(name);
+    if (!annee) return;
+    var rows = XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1, defval: null });
+    if (rows.length < 3) return;
+    var tr = rows[1];
+    var total = {
+      coursPrevus: Number(tr[1]) || 0,
+      nonAssures: Number(tr[2]) || 0,
+      tauxGlobal: Number(tr[3]) || 0,
+      remplaces: Number(tr[4]) || 0,
+      tauxRemplGlobal: Number(tr[5]) || 0,
+      heuresAdmin: Number(tr[6]) || 0,
+      heuresAccomp: Number(tr[7]) || 0,
+      tauxPerso: Number(tr[8]) || 0
+    };
+    var motifs = [];
+    for (var i = 2; i < rows.length; i++) {
+      var r = rows[i];
+      if (!r[0]) continue;
+      var admin = Number(r[6]) || 0;
+      var accomp = Number(r[7]) || 0;
+      motifs.push({
+        motif: String(r[0]).trim(),
+        nonAssures: Number(r[2]) || 0,
+        tauxPct: Number(r[3]) || 0,
+        remplaces: Number(r[4]) || 0,
+        tauxRempl: Number(r[5]) || 0,
+        heuresAdmin: admin,
+        heuresAccomp: accomp,
+        tauxPerso: Number(r[8]) || 0,
+        categorie: admin > 0 ? 'admin' : (accomp > 0 ? 'accomp' : 'personnel')
+      });
+    }
+    annees[annee] = { annee: annee, total: total, motifs: motifs };
+  });
+  return annees;
+}
+
+/* ─── STOCKAGE ─── */
+var STORAGE_KEY = 'absencesprofs_elfort_v1';
+function loadSt() {
+  try { var s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : null; }
+  catch (e) { return null; }
+}
+function saveSt(d) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); } catch (e) {}
+}
+
+/* ─── SAUVEGARDE GITHUB (partagée avec le Hub) ─── */
+var GH_USER = 'christophebignon5-crypto', GH_REPO = 'elfort-pilotage', GH_PAT_KEY = '_hub_elfort_pat';
+function ghToB64(str) { return btoa(unescape(encodeURIComponent(str))); }
+function saveToGithub(payload, ghPath, label) {
+  var token = localStorage.getItem(GH_PAT_KEY) || '';
+  if (!token) {
+    token = prompt('Token d\'accès GitHub (Personal Access Token classique, droit "repo") :\n\nCréez-le sur github.com/settings/tokens/new\nIl sera mémorisé sur cet appareil et partagé avec le Hub et les autres applications.');
+    if (!token) return Promise.reject(new Error('Token requis'));
+    token = token.trim();
+    if (!token) return Promise.reject(new Error('Token requis'));
+    localStorage.setItem(GH_PAT_KEY, token);
+  }
+  var content = ghToB64(JSON.stringify({ version: '1.0', date: new Date().toISOString(), app: label, data: payload }, null, 2));
+  var url = 'https://api.github.com/repos/' + GH_USER + '/' + GH_REPO + '/contents/' + ghPath;
+  var headers = { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github+json' };
+  return fetch(url + '?ref=main', { headers: headers })
+    .then(function (r) { return r.status === 200 ? r.json() : null; })
+    .then(function (existing) {
+      var body = { message: 'Sauvegarde ' + label + ' - ' + new Date().toLocaleString('fr-FR'), content: content, branch: 'main' };
+      if (existing && existing.sha) body.sha = existing.sha;
+      return fetch(url, { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, headers), body: JSON.stringify(body) });
+    })
+    .then(function (r) {
+      if (!r.ok) return r.json().then(function (e) { throw new Error((e.message || r.statusText) + (e.errors ? (' :: ' + e.errors.map(function (x) { return x.message || JSON.stringify(x); }).join(' | ')) : '')); });
+      return r.json();
+    });
+}
+
+/* ─── REDUCER ─── */
+var INIT = { annees: {}, active: null, tab: 'synthese' };
+function reducer(st, a) {
+  if (a.type === 'ADD_MULTI') {
+    var annees = Object.assign({}, st.annees, a.d);
+    var keys = Object.keys(annees).sort();
+    var active = keys[keys.length - 1];
+    saveSt({ annees: annees, active: active });
+    return Object.assign({}, st, { annees: annees, active: active });
+  }
+  if (a.type === 'SET_ACTIVE') {
+    saveSt({ annees: st.annees, active: a.v });
+    return Object.assign({}, st, { active: a.v });
+  }
+  if (a.type === 'SET_TAB') {
+    return Object.assign({}, st, { tab: a.v });
+  }
+  if (a.type === 'LOAD') {
+    var an = a.d.annees || {};
+    var keys2 = Object.keys(an).sort();
+    var act = a.d.active || keys2[keys2.length - 1] || null;
+    saveSt({ annees: an, active: act });
+    return Object.assign({}, st, { annees: an, active: act });
+  }
+  if (a.type === 'DEL') {
+    var anns = Object.assign({}, st.annees);
+    delete anns[a.v];
+    var k3 = Object.keys(anns).sort();
+    var newAct = st.active === a.v ? (k3[k3.length - 1] || null) : st.active;
+    saveSt({ annees: anns, active: newAct });
+    return Object.assign({}, st, { annees: anns, active: newAct });
+  }
+  return st;
+}
+
+/* ─── COMPOSANTS UI ─── */
+function CT(props) {
+  if (!props.active || !props.payload || !props.payload.length) return null;
+  var fmt = props.fmt || fmtH;
+  return (
+    <div className="ctooltip">
+      <div className="lb">{props.label}</div>
+      {props.payload.map(function (p, i) {
+        return (
+          <div key={i} style={{ color: p.color, marginTop: 2 }}>
+            {p.name}: <strong>{fmt(p.value)}</strong>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+function fmtPctAxis(v) { return r1(v).toLocaleString('fr-FR') + ' %'; }
+
+function Empty() {
+  return (
+    <div className="empty">
+      <div className="icon">📂</div>
+      <h3>Aucune donnée chargée</h3>
+      <p>Cliquez sur "Importer Excel" dans la barre d'outils pour charger le fichier des absences professeurs.</p>
+    </div>
+  );
+}
+
+/* Carte graphique avec bouton "Copier" */
+function ChartCard(props) {
+  var copyState = useState(false);
+  var copying = copyState[0]; var setCopying = copyState[1];
+  var copiedState = useState(false);
+  var copied = copiedState[0]; var setCopied = copiedState[1];
+  var cardRef = useRef(null);
+
+  function doCopy() {
+    if (!cardRef.current || !window.html2canvas) return;
+    setCopying(true);
+    window.html2canvas(cardRef.current, { scale: 2, backgroundColor: '#ffffff', useCORS: true })
+      .then(function (canvas) {
+        function dl() {
+          var a = document.createElement('a');
+          a.href = canvas.toDataURL('image/png');
+          a.download = 'graphique.png';
+          a.click();
+          setCopying(false);
+        }
+        if (navigator.clipboard && window.ClipboardItem) {
+          canvas.toBlob(function (blob) {
+            navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+              .then(function () { setCopying(false); setCopied(true); setTimeout(function () { setCopied(false); }, 1800); })
+              .catch(dl);
+          });
+        } else { dl(); }
+      })
+      .catch(function () { setCopying(false); });
+  }
+
+  return (
+    <div className="card" ref={cardRef}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+        <div className="card-title" style={{ margin: 0 }}>{props.title}</div>
+        <button
+          onClick={doCopy}
+          disabled={copying}
+          title="Copier ce graphique comme image"
+          style={{ background: copied ? '#2e7d32' : '#f5f5f5', border: '1px solid #ddd', borderRadius: 5, padding: '3px 11px', fontSize: '.75rem', cursor: copying ? 'default' : 'pointer', color: copied ? 'white' : '#555', flexShrink: 0, whiteSpace: 'nowrap' }}
+        >
+          {copied ? '✓ Copié' : copying ? '...' : '📋 Copier'}
+        </button>
+      </div>
+      {props.children}
+    </div>
+  );
+}
+
+function CategoryChip(props) {
+  return <span className={'chip chip-' + props.cat}>{CATEGORIES[props.cat].lbl}</span>;
+}
+
+/* ══ SYNTHÈSE ══ */
+function TabSynthese(props) {
+  var d = props.d;
+  if (!d) return <Empty />;
+  var t = d.total;
+  var cats = catTotals(d);
+  var pieData = Object.keys(CATEGORIES).map(function (k) {
+    return { name: CATEGORIES[k].lbl, value: r1(cats[k]), color: CATEGORIES[k].color, key: k };
+  }).filter(function (x) { return x.value > 0; });
+
+  var top = d.motifs.slice().sort(function (a, b) { return b.nonAssures - a.nonAssures; }).slice(0, 8);
+
+  return (
+    <div>
+      <div className="kpi-grid">
+        <div className="kpi-card" style={{ borderLeftColor: '#1565c0' }}>
+          <span className="kpi-label">Heures de cours prévues</span>
+          <span className="kpi-value" style={{ color: '#1565c0' }}>{fmtH(t.coursPrevus)}</span>
+          <span className="kpi-sub">Année {d.annee}</span>
+        </div>
+        <div className="kpi-card" style={{ borderLeftColor: '#e65100' }}>
+          <span className="kpi-label">Heures non assurées</span>
+          <span className="kpi-value" style={{ color: '#e65100' }}>{fmtH(t.nonAssures)}</span>
+          <span className="kpi-sub">Taux global {fmtPct(t.tauxGlobal)}</span>
+        </div>
+        <div className="kpi-card" style={{ borderLeftColor: '#2e7d32' }}>
+          <span className="kpi-label">Heures remplacées</span>
+          <span className="kpi-value" style={{ color: '#2e7d32' }}>{fmtH(t.remplaces)}</span>
+          <span className="kpi-sub">Taux de remplacement {fmtPct(t.tauxRemplGlobal)}</span>
+        </div>
+        <div className="kpi-card" style={{ borderLeftColor: '#c62828' }}>
+          <span className="kpi-label">Absences raisons personnelles</span>
+          <span className="kpi-value" style={{ color: '#c62828' }}>{fmtPct(t.tauxPerso)}</span>
+          <span className="kpi-sub">{fmtH(cats.personnel)} h non assurées</span>
+        </div>
+      </div>
+
+      <div className="grid-2">
+        <ChartCard title="Répartition des heures non assurées par catégorie">
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label={function (e) { return e.name + ' (' + fmtH(e.value) + ' h)'; }}>
+                {pieData.map(function (entry, i) { return <Cell key={i} fill={entry.color} />; })}
+              </Pie>
+              <Tooltip content={<CT />} />
+            </PieChart>
+          </ResponsiveContainer>
+        </ChartCard>
+
+        <ChartCard title="Top 8 des motifs (heures non assurées)">
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={top} layout="vertical" margin={{ left: 10, right: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+              <XAxis type="number" />
+              <YAxis type="category" dataKey="motif" width={170} tick={{ fontSize: 11 }} />
+              <Tooltip content={<CT />} />
+              <Bar dataKey="nonAssures" name="Heures non assurées">
+                {top.map(function (m, i) { return <Cell key={i} fill={CATEGORIES[m.categorie].color} />; })}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+      </div>
+
+      <div className="card">
+        <div className="card-title">Détail des principaux motifs d'absence</div>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Motif</th>
+              <th>Catégorie</th>
+              <th>Heures non assurées</th>
+              <th>% du total</th>
+              <th>Heures remplacées</th>
+              <th>Taux de remplacement</th>
+            </tr>
+          </thead>
+          <tbody>
+            {top.map(function (m, i) {
+              return (
+                <tr key={i}>
+                  <td>{m.motif}</td>
+                  <td><CategoryChip cat={m.categorie} /></td>
+                  <td>{fmtH(m.nonAssures)}</td>
+                  <td>{fmtPct(m.tauxPct)}</td>
+                  <td>{fmtH(m.remplaces)}</td>
+                  <td>{fmtPct(m.tauxRempl)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/* ══ MOTIFS ══ */
+function TabMotifs(props) {
+  var d = props.d;
+  if (!d) return <Empty />;
+  var filtre = props.filtre;
+  var tri = props.tri;
+
+  var motifs = d.motifs.filter(function (m) { return filtre === 'tous' || m.categorie === filtre; });
+
+  var sorters = {
+    nonAssures: function (a, b) { return b.nonAssures - a.nonAssures; },
+    motif: function (a, b) { return a.motif.localeCompare(b.motif); },
+    tauxRempl: function (a, b) { return b.tauxRempl - a.tauxRempl; }
+  };
+  motifs = motifs.slice().sort(sorters[tri] || sorters.nonAssures);
+
+  var topChart = motifs.slice(0, 15);
+
+  return (
+    <div>
+      <div className="filter-row">
+        <span style={{ fontSize: '.82rem', color: '#546e7a', fontWeight: 600 }}>Catégorie :</span>
+        <button className={'btn btn-sm ' + (filtre === 'tous' ? 'btn-primary' : 'btn-outline')} onClick={function () { props.onFiltre('tous'); }}>Toutes</button>
+        {Object.keys(CATEGORIES).map(function (k) {
+          return <button key={k} className={'btn btn-sm ' + (filtre === k ? 'btn-primary' : 'btn-outline')} onClick={function () { props.onFiltre(k); }}>{CATEGORIES[k].lbl}</button>;
+        })}
+        <span className="sep">|</span>
+        <span style={{ fontSize: '.82rem', color: '#546e7a', fontWeight: 600 }}>Tri :</span>
+        <button className={'btn btn-sm ' + (tri === 'nonAssures' ? 'btn-primary' : 'btn-outline')} onClick={function () { props.onTri('nonAssures'); }}>Heures non assurées</button>
+        <button className={'btn btn-sm ' + (tri === 'tauxRempl' ? 'btn-primary' : 'btn-outline')} onClick={function () { props.onTri('tauxRempl'); }}>Taux de remplacement</button>
+        <button className={'btn btn-sm ' + (tri === 'motif' ? 'btn-primary' : 'btn-outline')} onClick={function () { props.onTri('motif'); }}>Alphabétique</button>
+      </div>
+
+      <ChartCard title={'Heures non assurées par motif (top ' + topChart.length + ')'}>
+        <ResponsiveContainer width="100%" height={Math.max(300, topChart.length * 26)}>
+          <BarChart data={topChart} layout="vertical" margin={{ left: 10, right: 20 }}>
+            <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+            <XAxis type="number" />
+            <YAxis type="category" dataKey="motif" width={220} tick={{ fontSize: 11 }} />
+            <Tooltip content={<CT />} />
+            <Bar dataKey="nonAssures" name="Heures non assurées">
+              {topChart.map(function (m, i) { return <Cell key={i} fill={CATEGORIES[m.categorie].color} />; })}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </ChartCard>
+
+      <div className="card">
+        <div className="card-title">Tous les motifs ({motifs.length})</div>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Motif</th>
+              <th>Catégorie</th>
+              <th>Heures non assurées</th>
+              <th>% du total</th>
+              <th>Heures remplacées</th>
+              <th>Taux de remplacement</th>
+            </tr>
+          </thead>
+          <tbody>
+            {motifs.map(function (m, i) {
+              return (
+                <tr key={i}>
+                  <td>{m.motif}</td>
+                  <td><CategoryChip cat={m.categorie} /></td>
+                  <td>{fmtH(m.nonAssures)}</td>
+                  <td>{fmtPct(m.tauxPct)}</td>
+                  <td>{fmtH(m.remplaces)}</td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div className="progress-track" style={{ maxWidth: 80 }}>
+                        <div className="progress-fill" style={{ width: Math.min(100, m.tauxRempl * 100) + '%', background: remplColor(m.tauxRempl) }}></div>
+                      </div>
+                      <span>{fmtPct(m.tauxRempl)}</span>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/* ══ REMPLACEMENT ══ */
+function TabRemplacement(props) {
+  var d = props.d;
+  if (!d) return <Empty />;
+  var t = d.total;
+
+  var top = d.motifs.slice().sort(function (a, b) { return b.nonAssures - a.nonAssures; }).slice(0, 12);
+  var chartData = top.slice().sort(function (a, b) { return a.tauxRempl - b.tauxRempl; });
+
+  var pireMotifs = d.motifs.filter(function (m) { return m.nonAssures >= 10; })
+    .slice().sort(function (a, b) { return a.tauxRempl - b.tauxRempl; }).slice(0, 10);
+
+  return (
+    <div>
+      <div className="kpi-grid">
+        <div className="kpi-card" style={{ borderLeftColor: '#2e7d32' }}>
+          <span className="kpi-label">Taux de remplacement global</span>
+          <span className="kpi-value" style={{ color: '#2e7d32' }}>{fmtPct(t.tauxRemplGlobal)}</span>
+          <span className="kpi-sub">{fmtH(t.remplaces)} h remplacées sur {fmtH(t.nonAssures)} h</span>
+        </div>
+        <div className="kpi-card" style={{ borderLeftColor: '#c62828' }}>
+          <span className="kpi-label">Heures non remplacées</span>
+          <span className="kpi-value" style={{ color: '#c62828' }}>{fmtH(t.nonAssures - t.remplaces)}</span>
+          <span className="kpi-sub">Sur l'ensemble des motifs</span>
+        </div>
+      </div>
+
+      <ChartCard title="Taux de remplacement par motif (top 12 par volume d'heures)">
+        <ResponsiveContainer width="100%" height={Math.max(300, chartData.length * 28)}>
+          <BarChart data={chartData} layout="vertical" margin={{ left: 10, right: 30 }}>
+            <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+            <XAxis type="number" domain={[0, 1]} tickFormatter={function (v) { return fmtPct(v); }} />
+            <YAxis type="category" dataKey="motif" width={220} tick={{ fontSize: 11 }} />
+            <Tooltip content={<CT fmt={fmtPct} />} />
+            <Bar dataKey="tauxRempl" name="Taux de remplacement">
+              {chartData.map(function (m, i) { return <Cell key={i} fill={remplColor(m.tauxRempl)} />; })}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </ChartCard>
+
+      <div className="card">
+        <div className="card-title">Motifs les moins remplacés (≥ 10 h non assurées)</div>
+        <div className="alert alert-info">Ces motifs représentent un volume d'heures perdues important avec un faible taux de remplacement par un autre enseignant.</div>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Motif</th>
+              <th>Catégorie</th>
+              <th>Heures non assurées</th>
+              <th>Heures remplacées</th>
+              <th>Taux de remplacement</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pireMotifs.map(function (m, i) {
+              return (
+                <tr key={i}>
+                  <td>{m.motif}</td>
+                  <td><CategoryChip cat={m.categorie} /></td>
+                  <td>{fmtH(m.nonAssures)}</td>
+                  <td>{fmtH(m.remplaces)}</td>
+                  <td><span className="chip" style={{ background: remplColor(m.tauxRempl) + '22', color: remplColor(m.tauxRempl) }}>{fmtPct(m.tauxRempl)}</span></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/* ══ COMPARAISON ══ */
+function TabComparaison(props) {
+  var annees = props.annees;
+  var years = Object.keys(annees).sort();
+  if (years.length < 2) {
+    return (
+      <div className="empty">
+        <div className="icon">📊</div>
+        <h3>Comparaison indisponible</h3>
+        <p>Importez au moins deux années pour activer la comparaison.</p>
+      </div>
+    );
+  }
+
+  var evol = years.map(function (y) {
+    var t = annees[y].total;
+    var cats = catTotals(annees[y]);
+    return {
+      annee: y,
+      tauxGlobal: r1(t.tauxGlobal * 100),
+      tauxRempl: r1(t.tauxRemplGlobal * 100),
+      tauxPerso: r1(t.tauxPerso * 100),
+      admin: r1(cats.admin),
+      accomp: r1(cats.accomp),
+      personnel: r1(cats.personnel)
+    };
+  });
+
+  return (
+    <div>
+      <ChartCard title="Évolution des taux globaux (%)">
+        <ResponsiveContainer width="100%" height={320}>
+          <LineChart data={evol}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="annee" />
+            <YAxis tickFormatter={function (v) { return v + '%'; }} />
+            <Tooltip content={<CT fmt={fmtPctAxis} />} />
+            <Legend />
+            <Line type="monotone" dataKey="tauxGlobal" name="Taux global d'absence" stroke="#1565c0" strokeWidth={2} unit="%" />
+            <Line type="monotone" dataKey="tauxRempl" name="Taux de remplacement" stroke="#2e7d32" strokeWidth={2} unit="%" />
+            <Line type="monotone" dataKey="tauxPerso" name="Taux raisons personnelles" stroke="#c62828" strokeWidth={2} unit="%" />
+          </LineChart>
+        </ResponsiveContainer>
+      </ChartCard>
+
+      <ChartCard title="Répartition des heures non assurées par catégorie et par année">
+        <ResponsiveContainer width="100%" height={320}>
+          <BarChart data={evol}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="annee" />
+            <YAxis />
+            <Tooltip content={<CT />} />
+            <Legend />
+            <Bar dataKey="admin" name={CATEGORIES.admin.lbl} stackId="a" fill={CATEGORIES.admin.color} />
+            <Bar dataKey="accomp" name={CATEGORIES.accomp.lbl} stackId="a" fill={CATEGORIES.accomp.color} />
+            <Bar dataKey="personnel" name={CATEGORIES.personnel.lbl} stackId="a" fill={CATEGORIES.personnel.color} />
+          </BarChart>
+        </ResponsiveContainer>
+      </ChartCard>
+
+      <div className="card">
+        <div className="card-title">Tableau comparatif</div>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Année</th>
+              <th>Heures prévues</th>
+              <th>Heures non assurées</th>
+              <th>Taux global</th>
+              <th>Heures remplacées</th>
+              <th>Taux remplacement</th>
+              <th>Taux raisons perso.</th>
+            </tr>
+          </thead>
+          <tbody>
+            {years.map(function (y) {
+              var t = annees[y].total;
+              return (
+                <tr key={y}>
+                  <td><strong>{y}</strong></td>
+                  <td>{fmtH(t.coursPrevus)}</td>
+                  <td>{fmtH(t.nonAssures)}</td>
+                  <td>{fmtPct(t.tauxGlobal)}</td>
+                  <td>{fmtH(t.remplaces)}</td>
+                  <td>{fmtPct(t.tauxRemplGlobal)}</td>
+                  <td>{fmtPct(t.tauxPerso)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/* ══ GUIDE ══ */
+function TabGuide() {
+  return (
+    <div>
+      <div className="card">
+        <div className="card-title">À propos de cet outil</div>
+        <p style={{ fontSize: '.86rem', color: '#555', lineHeight: 1.6 }}>
+          Ce tableau de bord présente les indicateurs d'absences des professeurs de l'établissement,
+          motif par motif, ainsi que leur taux de remplacement. Les données proviennent de l'extraction
+          annuelle "absences professeurs" (un onglet par année scolaire).
+        </p>
+      </div>
+
+      <div className="guide-step">
+        <div className="guide-num">1</div>
+        <div className="guide-content">
+          <h4>Importer les données</h4>
+          <p>Cliquez sur "Importer Excel" et sélectionnez le fichier contenant un ou plusieurs onglets nommés "absences professeurs AA BB" (ex. "absences professeurs 25 26"). Chaque onglet correspond à une année scolaire et est ajouté automatiquement au tableau de bord.</p>
+        </div>
+      </div>
+
+      <div className="guide-step">
+        <div className="guide-num">2</div>
+        <div className="guide-content">
+          <h4>Synthèse</h4>
+          <p>Vue d'ensemble de l'année sélectionnée : heures de cours prévues, heures non assurées et leur taux, heures remplacées et taux de remplacement, répartition par catégorie de motif, et top 8 des motifs les plus consommateurs d'heures.</p>
+        </div>
+      </div>
+
+      <div className="guide-step">
+        <div className="guide-num">3</div>
+        <div className="guide-content">
+          <h4>Motifs d'absence</h4>
+          <p>Liste complète des motifs avec filtres par catégorie (administratif, accompagnement, raisons personnelles) et tri par volume d'heures, taux de remplacement ou ordre alphabétique.</p>
+        </div>
+      </div>
+
+      <div className="guide-step">
+        <div className="guide-num">4</div>
+        <div className="guide-content">
+          <h4>Remplacement</h4>
+          <p>Focus sur le taux de remplacement : indicateur global, répartition par motif, et identification des motifs représentant le plus d'heures non remplacées (≥ 10 h).</p>
+        </div>
+      </div>
+
+      <div className="guide-step">
+        <div className="guide-num">5</div>
+        <div className="guide-content">
+          <h4>Comparaison</h4>
+          <p>Évolution multi-années des taux globaux (absence, remplacement, raisons personnelles) et de la répartition des heures non assurées par catégorie. Disponible dès que deux années sont chargées.</p>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-title">Définition des catégories</div>
+        <table className="data-table">
+          <thead><tr><th>Catégorie</th><th>Définition</th></tr></thead>
+          <tbody>
+            <tr><td><CategoryChip cat="admin" /></td><td>Absences liées à des missions ou obligations administratives de l'établissement (formations, examens, réunions, jury, fonctions électives...).</td></tr>
+            <tr><td><CategoryChip cat="accomp" /></td><td>Absences liées à l'accompagnement des élèves (sorties pédagogiques, activités sportives ou culturelles, PFMP...).</td></tr>
+            <tr><td><CategoryChip cat="personnel" /></td><td>Absences pour raisons personnelles (maladie, congés, convenance personnelle, grève, événements familiaux...).</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div className="card">
+        <div className="card-title">Stockage et sauvegarde</div>
+        <p style={{ fontSize: '.86rem', color: '#555', lineHeight: 1.6 }}>
+          Les données sont conservées automatiquement dans le navigateur (localStorage). Utilisez "Sauvegarder" pour exporter une copie JSON
+          et "Charger" pour la réimporter sur un autre poste. Les boutons "PPTX" génèrent une présentation prête à projeter.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ══ APP ══ */
+function App() {
+  var saved = loadSt();
+  var initState = Object.assign({}, INIT);
+  if (saved && saved.annees && Object.keys(saved.annees).length) {
+    var keys = Object.keys(saved.annees).sort();
+    initState.annees = saved.annees;
+    initState.active = saved.active || keys[keys.length - 1];
+  } else {
+    var keys2 = Object.keys(INITIAL_DATA).sort();
+    initState.annees = INITIAL_DATA;
+    initState.active = keys2[keys2.length - 1];
+  }
+
+  var stateResult = useReducer(reducer, initState);
+  var st = stateResult[0];
+  var dispatch = stateResult[1];
+
+  var toastResult = useState(null);
+  var toast = toastResult[0];
+  var setToast = toastResult[1];
+
+  var importingResult = useState(false);
+  var importing = importingResult[0];
+  var setImporting = importingResult[1];
+
+  var filtreResult = useState('tous');
+  var motifFiltre = filtreResult[0];
+  var setMotifFiltre = filtreResult[1];
+
+  var triResult = useState('nonAssures');
+  var motifTri = triResult[0];
+  var setMotifTri = triResult[1];
+
+  var years = Object.keys(st.annees).sort();
+  var data = st.active && st.annees[st.active] ? st.annees[st.active] : null;
+
+  function notify(msg, type) {
+    setToast({ msg: msg, type: type || 'info' });
+    setTimeout(function () { setToast(null); }, 3200);
+  }
+
+  function importExcel() {
+    var inp = document.getElementById('file-input');
+    inp.accept = '.xlsx';
+    inp.value = '';
+    inp.onchange = function (e) {
+      var f = e.target.files[0];
+      if (!f) return;
+      setImporting(true);
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        try {
+          var buf = new Uint8Array(ev.target.result);
+          var d = parseExcel(buf);
+          var n = Object.keys(d).length;
+          if (n === 0) {
+            notify('Aucun onglet "absences professeurs AA BB" trouvé dans ce fichier', 'error');
+          } else {
+            dispatch({ type: 'ADD_MULTI', d: d });
+            notify(n + ' année(s) importée(s) : ' + Object.keys(d).sort().join(', '), 'success');
+          }
+        } catch (err) {
+          notify('Erreur import : ' + err.message, 'error');
+          console.error(err);
+        }
+        setImporting(false);
+      };
+      reader.readAsArrayBuffer(f);
+    };
+    inp.click();
+  }
+
+  function loadJSON() {
+    var inp = document.getElementById('file-input');
+    inp.accept = '.json';
+    inp.value = '';
+    inp.onchange = function (e) {
+      var f = e.target.files[0];
+      if (!f) return;
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        try {
+          var d = JSON.parse(ev.target.result);
+          if (d && d.annees) {
+            dispatch({ type: 'LOAD', d: d });
+            notify(Object.keys(d.annees).length + ' année(s) chargée(s)', 'success');
+          } else {
+            notify('Fichier JSON invalide', 'error');
+          }
+        } catch (err) {
+          notify('Erreur lors du chargement', 'error');
+        }
+      };
+      reader.readAsText(f);
+    };
+    inp.click();
+  }
+
+  function saveJSON() {
+    try {
+      var blob = new Blob(
+        [JSON.stringify({ annees: st.annees, active: st.active }, null, 2)],
+        { type: 'application/json' }
+      );
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      var today = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = 'absences-profs-elfort-' + today + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      notify('Sauvegarde téléchargée', 'success');
+    } catch (err) {
+      notify('Erreur sauvegarde : ' + err.message, 'error');
+    }
+  }
+
+  function saveToGithubAction() {
+    notify('Envoi vers GitHub...', 'info');
+    saveToGithub({ annees: st.annees, active: st.active }, 'saves/absences-profs.json', 'Indicateurs Absences Professeurs')
+      .then(function () { notify('Sauvegarde envoyée sur GitHub', 'success'); })
+      .catch(function (err) { notify('Erreur GitHub : ' + err.message, 'error'); });
+  }
+
+  /* ── EXPORT PPTX ANNÉE ── */
+  function exportPPTXAnnee() {
+    if (!data) return;
+    if (!window.PptxGenJS) { notify('PptxGenJS non chargé (connexion requise)', 'error'); return; }
+    notify('Génération du PPTX...', 'info');
+    var pres = new PptxGenJS();
+    pres.layout = 'LAYOUT_16x9';
+    var DBL = '1A237E', BL = '1565C0', GR = '2E7D32', OR = 'F57C00', RD = 'C62828';
+    var t = data.total;
+    var cats = catTotals(data);
+
+    var s1 = pres.addSlide();
+    s1.background = { color: DBL };
+    s1.addText('Indicateurs Absences Professeurs', { x: 0.5, y: 1.3, w: 9, h: 1.1, fontSize: 32, bold: true, color: 'FFFFFF', align: 'center' });
+    s1.addText('LPO Léopold Elfort — Mana, Guyane', { x: 0.5, y: 2.55, w: 9, h: 0.55, fontSize: 18, color: 'BBDEFB', align: 'center' });
+    s1.addText('Année scolaire ' + data.annee, { x: 0.5, y: 3.3, w: 9, h: 0.8, fontSize: 26, bold: true, color: 'FFF9C4', align: 'center' });
+    s1.addText('Taux non assuré ' + fmtPct(t.tauxGlobal) + '  |  Taux remplacement ' + fmtPct(t.tauxRemplGlobal), { x: 0.5, y: 4.5, w: 9, h: 0.45, fontSize: 13, color: 'E3F2FD', align: 'center' });
+
+    var s2 = pres.addSlide();
+    s2.addText('Répartition des heures non assurées par catégorie — ' + data.annee, { x: 0.3, y: 0.15, w: 9.4, h: 0.6, fontSize: 20, bold: true, color: DBL });
+    s2.addChart(pres.ChartType.pie, [{
+      name: 'Heures',
+      labels: ['Administratif', 'Accompagnement', 'Personnel'],
+      values: [r1(cats.admin), r1(cats.accomp), r1(cats.personnel)]
+    }], { x: 1.7, y: 0.9, w: 6.6, h: 5.2, chartColors: [BL, OR, RD], showLegend: true, legendPos: 'b' });
+
+    var top = data.motifs.slice().sort(function (a, b) { return b.nonAssures - a.nonAssures; }).slice(0, 10);
+    var s3 = pres.addSlide();
+    s3.addText('Top 10 des motifs (heures non assurées) — ' + data.annee, { x: 0.3, y: 0.15, w: 9.4, h: 0.6, fontSize: 20, bold: true, color: DBL });
+    s3.addChart(pres.ChartType.bar, [{ name: 'Heures non assurées', labels: top.map(function (m) { return m.motif; }), values: top.map(function (m) { return r1(m.nonAssures); }) }], { x: 0.3, y: 0.9, w: 9.4, h: 5.3, barDir: 'bar', chartColors: [OR], showLegend: false });
+
+    var s4 = pres.addSlide();
+    s4.addText('Taux de remplacement par motif (top 10) — ' + data.annee, { x: 0.3, y: 0.15, w: 9.4, h: 0.6, fontSize: 20, bold: true, color: DBL });
+    s4.addChart(pres.ChartType.bar, [{ name: 'Taux de remplacement', labels: top.map(function (m) { return m.motif; }), values: top.map(function (m) { return r1(m.tauxRempl * 100); }) }], { x: 0.3, y: 0.9, w: 9.4, h: 5.3, barDir: 'bar', chartColors: [GR], showLegend: false, valAxisLabelFormatCode: '0"%"' });
+
+    pres.writeFile({ fileName: 'absences-profs-' + data.annee + '.pptx' })
+      .then(function () { notify('PPTX ' + data.annee + ' téléchargé !', 'success'); })
+      .catch(function (e) { notify('Erreur PPTX : ' + (e.message || e), 'error'); });
+  }
+
+  /* ── EXPORT PPTX COMPARATIF ── */
+  function exportPPTXComparatif() {
+    if (years.length < 2) { notify('Importez au moins 2 années pour le comparatif', 'error'); return; }
+    if (!window.PptxGenJS) { notify('PptxGenJS non chargé (connexion requise)', 'error'); return; }
+    notify('Génération du PPTX comparatif...', 'info');
+    var pres = new PptxGenJS();
+    pres.layout = 'LAYOUT_16x9';
+    var DBL = '1A237E', BL = '1565C0', GR = '2E7D32', RD = 'C62828';
+    var colorMap = ['1565C0', 'E91E63', '2E7D32', 'E65100', '7B1FA2', '00695C'];
+
+    var sc = pres.addSlide();
+    sc.background = { color: DBL };
+    sc.addText('Tableau Comparatif — Absences Professeurs', { x: 0.5, y: 1.3, w: 9, h: 1.1, fontSize: 32, bold: true, color: 'FFFFFF', align: 'center' });
+    sc.addText('LPO Léopold Elfort — Mana, Guyane', { x: 0.5, y: 2.55, w: 9, h: 0.55, fontSize: 18, color: 'BBDEFB', align: 'center' });
+    sc.addText(years.join(' — '), { x: 0.5, y: 3.3, w: 9, h: 0.8, fontSize: 26, bold: true, color: 'FFF9C4', align: 'center' });
+
+    var sk = pres.addSlide();
+    sk.addText('Indicateurs clés comparés', { x: 0.3, y: 0.15, w: 9.4, h: 0.6, fontSize: 20, bold: true, color: DBL });
+    var hOpts = { bold: true, fill: { color: '1565C0' }, color: 'FFFFFF', fontSize: 12, align: 'center' };
+    var tableRows = [[
+      { text: 'Année', options: hOpts }, { text: 'Heures non assurées', options: hOpts },
+      { text: 'Taux global', options: hOpts }, { text: 'Taux remplacement', options: hOpts }, { text: 'Taux pers.', options: hOpts }
+    ]];
+    years.forEach(function (y, i) {
+      var t = st.annees[y].total;
+      var fOpts = { fontSize: 12, align: 'center', fill: { color: i % 2 === 0 ? 'F5F5F5' : 'FFFFFF' } };
+      tableRows.push([
+        { text: y, options: Object.assign({}, fOpts, { bold: true }) },
+        { text: fmtH(t.nonAssures), options: fOpts },
+        { text: fmtPct(t.tauxGlobal), options: fOpts },
+        { text: fmtPct(t.tauxRemplGlobal), options: fOpts },
+        { text: fmtPct(t.tauxPerso), options: fOpts }
+      ]);
+    });
+    sk.addTable(tableRows, { x: 0.7, y: 1.2, w: 8.6, colW: [1.6, 2.4, 1.6, 1.6, 1.4], rowH: 0.55, border: { type: 'solid', pt: 0.5, color: 'CCCCCC' } });
+
+    var se = pres.addSlide();
+    se.addText('Évolution des taux globaux (%)', { x: 0.3, y: 0.15, w: 9.4, h: 0.6, fontSize: 20, bold: true, color: DBL });
+    se.addChart(pres.ChartType.line, [
+      { name: "Taux d'absence", labels: years, values: years.map(function (y) { return r1(st.annees[y].total.tauxGlobal * 100); }) },
+      { name: 'Taux de remplacement', labels: years, values: years.map(function (y) { return r1(st.annees[y].total.tauxRemplGlobal * 100); }) },
+      { name: 'Taux raisons perso.', labels: years, values: years.map(function (y) { return r1(st.annees[y].total.tauxPerso * 100); }) }
+    ], { x: 0.3, y: 0.9, w: 9.4, h: 5.3, chartColors: [BL, GR, RD], showLegend: true, legendPos: 'b', valAxisLabelFormatCode: '0"%"' });
+
+    var sca = pres.addSlide();
+    sca.addText('Répartition par catégorie et par année', { x: 0.3, y: 0.15, w: 9.4, h: 0.6, fontSize: 20, bold: true, color: DBL });
+    sca.addChart(pres.ChartType.bar, [
+      { name: 'Administratif', labels: years, values: years.map(function (y) { return r1(catTotals(st.annees[y]).admin); }) },
+      { name: 'Accompagnement', labels: years, values: years.map(function (y) { return r1(catTotals(st.annees[y]).accomp); }) },
+      { name: 'Personnel', labels: years, values: years.map(function (y) { return r1(catTotals(st.annees[y]).personnel); }) }
+    ], { x: 0.3, y: 0.9, w: 9.4, h: 5.3, barDir: 'col', barGrouping: 'stacked', chartColors: colorMap, showLegend: true, legendPos: 'b' });
+
+    pres.writeFile({ fileName: 'absences-profs-comparatif-' + years.join('-') + '.pptx' })
+      .then(function () { notify('PPTX comparatif téléchargé !', 'success'); })
+      .catch(function (e) { notify('Erreur PPTX : ' + (e.message || e), 'error'); });
+  }
+
+  var TABS = [
+    { id: 'synthese',     lbl: 'Synthèse' },
+    { id: 'motifs',       lbl: "Motifs d'absence" },
+    { id: 'remplacement', lbl: 'Remplacement' },
+    { id: 'comparaison',  lbl: 'Comparaison' },
+    { id: 'guide',        lbl: 'Guide' }
+  ];
+
+  return (
+    <div>
+      {/* EN-TETE */}
+      <div className="header">
+        <div className="header-left">
+          <div className="logo">🧑‍🏫</div>
+          <div>
+            <h1>Indicateurs Absences Professeurs</h1>
+            <p>LPO Léopold Elfort — Mana, Guyane</p>
+          </div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          {st.active
+            ? <span className="annee-badge">Année {st.active}</span>
+            : <span style={{ fontSize: '.82rem', opacity: .8 }}>Importez un fichier Excel pour commencer</span>}
+        </div>
+      </div>
+
+      {/* BARRE D'OUTILS */}
+      <div className="toolbar">
+        <button className="btn btn-primary" onClick={importExcel} disabled={importing}>
+          {importing ? 'Importation...' : 'Importer Excel'}
+        </button>
+        <button className="btn btn-outline" onClick={loadJSON}>Charger</button>
+        {years.length > 0 && (
+          <button className="btn btn-success" onClick={saveJSON}>Sauvegarder</button>
+        )}
+        {years.length > 0 && (
+          <button className="btn" style={{ background: '#24292e', color: 'white' }} onClick={saveToGithubAction}>☁️ Sauvegarder sur GitHub</button>
+        )}
+        {data && (
+          <button className="btn btn-outline" style={{ borderColor: '#7b1fa2', color: '#7b1fa2' }} onClick={exportPPTXAnnee} title={'Exporter un PPTX pour ' + st.active}>
+            ▶ PPTX {st.active}
+          </button>
+        )}
+        {years.length >= 2 && (
+          <button className="btn btn-outline" style={{ borderColor: '#e65100', color: '#e65100' }} onClick={exportPPTXComparatif} title="Exporter un PPTX comparatif toutes années">
+            ▶ PPTX Comparatif
+          </button>
+        )}
+        {years.length > 0 && <span className="sep">|</span>}
+        {years.length > 0 && <span style={{ fontSize: '.82rem', color: '#546e7a', fontWeight: 600 }}>Années :</span>}
+        {years.map(function (y) {
+          return (
+            <span key={y} style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+              <button
+                className={'btn btn-sm ' + (st.active === y ? 'btn-primary' : 'btn-outline')}
+                onClick={function () { dispatch({ type: 'SET_ACTIVE', v: y }); }}>
+                {y}
+              </button>
+              <button
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#c62828', fontSize: '1rem', padding: '0 3px', lineHeight: 1 }}
+                title={'Supprimer ' + y}
+                onClick={function () {
+                  if (window.confirm("Supprimer l'année " + y + " du tableau de bord ?")) {
+                    dispatch({ type: 'DEL', v: y });
+                  }
+                }}>
+                x
+              </button>
+            </span>
+          );
+        })}
+      </div>
+
+      {/* ONGLETS */}
+      <div className="tabs">
+        {TABS.map(function (t) {
+          return (
+            <div key={t.id}
+              className={'tab ' + (st.tab === t.id ? 'active' : '')}
+              onClick={function () { dispatch({ type: 'SET_TAB', v: t.id }); }}>
+              {t.lbl}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* TOAST */}
+      {toast && (
+        <div className="toast" style={{
+          background: toast.type === 'error' ? '#c62828' : toast.type === 'success' ? '#2e7d32' : '#1565c0'
+        }}>
+          {toast.msg}
+        </div>
+      )}
+
+      {/* CONTENU */}
+      <div className="content">
+        {st.tab === 'synthese'     && <TabSynthese d={data} />}
+        {st.tab === 'motifs'       && <TabMotifs d={data} filtre={motifFiltre} onFiltre={setMotifFiltre} tri={motifTri} onTri={setMotifTri} />}
+        {st.tab === 'remplacement' && <TabRemplacement d={data} />}
+        {st.tab === 'comparaison'  && <TabComparaison annees={st.annees} />}
+        {st.tab === 'guide'        && <TabGuide />}
+      </div>
+    </div>
+  );
+}
+
+/* ══ ERROR BOUNDARY ══ */
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error: error };
+  }
+  componentDidCatch(error, info) {
+    console.error('React error:', error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="err-box" style={{ margin: 20 }}>
+          {'Erreur de rendu React :\n' + (this.state.error ? this.state.error.message : 'Erreur inconnue')}
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  React.createElement(ErrorBoundary, null, React.createElement(App, null))
+);
+</script>
+</body>
+</html>
