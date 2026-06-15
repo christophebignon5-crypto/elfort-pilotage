@@ -26,6 +26,7 @@
   --c-ex:  #6a1b9a;
   --c-pc:  #bf360c;
   --c-pj:  #00695c;
+  --c-pers:#ad1457;
 }
 html { scroll-behavior: smooth; }
 body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; line-height:1.5; }
@@ -201,7 +202,7 @@ body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color
     <div class="header-meta">
       <div class="header-date" id="current-date">—</div>
       <div class="header-year-badge" id="school-year">Année scolaire</div>
-      <div class="header-apps-count">6 applications disponibles</div>
+      <div class="header-apps-count">7 applications disponibles</div>
     </div>
   </div>
   <div class="year-progress-bar">
@@ -219,11 +220,12 @@ body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color
 <!-- ══════ NAV FILTRE ══════ -->
 <nav class="nav-bar" aria-label="Filtre par domaine">
   <div class="nav-inner">
-    <button class="nav-btn active" data-filter="all">🗂️ Toutes <span class="nav-count">6</span></button>
+    <button class="nav-btn active" data-filter="all">🗂️ Toutes <span class="nav-count">7</span></button>
     <button class="nav-btn" data-filter="viescolaire"><span class="nav-dot" style="background:var(--c-vs)"></span>Vie Scolaire <span class="nav-count">2</span></button>
     <button class="nav-btn" data-filter="examens"><span class="nav-dot" style="background:var(--c-ex)"></span>Examens <span class="nav-count">1</span></button>
     <button class="nav-btn" data-filter="parcoursup"><span class="nav-dot" style="background:var(--c-pc)"></span>Parcoursup <span class="nav-count">2</span></button>
     <button class="nav-btn" data-filter="projets"><span class="nav-dot" style="background:var(--c-pj)"></span>Projets <span class="nav-count">1</span></button>
+    <button class="nav-btn" data-filter="personnel"><span class="nav-dot" style="background:var(--c-pers)"></span>Personnel <span class="nav-count">1</span></button>
   </div>
 </nav>
 
@@ -379,6 +381,35 @@ body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color
       <div class="card-footer">
         <div class="card-source"><div class="source-dot" style="background:#4caf50"></div>Multi-projets · Sauvegarde locale</div>
         <a href="GESTION DES SORTIES PEDAGOGIQUES/TABLEAU_GESTION_PROJETS.html" class="btn-launch" style="background:var(--c-pj)">Ouvrir <span class="btn-launch-arrow">→</span></a>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- PERSONNEL -->
+  <div class="section-sep" data-section="personnel">
+    <span class="section-sep-pill" style="background:#fce4ec;color:var(--c-pers)">🧑‍💼 Gestion du Personnel</span>
+    <div class="section-sep-line"></div>
+    <span class="section-sep-count">1 outil</span>
+  </div>
+  <div class="app-grid" data-grid="personnel">
+
+    <article class="app-card" data-category="personnel">
+      <div class="card-stripe" style="background:linear-gradient(90deg,#ad1457,#d81b60,#f06292)"></div>
+      <div class="card-body">
+        <div class="card-head">
+          <div class="card-icon-wrap" style="background:#fce4ec">🧑‍💼</div>
+          <div class="card-header-right"><span class="card-badge" style="background:#fce4ec;color:#ad1457">Personnel</span></div>
+        </div>
+        <h3 class="card-title">Gestion des Absences du Personnel</h3>
+        <p class="card-desc">Suivi des absences de service des enseignants et du personnel : heures d'absence, récupérations associées, statut de régularisation et rapports individuels signés.</p>
+        <div class="card-features">
+          <span class="feat-tag">Absences de service</span><span class="feat-tag">Récupérations</span><span class="feat-tag">Statut complet/partiel</span><span class="feat-tag">Rapports PDF</span><span class="feat-tag">Import Excel</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="card-source"><div class="source-dot" style="background:#4caf50"></div>Saisie manuelle · Sauvegarde locale</div>
+        <a href="GESTION ABSENCES PERSONNEL/GESTION_ABSENCES_PERSONNEL.html" class="btn-launch" style="background:var(--c-pers)">Ouvrir <span class="btn-launch-arrow">→</span></a>
       </div>
     </article>
 

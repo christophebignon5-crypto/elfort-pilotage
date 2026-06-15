@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestion Absences Personnel — LPO Léopold Elfort</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f0f2f5;color:#222;font-size:14px}
+a{color:inherit;text-decoration:none}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a237e 0%,#283593 100%)}
+.login-box{background:#fff;border-radius:12px;padding:40px 36px;width:360px;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.login-logo{text-align:center;margin-bottom:24px}
+.login-logo h1{color:#1a237e;font-size:18px;font-weight:700;margin-top:8px}
+.login-logo p{color:#666;font-size:12px;margin-top:4px}
+.login-box label{display:block;font-weight:600;margin-bottom:4px;color:#444;font-size:13px}
+.login-box input{width:100%;padding:9px 12px;border:1.5px solid #ddd;border-radius:6px;font-size:14px;margin-bottom:16px;transition:border .2s}
+.login-box input:focus{outline:none;border-color:#1a237e}
+.btn-login{width:100%;padding:11px;background:#1a237e;color:#fff;border:none;border-radius:6px;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s}
+.btn-login:hover{background:#283593}
+.login-err{color:#c62828;font-size:13px;text-align:center;margin-top:8px}
+
+/* HEADER */
+.header{background:#1a237e;color:#fff;padding:0 20px;display:flex;align-items:center;gap:16px;height:56px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.header h1{font-size:15px;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.header-user{font-size:12px;opacity:.85}
+.btn-logout{padding:6px 14px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:5px;cursor:pointer;font-size:12px}
+.btn-logout:hover{background:rgba(255,255,255,.25)}
+
+/* NAV */
+.nav{background:#fff;border-bottom:2px solid #e0e0e0;display:flex;overflow-x:auto;padding:0 16px;gap:2px;position:sticky;top:56px;z-index:99}
+.nav-btn{padding:12px 16px;border:none;background:none;cursor:pointer;font-size:13px;font-weight:600;color:#666;border-bottom:3px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s}
+.nav-btn:hover{color:#1a237e}
+.nav-btn.active{color:#1a237e;border-bottom-color:#1a237e}
+
+/* PAGE */
+.page{max-width:1200px;margin:0 auto;padding:20px 16px}
+.page-title{font-size:20px;font-weight:700;color:#1a237e;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+
+/* CARDS */
+.card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:16px}
+.card-title{font-size:15px;font-weight:700;color:#1a237e;margin-bottom:12px;border-bottom:1px solid #eee;padding-bottom:8px}
+
+/* STATS DASHBOARD */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+.stat-card{background:#fff;border-radius:10px;padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.08);display:flex;align-items:center;gap:12px}
+.stat-icon{font-size:28px;width:44px;text-align:center}
+.stat-val{font-size:26px;font-weight:700;color:#1a237e}
+.stat-lbl{font-size:12px;color:#666;margin-top:1px}
+
+/* STATUS BADGES */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
+.badge-complet{background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7}
+.badge-partiel{background:#fff3e0;color:#e65100;border:1px solid #ffcc80}
+.badge-non{background:#ffebee;color:#c62828;border:1px solid #ef9a9a}
+
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#f5f5f5;padding:9px 10px;text-align:left;font-weight:700;color:#555;border-bottom:2px solid #e0e0e0;white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
+tr:hover td{background:#fafafa}
+.td-actions{display:flex;gap:6px;align-items:center}
+
+/* BUTTONS */
+.btn{padding:7px 14px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s,opacity .15s;display:inline-flex;align-items:center;gap:5px}
+.btn:disabled{opacity:.5;cursor:default}
+.btn-primary{background:#1a237e;color:#fff}
+.btn-primary:hover:not(:disabled){background:#283593}
+.btn-success{background:#2e7d32;color:#fff}
+.btn-success:hover:not(:disabled){background:#388e3c}
+.btn-warning{background:#f57c00;color:#fff}
+.btn-warning:hover:not(:disabled){background:#ef6c00}
+.btn-danger{background:#c62828;color:#fff}
+.btn-danger:hover:not(:disabled){background:#b71c1c}
+.btn-outline{background:#fff;color:#1a237e;border:1.5px solid #1a237e}
+.btn-outline:hover:not(:disabled){background:#e8eaf6}
+.btn-sm{padding:4px 10px;font-size:12px}
+
+/* FORMS */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:12px;font-weight:700;color:#555}
+.form-group input,.form-group select,.form-group textarea{padding:8px 10px;border:1.5px solid #ddd;border-radius:6px;font-size:13px;font-family:Arial,sans-serif;transition:border .2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#1a237e}
+.form-group textarea{resize:vertical;min-height:60px}
+.form-full{grid-column:1/-1}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.modal{background:#fff;border-radius:12px;width:100%;max-width:680px;box-shadow:0 8px 40px rgba(0,0,0,.25);margin:auto}
+.modal-header{padding:16px 20px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between}
+.modal-header h2{font-size:16px;font-weight:700;color:#1a237e}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:#999;line-height:1;padding:0 4px}
+.modal-body{padding:20px}
+.modal-footer{padding:14px 20px;border-top:1px solid #eee;display:flex;gap:10px;justify-content:flex-end}
+
+/* RECUP SECTION */
+.recup-list{margin-top:12px;display:flex;flex-direction:column;gap:6px}
+.recup-item{background:#f9fbe7;border:1px solid #dce775;border-radius:6px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.recup-item span{font-size:13px}
+.progress-bar{height:8px;background:#e0e0e0;border-radius:4px;overflow:hidden;margin-top:4px}
+.progress-fill{height:100%;border-radius:4px;transition:width .3s}
+
+/* SEARCH */
+.search-bar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.search-bar input,.search-bar select{padding:7px 10px;border:1.5px solid #ddd;border-radius:6px;font-size:13px}
+.search-bar input{flex:1;min-width:160px}
+
+/* ALERTS */
+.alert{padding:10px 14px;border-radius:6px;font-size:13px;margin-bottom:12px}
+.alert-info{background:#e3f2fd;color:#1565c0;border:1px solid #90caf9}
+.alert-success{background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7}
+.alert-warning{background:#fff3e0;color:#e65100;border:1px solid #ffcc80}
+
+/* RAPPORT */
+.rapport-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+
+/* AIDE */
+.aide-section{margin-bottom:20px}
+.aide-section h3{color:#1a237e;font-size:15px;margin-bottom:8px;border-left:4px solid #1a237e;padding-left:8px}
+.aide-section p,.aide-section li{font-size:13px;line-height:1.7;color:#444}
+.aide-section ul{padding-left:18px}
+.aide-section ol{padding-left:18px}
+
+/* PRINT */
+@media print{
+  .header,.nav,.no-print,.btn,.modal-bg{display:none!important}
+  body{background:#fff;font-size:12px}
+  .page{padding:0;max-width:100%}
+  .card{box-shadow:none;border:1px solid #ddd;page-break-inside:avoid}
+  .print-header{display:block!important}
+  table{font-size:11px}
+  th,td{padding:5px 6px}
+}
+.print-header{display:none;text-align:center;margin-bottom:16px}
+.print-header h2{font-size:16px;color:#1a237e}
+.print-header p{font-size:12px;color:#666}
+.print-sig{margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:40px;page-break-inside:avoid}
+.print-sig div{border-top:1px solid #333;padding-top:8px;font-size:12px;text-align:center}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:40px 20px;color:#999}
+.empty-state .icon{font-size:48px;margin-bottom:8px}
+.empty-state p{font-size:13px}
+
+/* CHIP TYPE */
+.chip{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.chip-ens{background:#e3f2fd;color:#1565c0}
+.chip-pers{background:#f3e5f5;color:#6a1b9a}
+
+@media(max-width:600px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .form-grid{grid-template-columns:1fr}
+  .rapport-filters{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback, useMemo, useRef } = React;
+
+// ===== USERS =====
+const USERS = [
+  { login:'proviseur', password:'prov2025', role:'proviseur', nom:'M. Bignon (Proviseur)' },
+  { login:'secretaire', password:'secr2025', role:'secretaire', nom:'Secrétaire de Direction' },
+];
+
+// ===== DONNÉES INITIALES PERSONNEL =====
+const INIT_PERSONNEL = [
+  {id:'p1',nom:'LOUIS',prenom:'Carolle',civilite:'Mme',fonction:'Adjointe Gestionnaire',type:'personnel'},
+  {id:'p2',nom:'GARRAWAY',prenom:'Angelie',civilite:'Mme',fonction:'AED Externat',type:'personnel'},
+  {id:'p3',nom:'NENESSE',prenom:'Cindy',civilite:'Mme',fonction:'AED Externat',type:'personnel'},
+  {id:'p4',nom:'ATENZA',prenom:'Dylan',civilite:'M.',fonction:'AED Externat',type:'personnel'},
+  {id:'p5',nom:'MALBRANCHE',prenom:'Emilie',civilite:'Mme',fonction:'AED Externat',type:'personnel'},
+  {id:'p6',nom:'KEENSWIJK',prenom:'Héléna',civilite:'',fonction:'AED Externat',type:'personnel'},
+  {id:'p7',nom:'NORAME',prenom:'Lovely',civilite:'Mme',fonction:'AED Externat',type:'personnel'},
+  {id:'p8',nom:'PICAULT',prenom:'Marie',civilite:'Mme',fonction:'AED Externat',type:'personnel'},
+  {id:'p9',nom:'PARAENSE',prenom:'Ronaldo',civilite:'M.',fonction:'AED Externat',type:'personnel'},
+  {id:'p10',nom:'EXEUS',prenom:'Samenta',civilite:'Mme',fonction:'AED Externat',type:'personnel'},
+  {id:'p11',nom:'KILINAN',prenom:'Sergio',civilite:'M.',fonction:'AED Externat',type:'personnel'},
+  {id:'p12',nom:'KALLOE',prenom:'Shalinie',civilite:'Mme',fonction:'AED Externat',type:'personnel'},
+  {id:'p13',nom:'NENESSE',prenom:'Yanouwale',civilite:'M.',fonction:'AED Externat',type:'personnel'},
+  {id:'p14',nom:'SOEROPAIMAN',prenom:'Claudine',civilite:'Mme',fonction:'AED Internat',type:'personnel'},
+  {id:'p15',nom:'APINSA',prenom:'Faisel',civilite:'M.',fonction:'AED Internat',type:'personnel'},
+  {id:'p16',nom:'FRASER',prenom:'Gretchen',civilite:'',fonction:'AED Internat',type:'personnel'},
+  {id:'p17',nom:'EDWARDS',prenom:'Madoel',civilite:'Mme',fonction:'AED Internat',type:'personnel'},
+  {id:'p18',nom:'AWHMAD',prenom:'Nafiza',civilite:'Mme',fonction:'AED Internat',type:'personnel'},
+  {id:'p19',nom:'FLEURANVIL',prenom:'Wadley',civilite:'M.',fonction:'AED Internat',type:'personnel'},
+  {id:'p20',nom:'JEANNITON',prenom:'Wedson',civilite:'M.',fonction:'AED Internat',type:'personnel'},
+  {id:'p21',nom:'JEAN-JACQUES',prenom:'Erika',civilite:'Mme',fonction:'AESH',type:'personnel'},
+  {id:'p22',nom:'BREI',prenom:'Jeanice',civilite:'Mme',fonction:'AESH',type:'personnel'},
+  {id:'p23',nom:'POPOU',prenom:'Jeremy',civilite:'M.',fonction:'AESH',type:'personnel'},
+  {id:'p24',nom:'APINA',prenom:'Jorlan',civilite:'M.',fonction:'AESH',type:'personnel'},
+  {id:'p25',nom:'THERESE',prenom:'Vanessa Carla',civilite:'Mme',fonction:'AESH',type:'personnel'},
+  {id:'p26',nom:'PINAS',prenom:'Oscar',civilite:'M.',fonction:'Agent Accueil',type:'personnel'},
+  {id:'p27',nom:'SOEKINTA',prenom:'Florent',civilite:'',fonction:'Aide Laboratoire',type:'personnel'},
+  {id:'p28',nom:'BRON',prenom:'Rael',civilite:'M.',fonction:"Assistant d'éducation",type:'personnel'},
+  {id:'p29',nom:'PINAS',prenom:'Tosca',civilite:'Mme',fonction:"Assistant d'éducation",type:'personnel'},
+  {id:'p30',nom:'FARIAS DA COSTA',prenom:'Gabriel',civilite:'M.',fonction:'Assistant langue',type:'personnel'},
+  {id:'p31',nom:'FEREIRA-ELISE',prenom:'Solenn',civilite:'Mlle',fonction:'Assistante DDF',type:'personnel'},
+  {id:'p32',nom:'SONSON',prenom:'Olivia',civilite:'',fonction:'Assistante de Gestion',type:'personnel'},
+  {id:'p33',nom:'BALKISSOON',prenom:'Samantha',civilite:'',fonction:'Assistante de Gestion',type:'personnel'},
+  {id:'p34',nom:'MONGIS',prenom:'Clarisse',civilite:'Mme',fonction:'Assistante sociale',type:'personnel'},
+  {id:'p35',nom:'MARONI',prenom:'Judicaël',civilite:'M.',fonction:'Chef Cuisine',type:'personnel'},
+  {id:'p36',nom:'BIGNON',prenom:'Christophe',civilite:'M.',fonction:"Chef d'établissement",type:'personnel'},
+  {id:'p37',nom:'CAYOL',prenom:'Olivier',civilite:'M.',fonction:"Chef d'établissement adjoint",type:'personnel'},
+  {id:'p38',nom:'GUILLAUME',prenom:'Alison',civilite:'Mme',fonction:'CPE',type:'personnel'},
+  {id:'p39',nom:'BONNAMICH',prenom:'Christelle',civilite:'M.',fonction:'CPE',type:'personnel'},
+  {id:'p40',nom:'CEDER',prenom:'Minera',civilite:'Mme',fonction:'CPE',type:'personnel'},
+  {id:'p41',nom:'DANKOI',prenom:'Thomas',civilite:'M.',fonction:'CPE',type:'personnel'},
+  {id:'p42',nom:'LE QUEAU',prenom:'Norbert',civilite:'M.',fonction:'Directeur Formation Professionnelle',type:'personnel'},
+  {id:'p43',nom:'COELHO',prenom:'Gilmar',civilite:'M.',fonction:'Encadrant Agents',type:'personnel'},
+  {id:'p44',nom:'MANDRON',prenom:'Sophie',civilite:'Mme',fonction:'Infirmière',type:'personnel'},
+  {id:'p45',nom:'EDOUARD',prenom:'Damien',civilite:'M.',fonction:'Informaticien',type:'personnel'},
+  {id:'p46',nom:'SPEZIALETTI',prenom:'Pier Graziano',civilite:'M.',fonction:'Psychologue E.N.',type:'personnel'},
+  {id:'p47',nom:'CEDER',prenom:'Serge',civilite:'M.',fonction:'Responsable Bureau des Entreprises',type:'personnel'},
+  {id:'p48',nom:'HEURTAULT',prenom:'Mélissa',civilite:'Mme',fonction:'Secrétariat des élèves',type:'personnel'},
+  {id:'p49',nom:'AGESILAS',prenom:'Tatiana',civilite:'Mme',fonction:'Secrétariat Direction',type:'personnel'},
+  {id:'p50',nom:'LOLA',prenom:'Dwayne',civilite:'M.',fonction:'Service Civique',type:'personnel'},
+  // Enseignants
+  {id:'e1',nom:'ABARIS',prenom:'Christophe',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e2',nom:'ALBERT',prenom:'Hélène',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e3',nom:'ALLAOUI',prenom:'Abdel-Khalek',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e4',nom:'ALPHONSE',prenom:'Murielle',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e5',nom:'AMAYOTA',prenom:'Miller',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e6',nom:'ANTOINETTE',prenom:'Christian',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e7',nom:'BADEY',prenom:'Catherine',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e8',nom:'BARD',prenom:'Jean-Marc',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e9',nom:'BERSON',prenom:'Daniel',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e10',nom:'BERSON',prenom:'Messaline',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e11',nom:'BOURBON',prenom:'Martin',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e12',nom:'BOUTONNIER',prenom:'Pierre',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e13',nom:'BUFFA',prenom:'Jérémy',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e14',nom:'CASSEUS',prenom:'Winsley',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e15',nom:'CHASTELLIERE',prenom:'Guillaume',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e16',nom:'CHASTELLIERE',prenom:'Valérie',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e17',nom:'CONSTANT',prenom:'Joberd',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e18',nom:'DA COSTA',prenom:'Guillaume',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e19',nom:'DE LA FUENTE',prenom:'Maria',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e20',nom:'DELASSASSEIGNE',prenom:'Alexandre',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e21',nom:'DELUGE',prenom:'Dany',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e22',nom:'DIALLO',prenom:'Mamadou',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e23',nom:'FELIX',prenom:'Samuel',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e24',nom:'FERRANDEZ',prenom:'Jean-Paul',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e25',nom:'FILEUS',prenom:'Miquelina',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e26',nom:'FLOSS',prenom:'Zacharie',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e27',nom:'FOUCHE',prenom:'Nicolas',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e28',nom:'FREDERIC',prenom:'Loïc',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e29',nom:'GANE',prenom:'Loïs',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e30',nom:'GAROTIN',prenom:'Solène',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e31',nom:'GUERVIL',prenom:'Milord',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e32',nom:'GUILLAUME',prenom:'Laurent',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e33',nom:'GUILLAUME',prenom:'Marie Josely',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e34',nom:'HARIWANARI',prenom:'Tiffanie',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e35',nom:'HASCOET',prenom:'Irina',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e36',nom:'HERMACH',prenom:'Martin',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e37',nom:'HEUDE',prenom:'Arnaud',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e38',nom:'HO PING ON',prenom:'Lucien',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e39',nom:'HUROT',prenom:'Simon',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e40',nom:'JEAN-BAPTISTE',prenom:'Henry',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e41',nom:'JEANTY',prenom:'Emanese',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e42',nom:'JONGAMAN',prenom:'Estelle',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e43',nom:'JURAD',prenom:'Karl-Emmanuel',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e44',nom:'KAUFFMANN',prenom:'Franck',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e45',nom:'KOUAKOU',prenom:'Mederica',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e46',nom:'LAGUENS',prenom:'Erwan',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e47',nom:'LAM-TOU-KAI',prenom:'Mylène',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e48',nom:'LAURENT',prenom:'Rosenie',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e49',nom:'LAUTURE',prenom:'John Mackenson',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e50',nom:'LE QUEAU',prenom:'Goulven',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e51',nom:'LORENT',prenom:'Jean Paul',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e52',nom:'LOUIS',prenom:'Maykel',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e53',nom:'MARQUES DE SOUSA',prenom:'Sirley Riani',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e54',nom:'MATHYS',prenom:'Joëlle',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e55',nom:'MBAYE',prenom:'Astou',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e56',nom:'MEULENHOF',prenom:'Janisha',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e57',nom:'MODERNE',prenom:'Nathalie',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e58',nom:'MOLINARI',prenom:'Marion',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e59',nom:'MOLLET',prenom:'Cindy',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e60',nom:'MONTOUT',prenom:'Darla',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e61',nom:'MORELLE',prenom:'Maria-Agustina',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e62',nom:'MOUTOUSSAMY',prenom:'Stélia',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e63',nom:'NGAIDE',prenom:'Mohamedou',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e64',nom:'NGODJO MFOUMBI',prenom:'Yannick',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e65',nom:'NJIONKEP',prenom:'Modeste',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e66',nom:'ODIESSE',prenom:'Jeff',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e67',nom:'OULD ABDESSLAM',prenom:'Djamel',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e68',nom:'PAGES',prenom:'Arnaud',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e69',nom:'PAILLOUX',prenom:'Jacky',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e70',nom:'PAWILOWSKI',prenom:'Ornella',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e71',nom:'PENANT',prenom:'Gino',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e72',nom:'PENTE SAIFA',prenom:'Stéphanie',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e73',nom:'PERALTA',prenom:'Lionel',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e74',nom:'PIC',prenom:'Claire',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e75',nom:'PICHELIN',prenom:'Géraldine',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e76',nom:'PIERRE',prenom:'Sébastien',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e77',nom:'PITTIE',prenom:'Jean-Pierre',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e78',nom:'PLEPST',prenom:'Isabelle',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e79',nom:'PONCHATEAU',prenom:'Frederick',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e80',nom:'POTEAU',prenom:'Justine',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e81',nom:'QUENUM',prenom:'Christian',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e82',nom:'RIGAUD',prenom:'Livia',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e83',nom:'RIPA',prenom:'Cédric',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e84',nom:'ROLLAND',prenom:'Stanislas',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e85',nom:'ROYE',prenom:'Paul André',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e86',nom:'SINCLAIR',prenom:'Linden',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e87',nom:'SIRO',prenom:'Carole',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e88',nom:'SONNY',prenom:'Marie-Hélène',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e89',nom:'SOW CHEIKH',prenom:'Ahmed',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e90',nom:'STERLIN',prenom:'Duvais',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e91',nom:'THANNEUR',prenom:'Jean-Pierre',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e92',nom:'TRUBERT',prenom:'Séverine',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e93',nom:'TURPIN',prenom:'Patricia',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e94',nom:'VANG',prenom:'Catherine',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e95',nom:'VOBAURE',prenom:'Claire',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e96',nom:'WINDAK',prenom:'Evelyne',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+  {id:'e97',nom:'WITTENS',prenom:'Yoris',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e98',nom:'YANG',prenom:'Wang',civilite:'M.',fonction:'Enseignant',type:'enseignant'},
+  {id:'e99',nom:'YOUSSOU',prenom:'Fabiola',civilite:'Mme',fonction:'Enseignante',type:'enseignant'},
+];
+
+// ===== UTILS =====
+const uid = () => Math.random().toString(36).slice(2,10)+Date.now().toString(36);
+
+const fmt = d => {
+  if(!d) return '';
+  const [y,m,j] = d.split('-');
+  return `${j}/${m}/${y}`;
+};
+
+const MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const MOTIFS = ['Formation','Maladie','Convocation administrative','Concours/Examen','Visite médicale','Raison familiale','Autre'];
+
+const totalRecup = abs => (abs.recuperations||[]).reduce((s,r)=>s+(+r.heures||0),0);
+
+const statut = abs => {
+  const r = totalRecup(abs);
+  const h = +abs.heuresAbsence||0;
+  if(h===0) return 'complet';
+  if(r >= h) return 'complet';
+  if(r > 0) return 'partiel';
+  return 'non';
+};
+
+const statutLabel = s => s==='complet' ? '✅ Complet' : s==='partiel' ? '⚠️ Partiel' : '❌ Non effectué';
+const statutClass = s => s==='complet' ? 'badge-complet' : s==='partiel' ? 'badge-partiel' : 'badge-non';
+
+const STORAGE_KEY = 'gestion_abs_elfort_v1';
+
+const loadData = () => {
+  try {
+    const d = localStorage.getItem(STORAGE_KEY);
+    if(d) return JSON.parse(d);
+  } catch(e){}
+  return { personnel: INIT_PERSONNEL, absences: [] };
+};
+
+const saveData = data => {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e){}
+};
+
+// ===== SAUVEGARDE GITHUB (partagée avec le Hub) =====
+const GH_USER='christophebignon5-crypto', GH_REPO='elfort-pilotage', GH_PAT_KEY='_hub_elfort_pat';
+function ghToB64(str){ return btoa(unescape(encodeURIComponent(str))); }
+function saveToGithub(payload, ghPath, label){
+  let token = localStorage.getItem(GH_PAT_KEY) || '';
+  if(!token){
+    token = prompt('Token d\'accès GitHub (Personal Access Token classique, droit "repo") :\n\nCréez-le sur github.com/settings/tokens/new\nIl sera mémorisé sur cet appareil et partagé avec le Hub et les autres applications.');
+    if(!token) return Promise.reject(new Error('Token requis'));
+    token = token.trim();
+    if(!token) return Promise.reject(new Error('Token requis'));
+    localStorage.setItem(GH_PAT_KEY, token);
+  }
+  const content = ghToB64(JSON.stringify({version:'1.0',date:new Date().toISOString(),app:label,data:payload}, null, 2));
+  const url = 'https://api.github.com/repos/'+GH_USER+'/'+GH_REPO+'/contents/'+ghPath;
+  const headers = {'Authorization':'token '+token,'Accept':'application/vnd.github+json'};
+  return fetch(url+'?ref=main',{headers:headers})
+    .then(r=> r.status===200 ? r.json() : null)
+    .then(existing=>{
+      const body = {message:'Sauvegarde '+label+' - '+new Date().toLocaleString('fr-FR'), content:content, branch:'main'};
+      if(existing && existing.sha) body.sha = existing.sha;
+      return fetch(url,{method:'PUT',headers:Object.assign({'Content-Type':'application/json'},headers),body:JSON.stringify(body)});
+    })
+    .then(r=>{ if(!r.ok) return r.json().then(e=>{throw new Error((e.message||r.statusText) + (e.errors?(' :: '+e.errors.map(x=>x.message||JSON.stringify(x)).join(' | ')):''))}); return r.json(); });
+}
+
+// ===== COMPOSANT: BADGE STATUT =====
+const StatutBadge = ({abs}) => {
+  const s = statut(abs);
+  return <span className={`badge ${statutClass(s)}`}>{statutLabel(s)}</span>;
+};
+
+// ===== COMPOSANT: MODAL ABSENCE =====
+const ModalAbsence = ({personnel, initial, onSave, onClose}) => {
+  const blank = {
+    id: uid(), personnelId:'', dateDebut:'', dateFin:'',
+    heuresAbsence:'', motif:'', observations:'', recuperations:[]
+  };
+  const [form, setForm] = useState(initial ? {...initial, recuperations:[...(initial.recuperations||[])]} : blank);
+  const [recupForm, setRecupForm] = useState({date:'', heures:'', description:''});
+  const [err, setErr] = useState('');
+
+  const set = (k,v) => setForm(f=>({...f,[k]:v}));
+
+  const addRecup = () => {
+    if(!recupForm.date||!recupForm.heures) { setErr('Date et heures de récupération requises.'); return; }
+    setForm(f=>({...f, recuperations:[...f.recuperations,{id:uid(),...recupForm}]}));
+    setRecupForm({date:'',heures:'',description:''});
+    setErr('');
+  };
+
+  const delRecup = id => setForm(f=>({...f, recuperations:f.recuperations.filter(r=>r.id!==id)}));
+
+  const submit = () => {
+    if(!form.personnelId) { setErr('Veuillez sélectionner un membre du personnel.'); return; }
+    if(!form.dateDebut) { setErr('La date de début est requise.'); return; }
+    if(!form.heuresAbsence||+form.heuresAbsence<=0) { setErr("Le nombre d'heures d'absence est requis."); return; }
+    setErr('');
+    onSave(form);
+  };
+
+  const totalR = totalRecup(form);
+  const pct = form.heuresAbsence>0 ? Math.min(100, Math.round(totalR/form.heuresAbsence*100)) : 0;
+  const s = statut(form);
+
+  const sorted = [...personnel].sort((a,b)=>a.nom.localeCompare(b.nom));
+
+  return (
+    <div className="modal-bg" onClick={e=>e.target.className==='modal-bg'&&onClose()}>
+      <div className="modal">
+        <div className="modal-header">
+          <h2>{initial ? '✏️ Modifier une absence' : '➕ Nouvelle absence'}</h2>
+          <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="modal-body">
+          {err && <div className="alert alert-warning">{err}</div>}
+          <div className="form-grid">
+            <div className="form-group form-full">
+              <label>Personnel *</label>
+              <select value={form.personnelId} onChange={e=>set('personnelId',e.target.value)}>
+                <option value="">-- Sélectionner --</option>
+                <optgroup label="Enseignants">
+                  {sorted.filter(p=>p.type==='enseignant'&&p.actif!==false).map(p=>(
+                    <option key={p.id} value={p.id}>{p.nom} {p.prenom}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="Personnel">
+                  {sorted.filter(p=>p.type==='personnel'&&p.actif!==false).map(p=>(
+                    <option key={p.id} value={p.id}>{p.nom} {p.prenom} — {p.fonction}</option>
+                  ))}
+                </optgroup>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Date début *</label>
+              <input type="date" value={form.dateDebut} onChange={e=>set('dateDebut',e.target.value)}/>
+            </div>
+            <div className="form-group">
+              <label>Date fin (si période)</label>
+              <input type="date" value={form.dateFin} onChange={e=>set('dateFin',e.target.value)}/>
+            </div>
+            <div className="form-group">
+              <label>Heures d'absence *</label>
+              <input type="number" min="0" step="0.5" value={form.heuresAbsence} onChange={e=>set('heuresAbsence',e.target.value)} placeholder="ex: 3"/>
+            </div>
+            <div className="form-group">
+              <label>Motif</label>
+              <select value={form.motif} onChange={e=>set('motif',e.target.value)}>
+                <option value="">-- Choisir --</option>
+                {MOTIFS.map(m=><option key={m} value={m}>{m}</option>)}
+              </select>
+            </div>
+            <div className="form-group form-full">
+              <label>Observations</label>
+              <textarea value={form.observations} onChange={e=>set('observations',e.target.value)} rows={2}/>
+            </div>
+          </div>
+
+          {/* RÉCUPÉRATIONS */}
+          <div style={{marginTop:16}}>
+            <div className="card-title">⏱️ Récupérations</div>
+            {form.heuresAbsence>0 && (
+              <div style={{marginBottom:10}}>
+                <div style={{display:'flex',justifyContent:'space-between',fontSize:12,marginBottom:3}}>
+                  <span>Heures récupérées : <strong>{totalR}h</strong> / <strong>{form.heuresAbsence}h</strong></span>
+                  <span><StatutBadge abs={form}/></span>
+                </div>
+                <div className="progress-bar">
+                  <div className="progress-fill" style={{width:pct+'%',background:s==='complet'?'#2e7d32':s==='partiel'?'#f57c00':'#e0e0e0'}}/>
+                </div>
+              </div>
+            )}
+            <div className="form-grid" style={{marginBottom:8}}>
+              <div className="form-group">
+                <label>Date de récupération</label>
+                <input type="date" value={recupForm.date} onChange={e=>setRecupForm(f=>({...f,date:e.target.value}))}/>
+              </div>
+              <div className="form-group">
+                <label>Heures récupérées</label>
+                <input type="number" min="0" step="0.5" value={recupForm.heures} onChange={e=>setRecupForm(f=>({...f,heures:e.target.value}))} placeholder="ex: 1.5"/>
+              </div>
+              <div className="form-group">
+                <label>Description</label>
+                <input type="text" value={recupForm.description} onChange={e=>setRecupForm(f=>({...f,description:e.target.value}))} placeholder="ex: cours de remplacement"/>
+              </div>
+            </div>
+            <button className="btn btn-outline btn-sm" onClick={addRecup}>+ Ajouter récupération</button>
+            {form.recuperations.length>0 && (
+              <div className="recup-list">
+                {form.recuperations.map(r=>(
+                  <div key={r.id} className="recup-item">
+                    <span>📅 {fmt(r.date)} — <strong>{r.heures}h</strong>{r.description?' — '+r.description:''}</span>
+                    <button className="btn btn-danger btn-sm" onClick={()=>delRecup(r.id)}>✕</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="modal-footer">
+          <button className="btn btn-outline" onClick={onClose}>Annuler</button>
+          <button className="btn btn-primary" onClick={submit}>💾 Enregistrer</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ===== COMPOSANT: MODAL PERSONNEL =====
+const ModalPersonnel = ({initial, onSave, onClose}) => {
+  const blank = {id:uid(),nom:'',prenom:'',civilite:'',fonction:'',type:'enseignant',actif:true};
+  const [form, setForm] = useState(initial||blank);
+  const [err, setErr] = useState('');
+  const set = (k,v)=>setForm(f=>({...f,[k]:v}));
+
+  const submit = ()=>{
+    if(!form.nom.trim()) { setErr('Le nom est requis.'); return; }
+    if(!form.prenom.trim()) { setErr('Le prénom est requis.'); return; }
+    onSave(form);
+  };
+
+  return (
+    <div className="modal-bg" onClick={e=>e.target.className==='modal-bg'&&onClose()}>
+      <div className="modal" style={{maxWidth:480}}>
+        <div className="modal-header">
+          <h2>{initial ? '✏️ Modifier' : '➕ Nouveau membre'}</h2>
+          <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="modal-body">
+          {err && <div className="alert alert-warning">{err}</div>}
+          <div className="form-grid">
+            <div className="form-group">
+              <label>Civilité</label>
+              <select value={form.civilite} onChange={e=>set('civilite',e.target.value)}>
+                <option value="">—</option>
+                <option>M.</option><option>Mme</option><option>Mlle</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Catégorie *</label>
+              <select value={form.type} onChange={e=>set('type',e.target.value)}>
+                <option value="enseignant">Enseignant</option>
+                <option value="personnel">Personnel</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Nom *</label>
+              <input value={form.nom} onChange={e=>set('nom',e.target.value.toUpperCase())}/>
+            </div>
+            <div className="form-group">
+              <label>Prénom *</label>
+              <input value={form.prenom} onChange={e=>set('prenom',e.target.value)}/>
+            </div>
+            <div className="form-group form-full">
+              <label>Fonction</label>
+              <input value={form.fonction} onChange={e=>set('fonction',e.target.value)} placeholder="ex: AED Externat"/>
+            </div>
+            <div className="form-group form-full">
+              <label>Statut</label>
+              <select value={form.actif!==false?'actif':'inactif'} onChange={e=>set('actif',e.target.value==='actif')}>
+                <option value="actif">Actif</option>
+                <option value="inactif">Inactif</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div className="modal-footer">
+          <button className="btn btn-outline" onClick={onClose}>Annuler</button>
+          <button className="btn btn-primary" onClick={submit}>💾 Enregistrer</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ===== PAGE: TABLEAU DE BORD =====
+const Dashboard = ({personnel, absences}) => {
+  const now = new Date();
+  const mois = now.getMonth();
+  const annee = now.getFullYear();
+
+  const absMois = absences.filter(a=>{
+    const d = new Date(a.dateDebut);
+    return d.getMonth()===mois && d.getFullYear()===annee;
+  });
+
+  const complets = absences.filter(a=>statut(a)==='complet').length;
+  const partiels = absences.filter(a=>statut(a)==='partiel').length;
+  const nonFaits = absences.filter(a=>statut(a)==='non').length;
+  const totalH = absences.reduce((s,a)=>s+(+a.heuresAbsence||0),0);
+  const recupH = absences.reduce((s,a)=>s+totalRecup(a),0);
+
+  const recent = [...absences].sort((a,b)=>b.dateDebut.localeCompare(a.dateDebut)).slice(0,8);
+
+  const getPers = id => personnel.find(p=>p.id===id);
+
+  return (
+    <div className="page">
+      <div className="page-title">📊 Tableau de bord</div>
+
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-icon">📋</div>
+          <div><div className="stat-val">{absences.length}</div><div className="stat-lbl">Absences totales</div></div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon">📅</div>
+          <div><div className="stat-val">{absMois.length}</div><div className="stat-lbl">Ce mois ({MONTHS[mois]})</div></div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon">⏱️</div>
+          <div><div className="stat-val">{totalH}h</div><div className="stat-lbl">Heures d'absence</div></div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon">✅</div>
+          <div><div className="stat-val" style={{color:'#2e7d32'}}>{complets}</div><div className="stat-lbl">Récup. complètes</div></div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon">⚠️</div>
+          <div><div className="stat-val" style={{color:'#f57c00'}}>{partiels}</div><div className="stat-lbl">Récup. partielles</div></div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon">❌</div>
+          <div><div className="stat-val" style={{color:'#c62828'}}>{nonFaits}</div><div className="stat-lbl">Non effectuées</div></div>
+        </div>
+      </div>
+
+      {nonFaits+partiels > 0 && (
+        <div className="alert alert-warning">
+          ⚠️ <strong>{nonFaits+partiels} absence(s)</strong> avec récupérations incomplètes ou manquantes.
+        </div>
+      )}
+
+      <div className="card">
+        <div className="card-title">📌 Dernières absences saisies</div>
+        {recent.length===0 ? (
+          <div className="empty-state"><div className="icon">📭</div><p>Aucune absence enregistrée.</p></div>
+        ) : (
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nom / Prénom</th>
+                  <th>Fonction</th>
+                  <th>Période</th>
+                  <th>Heures</th>
+                  <th>Récupérées</th>
+                  <th>Statut</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recent.map(a=>{
+                  const p = getPers(a.personnelId);
+                  const r = totalRecup(a);
+                  return (
+                    <tr key={a.id}>
+                      <td><strong>{p?p.nom+' '+p.prenom:'—'}</strong></td>
+                      <td><span style={{fontSize:12,color:'#666'}}>{p?p.fonction:''}</span></td>
+                      <td>{fmt(a.dateDebut)}{a.dateFin&&a.dateFin!==a.dateDebut?' → '+fmt(a.dateFin):''}</td>
+                      <td>{a.heuresAbsence}h</td>
+                      <td>{r}h</td>
+                      <td><StatutBadge abs={a}/></td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ===== PAGE: ABSENCES =====
+const AbsencesPage = ({personnel, absences, onAdd, onEdit, onDelete, role}) => {
+  const [showModal, setShowModal] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [search, setSearch] = useState('');
+  const [filterType, setFilterType] = useState('');
+  const [filterStatut, setFilterStatut] = useState('');
+  const [filterMois, setFilterMois] = useState('');
+  const [filterAnnee, setFilterAnnee] = useState('');
+
+  const getPers = id => personnel.find(p=>p.id===id);
+
+  const annees = useMemo(()=>{
+    const s = new Set(absences.map(a=>a.dateDebut.slice(0,4)));
+    return [...s].sort().reverse();
+  },[absences]);
+
+  const filtered = useMemo(()=>{
+    return absences.filter(a=>{
+      const p = getPers(a.personnelId);
+      if(!p) return false;
+      if(filterType && p.type!==filterType) return false;
+      if(filterStatut && statut(a)!==filterStatut) return false;
+      if(filterMois && a.dateDebut.slice(5,7)!==filterMois) return false;
+      if(filterAnnee && a.dateDebut.slice(0,4)!==filterAnnee) return false;
+      if(search){
+        const q = search.toLowerCase();
+        if(!(p.nom+' '+p.prenom+' '+p.fonction).toLowerCase().includes(q)) return false;
+      }
+      return true;
+    }).sort((a,b)=>b.dateDebut.localeCompare(a.dateDebut));
+  },[absences, search, filterType, filterStatut, filterMois, filterAnnee, personnel]);
+
+  const openAdd = ()=>{ setEditing(null); setShowModal(true); };
+  const openEdit = a=>{ setEditing(a); setShowModal(true); };
+
+  const handleSave = form => {
+    if(editing) onEdit(form);
+    else onAdd(form);
+    setShowModal(false);
+  };
+
+  const confirmDelete = id => {
+    if(window.confirm('Supprimer cette absence ?')) onDelete(id);
+  };
+
+  return (
+    <div className="page">
+      <div className="page-title" style={{justifyContent:'space-between'}}>
+        <span>📋 Absences de service</span>
+        <button className="btn btn-primary" onClick={openAdd}>➕ Nouvelle absence</button>
+      </div>
+
+      <div className="card">
+        <div className="search-bar">
+          <input placeholder="🔍 Rechercher un nom…" value={search} onChange={e=>setSearch(e.target.value)}/>
+          <select value={filterType} onChange={e=>setFilterType(e.target.value)}>
+            <option value="">Tous (enseignants + personnel)</option>
+            <option value="enseignant">Enseignants</option>
+            <option value="personnel">Personnel</option>
+          </select>
+          <select value={filterStatut} onChange={e=>setFilterStatut(e.target.value)}>
+            <option value="">Tous statuts</option>
+            <option value="complet">✅ Complet</option>
+            <option value="partiel">⚠️ Partiel</option>
+            <option value="non">❌ Non effectué</option>
+          </select>
+          <select value={filterMois} onChange={e=>setFilterMois(e.target.value)}>
+            <option value="">Tous les mois</option>
+            {MONTHS.map((m,i)=><option key={i} value={String(i+1).padStart(2,'0')}>{m}</option>)}
+          </select>
+          <select value={filterAnnee} onChange={e=>setFilterAnnee(e.target.value)}>
+            <option value="">Toutes années</option>
+            {annees.map(a=><option key={a}>{a}</option>)}
+          </select>
+        </div>
+
+        <div style={{fontSize:12,color:'#888',marginBottom:8}}>{filtered.length} absence(s) affichée(s)</div>
+
+        {filtered.length===0 ? (
+          <div className="empty-state"><div className="icon">📭</div><p>Aucune absence ne correspond aux filtres.</p></div>
+        ) : (
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nom / Prénom</th>
+                  <th>Catégorie</th>
+                  <th>Fonction</th>
+                  <th>Période</th>
+                  <th>Heures</th>
+                  <th>Récupérées</th>
+                  <th>Motif</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map(a=>{
+                  const p = getPers(a.personnelId);
+                  const r = totalRecup(a);
+                  return (
+                    <tr key={a.id}>
+                      <td><strong>{p?p.nom+' '+p.prenom:'—'}</strong></td>
+                      <td>{p&&<span className={`chip ${p.type==='enseignant'?'chip-ens':'chip-pers'}`}>{p.type==='enseignant'?'Ens.':'Pers.'}</span>}</td>
+                      <td style={{fontSize:12,color:'#666'}}>{p?p.fonction:''}</td>
+                      <td style={{whiteSpace:'nowrap'}}>{fmt(a.dateDebut)}{a.dateFin&&a.dateFin!==a.dateDebut?' → '+fmt(a.dateFin):''}</td>
+                      <td>{a.heuresAbsence}h</td>
+                      <td>
+                        <span style={{color:r>= +a.heuresAbsence?'#2e7d32':r>0?'#f57c00':'#c62828',fontWeight:700}}>{r}h</span>
+                      </td>
+                      <td style={{fontSize:12}}>{a.motif||'—'}</td>
+                      <td><StatutBadge abs={a}/></td>
+                      <td>
+                        <div className="td-actions">
+                          <button className="btn btn-outline btn-sm" onClick={()=>openEdit(a)}>✏️</button>
+                          <button className="btn btn-danger btn-sm" onClick={()=>confirmDelete(a.id)}>🗑️</button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {showModal && (
+        <ModalAbsence
+          personnel={personnel}
+          initial={editing}
+          onSave={handleSave}
+          onClose={()=>setShowModal(false)}
+        />
+      )}
+    </div>
+  );
+};
+
+// ===== PAGE: PERSONNEL =====
+const PersonnelPage = ({personnel, absences, onAdd, onEdit, onDelete}) => {
+  const [showModal, setShowModal] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [search, setSearch] = useState('');
+  const [filterType, setFilterType] = useState('');
+
+  const filtered = useMemo(()=>{
+    return personnel.filter(p=>{
+      if(filterType && p.type!==filterType) return false;
+      if(search){
+        const q = search.toLowerCase();
+        return (p.nom+' '+p.prenom+' '+p.fonction).toLowerCase().includes(q);
+      }
+      return true;
+    }).sort((a,b)=>a.nom.localeCompare(b.nom));
+  },[personnel,search,filterType]);
+
+  const countAbs = id => absences.filter(a=>a.personnelId===id).length;
+
+  const openAdd = ()=>{ setEditing(null); setShowModal(true); };
+  const openEdit = p=>{ setEditing(p); setShowModal(true); };
+
+  const confirmDelete = id => {
+    const nb = countAbs(id);
+    if(nb>0 && !window.confirm(`Ce membre a ${nb} absence(s) enregistrée(s). Supprimer quand même ?`)) return;
+    if(nb===0 && !window.confirm('Supprimer ce membre du personnel ?')) return;
+    onDelete(id);
+  };
+
+  const handleSave = form => {
+    if(editing) onEdit(form);
+    else onAdd(form);
+    setShowModal(false);
+  };
+
+  const ens = personnel.filter(p=>p.type==='enseignant').length;
+  const pers = personnel.filter(p=>p.type==='personnel').length;
+
+  return (
+    <div className="page">
+      <div className="page-title" style={{justifyContent:'space-between'}}>
+        <span>👤 Gestion du personnel</span>
+        <button className="btn btn-primary" onClick={openAdd}>➕ Ajouter</button>
+      </div>
+
+      <div style={{display:'flex',gap:10,marginBottom:14,flexWrap:'wrap'}}>
+        <div className="stat-card" style={{flex:'1',minWidth:140}}>
+          <div className="stat-icon">🏫</div>
+          <div><div className="stat-val">{ens}</div><div className="stat-lbl">Enseignants</div></div>
+        </div>
+        <div className="stat-card" style={{flex:'1',minWidth:140}}>
+          <div className="stat-icon">🧑‍💼</div>
+          <div><div className="stat-val">{pers}</div><div className="stat-lbl">Personnel</div></div>
+        </div>
+        <div className="stat-card" style={{flex:'1',minWidth:140}}>
+          <div className="stat-icon">👥</div>
+          <div><div className="stat-val">{ens+pers}</div><div className="stat-lbl">Total</div></div>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="search-bar">
+          <input placeholder="🔍 Rechercher…" value={search} onChange={e=>setSearch(e.target.value)}/>
+          <select value={filterType} onChange={e=>setFilterType(e.target.value)}>
+            <option value="">Tous</option>
+            <option value="enseignant">Enseignants</option>
+            <option value="personnel">Personnel</option>
+          </select>
+        </div>
+        <div style={{fontSize:12,color:'#888',marginBottom:8}}>{filtered.length} membre(s)</div>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Nom</th><th>Prénom</th><th>Civilité</th><th>Catégorie</th><th>Fonction</th><th>Absences</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+              {filtered.map(p=>(
+                <tr key={p.id} style={{opacity:p.actif===false?.5:1}}>
+                  <td><strong>{p.nom}</strong></td>
+                  <td>{p.prenom}</td>
+                  <td>{p.civilite}</td>
+                  <td><span className={`chip ${p.type==='enseignant'?'chip-ens':'chip-pers'}`}>{p.type==='enseignant'?'Enseignant':'Personnel'}</span></td>
+                  <td style={{fontSize:12,color:'#555'}}>{p.fonction}</td>
+                  <td>
+                    <span style={{fontWeight:700,color:countAbs(p.id)>0?'#1a237e':'#aaa'}}>{countAbs(p.id)}</span>
+                  </td>
+                  <td>
+                    <div className="td-actions">
+                      <button className="btn btn-outline btn-sm" onClick={()=>openEdit(p)}>✏️</button>
+                      <button className="btn btn-danger btn-sm" onClick={()=>confirmDelete(p.id)}>🗑️</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {showModal && (
+        <ModalPersonnel initial={editing} onSave={handleSave} onClose={()=>setShowModal(false)}/>
+      )}
+    </div>
+  );
+};
+
+// ===== PAGE: RAPPORTS =====
+const RapportsPage = ({personnel, absences}) => {
+  const [filterType, setFilterType] = useState('');
+  const [filterPersonnel, setFilterPersonnel] = useState('');
+  const [filterMois, setFilterMois] = useState('');
+  const [filterAnnee, setFilterAnnee] = useState(new Date().getFullYear().toString());
+  const [filterStatut, setFilterStatut] = useState('');
+  const [modeRapport, setModeRapport] = useState('individuel');
+
+  const getPers = id => personnel.find(p=>p.id===id);
+
+  const annees = useMemo(()=>{
+    const s = new Set(absences.map(a=>a.dateDebut.slice(0,4)));
+    s.add(new Date().getFullYear().toString());
+    return [...s].sort().reverse();
+  },[absences]);
+
+  const personnesAvecAbs = useMemo(()=>{
+    const ids = new Set(absences.map(a=>a.personnelId));
+    return personnel.filter(p=>ids.has(p.id)).sort((a,b)=>a.nom.localeCompare(b.nom));
+  },[absences,personnel]);
+
+  const filtered = useMemo(()=>{
+    return absences.filter(a=>{
+      const p = getPers(a.personnelId);
+      if(!p) return false;
+      if(filterType && p.type!==filterType) return false;
+      if(filterPersonnel && a.personnelId!==filterPersonnel) return false;
+      if(filterMois && a.dateDebut.slice(5,7)!==filterMois) return false;
+      if(filterAnnee && a.dateDebut.slice(0,4)!==filterAnnee) return false;
+      if(filterStatut && statut(a)!==filterStatut) return false;
+      return true;
+    }).sort((a,b)=>b.dateDebut.localeCompare(a.dateDebut));
+  },[absences,filterType,filterPersonnel,filterMois,filterAnnee,filterStatut,personnel]);
+
+  const personnesFiltered = useMemo(()=>{
+    const ids = new Set(filtered.map(a=>a.personnelId));
+    return [...ids].map(id=>getPers(id)).filter(Boolean).sort((a,b)=>a.nom.localeCompare(b.nom));
+  },[filtered,personnel]);
+
+  const now = new Date();
+  const dateImpression = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+  const periodeLabel = filterMois ? `${MONTHS[+filterMois-1]} ${filterAnnee}` : filterAnnee ? `Année ${filterAnnee}` : 'Toutes périodes';
+
+  return (
+    <div className="page">
+      <div className="page-title no-print" style={{justifyContent:'space-between'}}>
+        <span>📄 Rapports & Éditions</span>
+        <button className="btn btn-success" onClick={()=>window.print()}>🖨️ Imprimer / PDF</button>
+      </div>
+
+      <div className="card no-print">
+        <div className="card-title">Filtres du rapport</div>
+        <div className="rapport-filters">
+          <div className="form-group">
+            <label>Type de rapport</label>
+            <select value={modeRapport} onChange={e=>setModeRapport(e.target.value)}>
+              <option value="individuel">Récapitulatif par personne</option>
+              <option value="mensuel">État mensuel — tous les absents</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Catégorie</label>
+            <select value={filterType} onChange={e=>{setFilterType(e.target.value);setFilterPersonnel('');}}>
+              <option value="">Tous</option>
+              <option value="enseignant">Enseignants</option>
+              <option value="personnel">Personnel</option>
+            </select>
+          </div>
+          {modeRapport==='individuel' && (
+            <div className="form-group">
+              <label>Personnel</label>
+              <select value={filterPersonnel} onChange={e=>setFilterPersonnel(e.target.value)}>
+                <option value="">Tous les personnels</option>
+                {personnesAvecAbs.filter(p=>!filterType||p.type===filterType).map(p=>(
+                  <option key={p.id} value={p.id}>{p.nom} {p.prenom}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          <div className="form-group">
+            <label>Mois</label>
+            <select value={filterMois} onChange={e=>setFilterMois(e.target.value)}>
+              <option value="">Tous les mois</option>
+              {MONTHS.map((m,i)=><option key={i} value={String(i+1).padStart(2,'0')}>{m}</option>)}
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Année scolaire</label>
+            <select value={filterAnnee} onChange={e=>setFilterAnnee(e.target.value)}>
+              <option value="">Toutes</option>
+              {annees.map(a=><option key={a}>{a}</option>)}
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Statut</label>
+            <select value={filterStatut} onChange={e=>setFilterStatut(e.target.value)}>
+              <option value="">Tous statuts</option>
+              <option value="complet">✅ Complet</option>
+              <option value="partiel">⚠️ Partiel</option>
+              <option value="non">❌ Non effectué</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* ZONE D'IMPRESSION */}
+      <div className="card" id="zone-print">
+        <div className="print-header">
+          <h2>LPO Léopold Elfort — Mana, Guyane</h2>
+          <p>GESTION DES ABSENCES DE SERVICE DU PERSONNEL</p>
+          <p>{modeRapport==='individuel'?'État récapitulatif':'État mensuel'} — {periodeLabel}</p>
+          <p style={{fontSize:11,marginTop:4}}>Édité le {dateImpression}</p>
+        </div>
+
+        {filtered.length===0 ? (
+          <div className="empty-state"><div className="icon">📭</div><p>Aucune absence pour ces critères.</p></div>
+        ) : modeRapport==='individuel' ? (
+          // RAPPORT INDIVIDUEL : une section par personne
+          personnesFiltered.map(p=>{
+            const absP = filtered.filter(a=>a.personnelId===p.id);
+            const totalH = absP.reduce((s,a)=>s+(+a.heuresAbsence||0),0);
+            const totalR = absP.reduce((s,a)=>s+totalRecup(a),0);
+            const reste = Math.max(0, totalH-totalR);
+            return (
+              <div key={p.id} style={{marginBottom:28,pageBreakInside:'avoid'}}>
+                <div style={{background:'#e8eaf6',padding:'8px 12px',borderRadius:6,marginBottom:8,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                  <strong style={{fontSize:15,color:'#1a237e'}}>{p.civilite} {p.nom} {p.prenom}</strong>
+                  <span style={{fontSize:13,color:'#555'}}>{p.fonction}</span>
+                </div>
+                <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
+                  <thead>
+                    <tr style={{background:'#f5f5f5'}}>
+                      <th style={{padding:'6px 8px',border:'1px solid #ddd'}}>Période</th>
+                      <th style={{padding:'6px 8px',border:'1px solid #ddd'}}>Motif</th>
+                      <th style={{padding:'6px 8px',border:'1px solid #ddd'}}>H. absence</th>
+                      <th style={{padding:'6px 8px',border:'1px solid #ddd'}}>Récupérations</th>
+                      <th style={{padding:'6px 8px',border:'1px solid #ddd'}}>H. récup.</th>
+                      <th style={{padding:'6px 8px',border:'1px solid #ddd'}}>Statut</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {absP.map(a=>{
+                      const recups = a.recuperations||[];
+                      return (
+                        <tr key={a.id}>
+                          <td style={{padding:'6px 8px',border:'1px solid #ddd'}}>{fmt(a.dateDebut)}{a.dateFin&&a.dateFin!==a.dateDebut?' → '+fmt(a.dateFin):''}</td>
+                          <td style={{padding:'6px 8px',border:'1px solid #ddd'}}>{a.motif||'—'}</td>
+                          <td style={{padding:'6px 8px',border:'1px solid #ddd',textAlign:'center'}}><strong>{a.heuresAbsence}h</strong></td>
+                          <td style={{padding:'6px 8px',border:'1px solid #ddd',fontSize:11}}>
+                            {recups.length===0?'—':recups.map(r=>`${fmt(r.date)} (${r.heures}h${r.description?' - '+r.description:''})`).join(' / ')}
+                          </td>
+                          <td style={{padding:'6px 8px',border:'1px solid #ddd',textAlign:'center'}}>{totalRecup(a)}h</td>
+                          <td style={{padding:'6px 8px',border:'1px solid #ddd',textAlign:'center',fontWeight:700,color:statut(a)==='complet'?'#2e7d32':statut(a)==='partiel'?'#f57c00':'#c62828'}}>
+                            {statut(a)==='complet'?'Complet':statut(a)==='partiel'?'Partiel':'Non effectué'}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                  <tfoot>
+                    <tr style={{background:'#f9f9f9',fontWeight:700}}>
+                      <td colSpan={2} style={{padding:'6px 8px',border:'1px solid #ddd'}}>TOTAL</td>
+                      <td style={{padding:'6px 8px',border:'1px solid #ddd',textAlign:'center'}}>{totalH}h</td>
+                      <td style={{padding:'6px 8px',border:'1px solid #ddd'}}></td>
+                      <td style={{padding:'6px 8px',border:'1px solid #ddd',textAlign:'center'}}>{totalR}h</td>
+                      <td style={{padding:'6px 8px',border:'1px solid #ddd',textAlign:'center',color:reste===0?'#2e7d32':'#c62828'}}>
+                        {reste===0?'✅ Soldé':'Reste '+reste+'h'}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+                {/* Signatures */}
+                <div className="print-sig" style={{marginTop:20}}>
+                  <div>
+                    <p><strong>Signature du personnel</strong></p>
+                    <p style={{marginTop:4,fontSize:11}}>{p.civilite} {p.nom} {p.prenom}</p>
+                  </div>
+                  <div>
+                    <p><strong>Signature du Proviseur</strong></p>
+                    <p style={{marginTop:4,fontSize:11}}>M. BIGNON Christophe</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          // RAPPORT MENSUEL
+          <div>
+            <div style={{textAlign:'center',marginBottom:12,fontSize:14,fontWeight:700}}>
+              Personnels absents — {periodeLabel}
+            </div>
+            <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
+              <thead>
+                <tr style={{background:'#1a237e',color:'#fff'}}>
+                  <th style={{padding:'7px 8px',border:'1px solid #3949ab'}}>Nom / Prénom</th>
+                  <th style={{padding:'7px 8px',border:'1px solid #3949ab'}}>Fonction</th>
+                  <th style={{padding:'7px 8px',border:'1px solid #3949ab'}}>Période</th>
+                  <th style={{padding:'7px 8px',border:'1px solid #3949ab'}}>Motif</th>
+                  <th style={{padding:'7px 8px',border:'1px solid #3949ab'}}>H. absence</th>
+                  <th style={{padding:'7px 8px',border:'1px solid #3949ab'}}>H. récup.</th>
+                  <th style={{padding:'7px 8px',border:'1px solid #3949ab'}}>Statut</th>
+                  <th style={{padding:'7px 8px',border:'1px solid #3949ab'}}>Observations</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((a,i)=>{
+                  const p = getPers(a.personnelId);
+                  return (
+                    <tr key={a.id} style={{background:i%2===0?'#fff':'#f9fbe7'}}>
+                      <td style={{padding:'6px 8px',border:'1px solid #ddd'}}><strong>{p?p.nom+' '+p.prenom:'—'}</strong></td>
+                      <td style={{padding:'6px 8px',border:'1px solid #ddd',fontSize:11}}>{p?p.fonction:'—'}</td>
+                      <td style={{padding:'6px 8px',border:'1px solid #ddd',whiteSpace:'nowrap'}}>{fmt(a.dateDebut)}{a.dateFin&&a.dateFin!==a.dateDebut?' → '+fmt(a.dateFin):''}</td>
+                      <td style={{padding:'6px 8px',border:'1px solid #ddd'}}>{a.motif||'—'}</td>
+                      <td style={{padding:'6px 8px',border:'1px solid #ddd',textAlign:'center'}}>{a.heuresAbsence}h</td>
+                      <td style={{padding:'6px 8px',border:'1px solid #ddd',textAlign:'center'}}>{totalRecup(a)}h</td>
+                      <td style={{padding:'6px 8px',border:'1px solid #ddd',textAlign:'center',fontWeight:700,color:statut(a)==='complet'?'#2e7d32':statut(a)==='partiel'?'#f57c00':'#c62828'}}>
+                        {statut(a)==='complet'?'Complet':statut(a)==='partiel'?'Partiel':'Non effectué'}
+                      </td>
+                      <td style={{padding:'6px 8px',border:'1px solid #ddd',fontSize:11}}>{a.observations||'—'}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+              <tfoot>
+                <tr style={{background:'#e8eaf6',fontWeight:700}}>
+                  <td colSpan={4} style={{padding:'6px 8px',border:'1px solid #ddd'}}>TOTAUX</td>
+                  <td style={{padding:'6px 8px',border:'1px solid #ddd',textAlign:'center'}}>{filtered.reduce((s,a)=>s+(+a.heuresAbsence||0),0)}h</td>
+                  <td style={{padding:'6px 8px',border:'1px solid #ddd',textAlign:'center'}}>{filtered.reduce((s,a)=>s+totalRecup(a),0)}h</td>
+                  <td colSpan={2} style={{padding:'6px 8px',border:'1px solid #ddd'}}></td>
+                </tr>
+              </tfoot>
+            </table>
+            <div className="print-sig" style={{marginTop:30}}>
+              <div><p><strong>Visa du Secrétariat</strong></p></div>
+              <div><p><strong>Visa du Proviseur</strong></p><p style={{marginTop:4,fontSize:11}}>M. BIGNON Christophe</p></div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ===== PARSEURS EXCEL =====
+const parsePersonnelXlsx = (wb) => {
+  // Cherche la feuille contenant les colonnes Nom / Prénoms / Fonction
+  const sheetName = wb.SheetNames.find(n => {
+    const ws = wb.Sheets[n];
+    const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+    return rows.some(r => r.some(c => String(c).trim() === 'Nom'));
+  }) || wb.SheetNames[0];
+  const ws = wb.Sheets[sheetName];
+  const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+
+  // Trouver la ligne d'en-tête (celle qui contient "Nom")
+  const hIdx = rows.findIndex(r => r.some(c => String(c).trim() === 'Nom'));
+  if(hIdx === -1) return null;
+  const headers = rows[hIdx].map(c => String(c).trim());
+  const iNom = headers.indexOf('Nom');
+  const iPrenom = headers.findIndex(h => /pr[eé]nom/i.test(h));
+  const iFonction = headers.findIndex(h => /fonction/i.test(h));
+  const iCivilite = headers.findIndex(h => /civilit/i.test(h));
+
+  const SKIP = /inspecteur|médecin|service reprographie|accueil lycee/i;
+  const result = [];
+  for(let i = hIdx+1; i < rows.length; i++){
+    const r = rows[i];
+    const nom = String(r[iNom]||'').trim();
+    if(!nom || SKIP.test(nom)) continue;
+    const prenom = String(iPrenom>=0 ? r[iPrenom] : '').trim();
+    const fonction = String(iFonction>=0 ? r[iFonction] : '').trim();
+    const civilite = String(iCivilite>=0 ? r[iCivilite] : '').trim();
+    if(!prenom && !fonction) continue;
+    result.push({id:uid(), nom:nom.toUpperCase(), prenom, civilite, fonction, type:'personnel', actif:true});
+  }
+  return result;
+};
+
+const parseEnseignantsXlsx = (wb) => {
+  const sheetName = wb.SheetNames.find(n => {
+    const ws = wb.Sheets[n];
+    const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+    return rows.some(r => r.some(c => /^pr[eé]nom$/i.test(String(c).trim())));
+  }) || wb.SheetNames[0];
+  const ws = wb.Sheets[sheetName];
+  const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+
+  const hIdx = rows.findIndex(r => r.some(c => String(c).trim() === 'Nom'));
+  if(hIdx === -1) return null;
+  const headers = rows[hIdx].map(c => String(c).trim());
+  const iNom = headers.indexOf('Nom');
+  const iPrenom = headers.findIndex(h => /^pr[eé]nom$/i.test(h));
+  const iCivilite = headers.findIndex(h => /civilit/i.test(h));
+
+  const result = [];
+  for(let i = hIdx+1; i < rows.length; i++){
+    const r = rows[i];
+    const nom = String(r[iNom]||'').trim();
+    if(!nom) continue;
+    const prenom = String(iPrenom>=0 ? r[iPrenom] : '').trim();
+    const civilite = String(iCivilite>=0 ? r[iCivilite] : '').trim();
+    const fonction = (civilite==='Mme'||civilite==='Mlle') ? 'Enseignante' : 'Enseignant';
+    result.push({id:uid(), nom:nom.toUpperCase(), prenom, civilite, fonction, type:'enseignant', actif:true});
+  }
+  return result;
+};
+
+// ===== PAGE: PARAMÈTRES =====
+const ParametresPage = ({data, onRestore}) => {
+  const fileRef = useRef();
+  const xlsxPersonnelRef = useRef();
+  const xlsxEnseignantsRef = useRef();
+  const [msg, setMsg] = useState('');
+  const [preview, setPreview] = useState(null); // {type, parsed, mode}
+  const [ghMsg, setGhMsg] = useState('');
+
+  const saveToGithubApp = () => {
+    setGhMsg('⏳ Envoi vers GitHub...');
+    saveToGithub(data, 'saves/gestion-abs-personnel.json', 'Gestion Absences Personnel')
+      .then(()=> setGhMsg('✅ Sauvegarde envoyée sur GitHub'))
+      .catch(err=> setGhMsg('❌ Erreur GitHub : '+err.message));
+  };
+
+  const exportData = () => {
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const d = new Date();
+    a.href = url;
+    a.download = `absences_elfort_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setMsg('✅ Sauvegarde téléchargée avec succès.');
+  };
+
+  const importData = e => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const d = JSON.parse(ev.target.result);
+        if(!d.personnel || !d.absences) { setMsg('❌ Fichier invalide.'); return; }
+        if(window.confirm(`Restaurer les données ? (${d.personnel.length} personnels, ${d.absences.length} absences)\nCeci remplacera toutes les données actuelles.`)) {
+          onRestore(d);
+          setMsg('✅ Données restaurées avec succès.');
+        }
+      } catch(err) { setMsg('❌ Erreur de lecture du fichier.'); }
+    };
+    reader.readAsText(file);
+    e.target.value='';
+  };
+
+  const resetData = () => {
+    if(window.confirm('⚠️ Réinitialiser TOUTES les absences ?\n\nLe personnel sera conservé. Cette action est irréversible.')) {
+      onRestore({...data, absences:[]});
+      setMsg('✅ Absences réinitialisées.');
+    }
+  };
+
+  const readXlsx = (file, type) => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const wb = XLSX.read(ev.target.result, {type:'array'});
+        const parsed = type==='enseignant' ? parseEnseignantsXlsx(wb) : parsePersonnelXlsx(wb);
+        if(!parsed || parsed.length===0) { setMsg('❌ Aucune donnée trouvée dans ce fichier. Vérifiez le format.'); return; }
+        setPreview({type, parsed, mode:'remplacer'});
+        setMsg('');
+      } catch(e) { setMsg('❌ Erreur de lecture du fichier Excel.'); }
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  const handleXlsxChange = type => e => {
+    const file = e.target.files[0];
+    if(file) readXlsx(file, type);
+    e.target.value='';
+  };
+
+  const confirmImport = () => {
+    if(!preview) return;
+    const {type, parsed, mode} = preview;
+    let newPersonnel;
+    if(mode==='remplacer'){
+      const autres = data.personnel.filter(p=>p.type!==type);
+      newPersonnel = [...autres, ...parsed];
+    } else {
+      // Fusion : ajouter uniquement ceux absents (comparaison nom+prénom insensible à la casse)
+      const existants = data.personnel.filter(p=>p.type===type);
+      const autres = data.personnel.filter(p=>p.type!==type);
+      const nouveaux = parsed.filter(p => !existants.some(e=>
+        e.nom.toUpperCase()===p.nom.toUpperCase() &&
+        e.prenom.toLowerCase()===p.prenom.toLowerCase()
+      ));
+      newPersonnel = [...autres, ...existants, ...nouveaux];
+    }
+    onRestore({...data, personnel: newPersonnel});
+    const label = type==='enseignant'?'enseignants':'personnels';
+    setMsg(`✅ ${parsed.length} ${label} importé(s) avec succès (mode : ${mode}).`);
+    setPreview(null);
+  };
+
+  return (
+    <div className="page">
+      <div className="page-title">⚙️ Paramètres</div>
+
+      {msg && <div className={`alert ${msg.startsWith('✅')?'alert-success':'alert-warning'}`}>{msg}</div>}
+
+      {/* IMPORT EXCEL */}
+      <div className="card">
+        <div className="card-title">📥 Importer une liste depuis Excel</div>
+        <p style={{fontSize:13,color:'#555',marginBottom:14}}>
+          Téléversez un fichier Excel au même format que <strong>PERONNEL.xlsx</strong> ou <strong>ENSEIGNANTS.xlsx</strong>
+          pour mettre à jour la liste du personnel ou des enseignants.
+        </p>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:12,marginBottom:16}}>
+          <div style={{background:'#e3f2fd',borderRadius:8,padding:14}}>
+            <div style={{fontWeight:700,color:'#1565c0',marginBottom:6}}>🏫 Fichier Enseignants</div>
+            <p style={{fontSize:12,color:'#555',marginBottom:10}}>
+              Format attendu : colonnes <code>Civilité</code>, <code>Nom</code>, <code>Prénom</code>.
+              Même structure que <em>ENSEIGNANTS.xlsx</em>.
+            </p>
+            <button className="btn btn-outline btn-sm" style={{borderColor:'#1565c0',color:'#1565c0'}} onClick={()=>xlsxEnseignantsRef.current.click()}>
+              📂 Choisir le fichier enseignants…
+            </button>
+            <input type="file" ref={xlsxEnseignantsRef} accept=".xlsx,.xls,.ods" style={{display:'none'}} onChange={handleXlsxChange('enseignant')}/>
+          </div>
+          <div style={{background:'#f3e5f5',borderRadius:8,padding:14}}>
+            <div style={{fontWeight:700,color:'#6a1b9a',marginBottom:6}}>🧑‍💼 Fichier Personnel</div>
+            <p style={{fontSize:12,color:'#555',marginBottom:10}}>
+              Format attendu : colonnes <code>Fonction</code>, <code>Civilité</code>, <code>Nom</code>, <code>Prénoms</code>.
+              Même structure que <em>PERONNEL.xlsx</em>.
+            </p>
+            <button className="btn btn-outline btn-sm" style={{borderColor:'#6a1b9a',color:'#6a1b9a'}} onClick={()=>xlsxPersonnelRef.current.click()}>
+              📂 Choisir le fichier personnel…
+            </button>
+            <input type="file" ref={xlsxPersonnelRef} accept=".xlsx,.xls,.ods" style={{display:'none'}} onChange={handleXlsxChange('personnel')}/>
+          </div>
+        </div>
+
+        {/* PRÉVISUALISATION */}
+        {preview && (
+          <div style={{border:'2px solid #1a237e',borderRadius:8,padding:14,marginTop:4}}>
+            <div style={{fontWeight:700,color:'#1a237e',marginBottom:8,fontSize:14}}>
+              👁️ Prévisualisation — {preview.parsed.length} {preview.type==='enseignant'?'enseignant(s)':'membre(s) du personnel'} détecté(s)
+            </div>
+            <div className="form-group" style={{marginBottom:10,maxWidth:320}}>
+              <label>Mode d'import</label>
+              <select value={preview.mode} onChange={e=>setPreview(p=>({...p,mode:e.target.value}))}>
+                <option value="remplacer">Remplacer toute la liste ({preview.type==='enseignant'?'enseignants':'personnel'})</option>
+                <option value="fusionner">Fusionner (ajouter uniquement les nouveaux)</option>
+              </select>
+            </div>
+            {preview.mode==='remplacer' && (
+              <div className="alert alert-warning" style={{marginBottom:10}}>
+                ⚠️ Cette action remplacera les {data.personnel.filter(p=>p.type===preview.type).length} {preview.type==='enseignant'?'enseignants':'personnels'} actuels par les {preview.parsed.length} importés.<br/>
+                Les absences associées ne seront pas supprimées mais pourront devenir orphelines si un agent n'est plus dans la liste.
+              </div>
+            )}
+            <div style={{maxHeight:200,overflowY:'auto',border:'1px solid #e0e0e0',borderRadius:6,marginBottom:10}}>
+              <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
+                <thead>
+                  <tr style={{background:'#f5f5f5',position:'sticky',top:0}}>
+                    <th style={{padding:'5px 8px',textAlign:'left'}}>#</th>
+                    <th style={{padding:'5px 8px',textAlign:'left'}}>Nom</th>
+                    <th style={{padding:'5px 8px',textAlign:'left'}}>Prénom</th>
+                    <th style={{padding:'5px 8px',textAlign:'left'}}>Civilité</th>
+                    <th style={{padding:'5px 8px',textAlign:'left'}}>Fonction</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {preview.parsed.map((p,i)=>(
+                    <tr key={p.id} style={{borderBottom:'1px solid #f0f0f0'}}>
+                      <td style={{padding:'4px 8px',color:'#aaa'}}>{i+1}</td>
+                      <td style={{padding:'4px 8px',fontWeight:700}}>{p.nom}</td>
+                      <td style={{padding:'4px 8px'}}>{p.prenom}</td>
+                      <td style={{padding:'4px 8px'}}>{p.civilite}</td>
+                      <td style={{padding:'4px 8px',color:'#555'}}>{p.fonction}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div style={{display:'flex',gap:10}}>
+              <button className="btn btn-primary" onClick={confirmImport}>✅ Confirmer l'import</button>
+              <button className="btn btn-outline" onClick={()=>setPreview(null)}>Annuler</button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="card">
+        <div className="card-title">💾 Sauvegarde et restauration</div>
+        <p style={{fontSize:13,color:'#555',marginBottom:16}}>
+          Exportez vos données dans un fichier JSON pour les sauvegarder ou les transférer.
+          Rechargez un fichier précédemment sauvegardé pour restaurer l'état de l'application.
+        </p>
+        <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+          <button className="btn btn-success" onClick={exportData}>⬇️ Exporter / Sauvegarder</button>
+          <button className="btn btn-outline" onClick={()=>fileRef.current.click()}>⬆️ Importer / Restaurer</button>
+          <input type="file" ref={fileRef} accept=".json" style={{display:'none'}} onChange={importData}/>
+        </div>
+        <div style={{marginTop:12,fontSize:12,color:'#888'}}>
+          Données actuelles : <strong>{data.personnel.length}</strong> membres du personnel · <strong>{data.absences.length}</strong> absences enregistrées
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-title">☁️ Sauvegarde GitHub</div>
+        <p style={{fontSize:13,color:'#555',marginBottom:16}}>
+          Envoie les données de cette application vers le dépôt GitHub du Hub (fichier <code>saves/gestion-abs-personnel.json</code>),
+          pour les retrouver depuis n'importe quel appareil.
+        </p>
+        <button className="btn" style={{background:'#24292e',color:'#fff'}} onClick={saveToGithubApp}>☁️ Sauvegarder sur GitHub</button>
+        {ghMsg && <div style={{marginTop:10,fontSize:13}}>{ghMsg}</div>}
+      </div>
+
+      <div className="card">
+        <div className="card-title">🔑 Identifiants de connexion</div>
+        <div style={{display:'grid',gap:8}}>
+          {USERS.map(u=>(
+            <div key={u.login} style={{display:'flex',gap:12,padding:'8px 12px',background:'#f5f5f5',borderRadius:6,fontSize:13}}>
+              <span style={{fontWeight:700,minWidth:100}}>{u.nom}</span>
+              <span>Login : <code style={{background:'#e8eaf6',padding:'1px 6px',borderRadius:3}}>{u.login}</code></span>
+              <span>Mot de passe : <code style={{background:'#e8eaf6',padding:'1px 6px',borderRadius:3}}>{u.password}</code></span>
+            </div>
+          ))}
+        </div>
+        <div style={{marginTop:10,fontSize:12,color:'#888'}}>
+          Pour modifier les identifiants, éditer le fichier index.html (section USERS).
+        </div>
+      </div>
+
+      <div className="card" style={{borderLeft:'4px solid #c62828'}}>
+        <div className="card-title" style={{color:'#c62828'}}>⚠️ Zone dangereuse</div>
+        <div style={{display:'grid',gap:14}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:10,padding:'10px 14px',background:'#fff8f8',borderRadius:6,border:'1px solid #ffcdd2'}}>
+            <div>
+              <div style={{fontWeight:700,fontSize:13,color:'#333'}}>Vider la liste des enseignants</div>
+              <div style={{fontSize:12,color:'#888',marginTop:2}}>Supprime les {data.personnel.filter(p=>p.type==='enseignant').length} enseignants. Les absences associées sont conservées.</div>
+            </div>
+            <button className="btn btn-danger btn-sm" onClick={()=>{
+              if(window.confirm(`Supprimer les ${data.personnel.filter(p=>p.type==='enseignant').length} enseignants ?\n\nLes absences associées ne seront pas supprimées.`)){
+                onRestore({...data, personnel: data.personnel.filter(p=>p.type!=='enseignant')});
+                setMsg('✅ Liste des enseignants vidée.');
+              }
+            }}>🗑️ Vider enseignants</button>
+          </div>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:10,padding:'10px 14px',background:'#fff8f8',borderRadius:6,border:'1px solid #ffcdd2'}}>
+            <div>
+              <div style={{fontWeight:700,fontSize:13,color:'#333'}}>Vider la liste du personnel</div>
+              <div style={{fontSize:12,color:'#888',marginTop:2}}>Supprime les {data.personnel.filter(p=>p.type==='personnel').length} membres du personnel. Les absences associées sont conservées.</div>
+            </div>
+            <button className="btn btn-danger btn-sm" onClick={()=>{
+              if(window.confirm(`Supprimer les ${data.personnel.filter(p=>p.type==='personnel').length} membres du personnel ?\n\nLes absences associées ne seront pas supprimées.`)){
+                onRestore({...data, personnel: data.personnel.filter(p=>p.type!=='personnel')});
+                setMsg('✅ Liste du personnel vidée.');
+              }
+            }}>🗑️ Vider personnel</button>
+          </div>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:10,padding:'10px 14px',background:'#fff8f8',borderRadius:6,border:'1px solid #ffcdd2'}}>
+            <div>
+              <div style={{fontWeight:700,fontSize:13,color:'#333'}}>Vider toutes les listes</div>
+              <div style={{fontSize:12,color:'#888',marginTop:2}}>Supprime enseignants ET personnel ({data.personnel.length} membres). Les absences sont conservées.</div>
+            </div>
+            <button className="btn btn-danger btn-sm" onClick={()=>{
+              if(window.confirm(`Supprimer TOUS les ${data.personnel.length} membres ?\n\nLes absences ne seront pas supprimées.`)){
+                onRestore({...data, personnel:[]});
+                setMsg('✅ Toutes les listes vidées.');
+              }
+            }}>🗑️ Vider tout le personnel</button>
+          </div>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:10,padding:'10px 14px',background:'#fff8f8',borderRadius:6,border:'1px solid #ffcdd2'}}>
+            <div>
+              <div style={{fontWeight:700,fontSize:13,color:'#333'}}>Réinitialiser les absences</div>
+              <div style={{fontSize:12,color:'#888',marginTop:2}}>Supprime les {data.absences.length} absences enregistrées. Le personnel est conservé.</div>
+            </div>
+            <button className="btn btn-danger btn-sm" onClick={resetData}>🗑️ Réinitialiser les absences</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ===== PAGE: AIDE =====
+const AidePage = () => (
+  <div className="page">
+    <div className="page-title">❓ Guide d'utilisation</div>
+
+    <div className="card">
+      <div className="aide-section">
+        <h3>🏠 Tableau de bord</h3>
+        <p>La page d'accueil affiche un résumé global : nombre total d'absences, heures cumulées,
+        répartition par statut (complet / partiel / non effectué) et les dernières absences saisies.</p>
+      </div>
+    </div>
+
+    <div className="card">
+      <div className="aide-section">
+        <h3>📋 Saisir une absence</h3>
+        <ol>
+          <li>Cliquer sur l'onglet <strong>Absences</strong> puis sur <strong>➕ Nouvelle absence</strong>.</li>
+          <li>Sélectionner le membre du personnel dans la liste déroulante (enseignants et personnel classés alphabétiquement).</li>
+          <li>Renseigner la <strong>date de début</strong> et, si l'absence couvre plusieurs jours, la <strong>date de fin</strong>.</li>
+          <li>Saisir le <strong>nombre total d'heures d'absence</strong>.</li>
+          <li>Choisir un <strong>motif</strong> et ajouter des observations si nécessaire.</li>
+          <li>Cliquer sur <strong>💾 Enregistrer</strong>.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div className="card">
+      <div className="aide-section">
+        <h3>⏱️ Saisir une récupération</h3>
+        <ol>
+          <li>Ouvrir l'absence à modifier (bouton ✏️).</li>
+          <li>Dans la section <strong>Récupérations</strong>, renseigner la date, le nombre d'heures et une description (facultative).</li>
+          <li>Cliquer sur <strong>+ Ajouter récupération</strong>.</li>
+          <li>Plusieurs récupérations peuvent être ajoutées à une même absence.</li>
+          <li>La barre de progression et le statut se mettent à jour automatiquement.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div className="card">
+      <div className="aide-section">
+        <h3>🚦 Indicateurs de statut</h3>
+        <ul>
+          <li><span className="badge badge-complet">✅ Complet</span> — Les heures récupérées sont égales ou supérieures aux heures d'absence.</li>
+          <li style={{marginTop:6}}><span className="badge badge-partiel">⚠️ Partiel</span> — Une partie des heures a été récupérée, mais pas la totalité.</li>
+          <li style={{marginTop:6}}><span className="badge badge-non">❌ Non effectué</span> — Aucune heure de récupération enregistrée.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div className="card">
+      <div className="aide-section">
+        <h3>📄 Éditer un rapport PDF</h3>
+        <ol>
+          <li>Aller dans l'onglet <strong>Rapports</strong>.</li>
+          <li>Choisir le type de rapport :<br/>
+            — <strong>Récapitulatif par personne</strong> : un tableau détaillé avec toutes les absences et récupérations, signé par le personnel et le proviseur.<br/>
+            — <strong>État mensuel</strong> : tableau synthétique de tous les personnels absents sur une période.</li>
+          <li>Utiliser les filtres (catégorie, nom, mois, année, statut) pour affiner.</li>
+          <li>Cliquer sur <strong>🖨️ Imprimer / PDF</strong> — utiliser "Enregistrer en PDF" depuis la boîte de dialogue d'impression.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div className="card">
+      <div className="aide-section">
+        <h3>👤 Gérer le personnel</h3>
+        <ul>
+          <li><strong>Ajouter</strong> un membre : onglet Personnel → ➕ Ajouter.</li>
+          <li><strong>Modifier</strong> : bouton ✏️ sur la ligne concernée.</li>
+          <li><strong>Supprimer</strong> : bouton 🗑️ (une confirmation est demandée si le membre a des absences).</li>
+          <li>Les membres peuvent être marqués <strong>Inactif</strong> pour ne plus les voir dans la liste de saisie des absences.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div className="card">
+      <div className="aide-section">
+        <h3>⚙️ Sauvegarder et restaurer</h3>
+        <ul>
+          <li>Onglet <strong>Paramètres</strong> → <strong>⬇️ Exporter / Sauvegarder</strong> : télécharge un fichier .json contenant toutes les données.</li>
+          <li><strong>⬆️ Importer / Restaurer</strong> : recharge un fichier sauvegardé précédemment.</li>
+          <li>Les données sont également sauvegardées automatiquement dans le navigateur (localStorage). En cas de changement de navigateur ou d'ordinateur, l'export/import JSON est nécessaire.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div className="card" style={{background:'#e3f2fd'}}>
+      <div className="aide-section">
+        <h3>ℹ️ Identifiants</h3>
+        <ul>
+          <li><strong>Proviseur</strong> : login <code>proviseur</code> / mot de passe <code>prov2025</code></li>
+          <li><strong>Secrétaire</strong> : login <code>secretaire</code> / mot de passe <code>secr2025</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+);
+
+// ===== PAGE: CONNEXION =====
+const LoginPage = ({onLogin}) => {
+  const [login, setLogin] = useState('');
+  const [password, setPassword] = useState('');
+  const [err, setErr] = useState('');
+
+  const submit = e => {
+    e.preventDefault();
+    const u = USERS.find(u=>u.login===login.trim()&&u.password===password);
+    if(u) onLogin(u);
+    else setErr('Identifiant ou mot de passe incorrect.');
+  };
+
+  return (
+    <div className="login-wrap">
+      <div className="login-box">
+        <div className="login-logo">
+          <div style={{fontSize:48}}>🏫</div>
+          <h1>Gestion des Absences du Personnel</h1>
+          <p>LPO Léopold Elfort — Mana, Guyane</p>
+        </div>
+        <form onSubmit={submit}>
+          <label>Identifiant</label>
+          <input value={login} onChange={e=>setLogin(e.target.value)} autoFocus/>
+          <label>Mot de passe</label>
+          <input type="password" value={password} onChange={e=>setPassword(e.target.value)}/>
+          <button type="submit" className="btn-login">Se connecter</button>
+          {err && <div className="login-err">{err}</div>}
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// ===== APP =====
+const TABS = [
+  {id:'dashboard',label:'📊 Tableau de bord'},
+  {id:'absences',label:'📋 Absences'},
+  {id:'personnel',label:'👤 Personnel'},
+  {id:'rapports',label:'📄 Rapports'},
+  {id:'parametres',label:'⚙️ Paramètres'},
+  {id:'aide',label:'❓ Aide'},
+];
+
+const App = () => {
+  const [user, setUser] = useState(null);
+  const [tab, setTab] = useState('dashboard');
+  const [data, setData] = useState(()=>loadData());
+
+  useEffect(()=>saveData(data),[data]);
+
+  const addAbsence = a => setData(d=>({...d, absences:[...d.absences, a]}));
+  const editAbsence = a => setData(d=>({...d, absences:d.absences.map(x=>x.id===a.id?a:x)}));
+  const delAbsence = id => setData(d=>({...d, absences:d.absences.filter(x=>x.id!==id)}));
+
+  const addPersonnel = p => setData(d=>({...d, personnel:[...d.personnel, p]}));
+  const editPersonnel = p => setData(d=>({...d, personnel:d.personnel.map(x=>x.id===p.id?p:x)}));
+  const delPersonnel = id => setData(d=>({...d, personnel:d.personnel.filter(x=>x.id!==id)}));
+
+  const restore = newData => setData(newData);
+
+  if(!user) return <LoginPage onLogin={setUser}/>;
+
+  return (
+    <>
+      <div className="header no-print">
+        <h1>🏫 Gestion Absences — LPO Léopold Elfort</h1>
+        <span className="header-user">👤 {user.nom}</span>
+        <button className="btn-logout" onClick={()=>setUser(null)}>Déconnexion</button>
+      </div>
+      <nav className="nav no-print">
+        {TABS.map(t=>(
+          <button key={t.id} className={`nav-btn${tab===t.id?' active':''}`} onClick={()=>setTab(t.id)}>{t.label}</button>
+        ))}
+      </nav>
+
+      {tab==='dashboard' && <Dashboard personnel={data.personnel} absences={data.absences}/>}
+      {tab==='absences' && <AbsencesPage personnel={data.personnel} absences={data.absences} onAdd={addAbsence} onEdit={editAbsence} onDelete={delAbsence} role={user.role}/>}
+      {tab==='personnel' && <PersonnelPage personnel={data.personnel} absences={data.absences} onAdd={addPersonnel} onEdit={editPersonnel} onDelete={delPersonnel}/>}
+      {tab==='rapports' && <RapportsPage personnel={data.personnel} absences={data.absences}/>}
+      {tab==='parametres' && <ParametresPage data={data} onRestore={restore}/>}
+      {tab==='aide' && <AidePage/>}
+    </>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
