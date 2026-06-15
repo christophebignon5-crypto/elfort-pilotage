@@ -593,6 +593,12 @@ document.querySelectorAll('.btn-launch').forEach(function (a) {
     updateMeta();
   }
 
+  /* ── Détecte les valeurs ressemblant à un token / secret (PAT GitHub, clés API…) ── */
+  var SECRET_PATTERN = /ghp_[A-Za-z0-9]{30,40}|gho_[A-Za-z0-9]{30,40}|github_pat_[A-Za-z0-9_]{60,}|sk-[A-Za-z0-9]{20,}|AKIA[A-Z0-9]{16}/;
+  function containsSecret(raw) {
+    return typeof raw === 'string' && SECRET_PATTERN.test(raw);
+  }
+
   /* ── Collecte toutes les données localStorage ── */
   function gatherData() {
     var d = {
@@ -601,9 +607,11 @@ document.querySelectorAll('.btn-launch').forEach(function (a) {
     };
     for (var i = 0; i < localStorage.length; i++) {
       var k = localStorage.key(i);
-      if (k === PAT_KEY) continue; /* ne jamais sauvegarder le token */
-      try   { d.data[k] = JSON.parse(localStorage.getItem(k)); }
-      catch (e) { d.data[k] = localStorage.getItem(k); }
+      if (k === PAT_KEY) continue; /* ne jamais sauvegarder le token du Hub */
+      var raw = localStorage.getItem(k);
+      if (/token|pat|secret|password/i.test(k) || containsSecret(raw)) continue; /* ne jamais sauvegarder un token d'une autre application */
+      try   { d.data[k] = JSON.parse(raw); }
+      catch (e) { d.data[k] = raw; }
     }
     return d;
   }
