@@ -1,0 +1,1163 @@
+{
+  "version": "1.0",
+  "date": "2026-06-15T00:14:49.082Z",
+  "app": "Parcoursup Dashboard",
+  "data": [
+    {
+      "label": "GTLA",
+      "year": 2026,
+      "rows": [
+        {
+          "serie": "Bac Général",
+          "combi": "Biologie/Ecologie | Physique-Chimie",
+          "total": 1,
+          "filles": 1,
+          "garcons": 0,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Histoire-Géographie, Géopolitique et Sciences politiques | Langues, littératures et cultures étrangères et régionales",
+          "total": 3,
+          "filles": 1,
+          "garcons": 2,
+          "boursiers": 3,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Histoire-Géographie, Géopolitique et Sciences politiques | Mathématiques",
+          "total": 1,
+          "filles": 1,
+          "garcons": 0,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Histoire-Géographie, Géopolitique et Sciences politiques | Musique",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Histoire-Géographie, Géopolitique et Sciences politiques | Physique-Chimie",
+          "total": 1,
+          "filles": 1,
+          "garcons": 0,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Histoire-Géographie, Géopolitique et Sciences politiques | Sciences de la vie et de la Terre",
+          "total": 2,
+          "filles": 0,
+          "garcons": 2,
+          "boursiers": 1,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Histoire-Géographie, Géopolitique et Sciences politiques | Sciences Economiques et Sociales",
+          "total": 3,
+          "filles": 2,
+          "garcons": 1,
+          "boursiers": 2,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Humanités, Littérature et Philosophie | Sciences Economiques et Sociales",
+          "total": 3,
+          "filles": 2,
+          "garcons": 1,
+          "boursiers": 0,
+          "nonBoursiers": 3,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Langues, littératures et cultures étrangères et régionales | Sciences Economiques et Sociales",
+          "total": 3,
+          "filles": 1,
+          "garcons": 2,
+          "boursiers": 1,
+          "nonBoursiers": 2,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Mathématiques | Physique-Chimie",
+          "total": 2,
+          "filles": 0,
+          "garcons": 2,
+          "boursiers": 2,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Mathématiques | Sciences de l'ingénieur et sciences physiques",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Mathématiques | Sciences Economiques et Sociales",
+          "total": 4,
+          "filles": 2,
+          "garcons": 2,
+          "boursiers": 1,
+          "nonBoursiers": 3,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Numérique et Sciences Informatiques | Sciences Economiques et Sociales",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Physique-Chimie | Sciences de la vie et de la Terre",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Total Bac Général",
+          "combi": "",
+          "total": 27,
+          "filles": 11,
+          "garcons": 16,
+          "boursiers": 13,
+          "nonBoursiers": 14,
+          "isTotal": true
+        },
+        {
+          "serie": "Bac STI2D",
+          "combi": "Ingénierie, innovation et développement durable | Physique-Chimie et Mathématiques",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Total Bac STI2D",
+          "combi": "",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": true
+        },
+        {
+          "serie": "Bac STMG",
+          "combi": "Droit et Economie | Msgn/ Gestion et Finance",
+          "total": 9,
+          "filles": 2,
+          "garcons": 7,
+          "boursiers": 4,
+          "nonBoursiers": 5,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac STMG",
+          "combi": "Droit et Economie | Msgn/ Mercatique",
+          "total": 1,
+          "filles": 1,
+          "garcons": 0,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac STMG",
+          "combi": "Droit et Economie | Msgn/ Ressources humaines et communication",
+          "total": 5,
+          "filles": 2,
+          "garcons": 3,
+          "boursiers": 1,
+          "nonBoursiers": 4,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac STMG",
+          "combi": "Droit et Economie | Msgn/ Systèmes d'information et de Gestion",
+          "total": 1,
+          "filles": 1,
+          "garcons": 0,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Total Bac STMG",
+          "combi": "",
+          "total": 16,
+          "filles": 6,
+          "garcons": 10,
+          "boursiers": 6,
+          "nonBoursiers": 10,
+          "isTotal": true
+        },
+        {
+          "serie": "Bac Professionnel Agricole",
+          "combi": "Sans EDS",
+          "total": 2,
+          "filles": 2,
+          "garcons": 0,
+          "boursiers": 0,
+          "nonBoursiers": 2,
+          "isTotal": false
+        },
+        {
+          "serie": "Total Bac Professionnel Agricole",
+          "combi": "",
+          "total": 2,
+          "filles": 2,
+          "garcons": 0,
+          "boursiers": 0,
+          "nonBoursiers": 2,
+          "isTotal": true
+        }
+      ],
+      "raw": [
+        {
+          "serie": "Bac Général",
+          "combi": "Biologie/Ecologie | Physique-Chimie",
+          "total": 1,
+          "filles": 1,
+          "garcons": 0,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Histoire-Géographie, Géopolitique et Sciences politiques | Langues, littératures et cultures étrangères et régionales",
+          "total": 3,
+          "filles": 1,
+          "garcons": 2,
+          "boursiers": 3,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Histoire-Géographie, Géopolitique et Sciences politiques | Mathématiques",
+          "total": 1,
+          "filles": 1,
+          "garcons": 0,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Histoire-Géographie, Géopolitique et Sciences politiques | Musique",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Histoire-Géographie, Géopolitique et Sciences politiques | Physique-Chimie",
+          "total": 1,
+          "filles": 1,
+          "garcons": 0,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Histoire-Géographie, Géopolitique et Sciences politiques | Sciences de la vie et de la Terre",
+          "total": 2,
+          "filles": 0,
+          "garcons": 2,
+          "boursiers": 1,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Histoire-Géographie, Géopolitique et Sciences politiques | Sciences Economiques et Sociales",
+          "total": 3,
+          "filles": 2,
+          "garcons": 1,
+          "boursiers": 2,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Humanités, Littérature et Philosophie | Sciences Economiques et Sociales",
+          "total": 3,
+          "filles": 2,
+          "garcons": 1,
+          "boursiers": 0,
+          "nonBoursiers": 3,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Langues, littératures et cultures étrangères et régionales | Sciences Economiques et Sociales",
+          "total": 3,
+          "filles": 1,
+          "garcons": 2,
+          "boursiers": 1,
+          "nonBoursiers": 2,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Mathématiques | Physique-Chimie",
+          "total": 2,
+          "filles": 0,
+          "garcons": 2,
+          "boursiers": 2,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Mathématiques | Sciences de l'ingénieur et sciences physiques",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Mathématiques | Sciences Economiques et Sociales",
+          "total": 4,
+          "filles": 2,
+          "garcons": 2,
+          "boursiers": 1,
+          "nonBoursiers": 3,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Numérique et Sciences Informatiques | Sciences Economiques et Sociales",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Physique-Chimie | Sciences de la vie et de la Terre",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac STI2D",
+          "combi": "Ingénierie, innovation et développement durable | Physique-Chimie et Mathématiques",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac STMG",
+          "combi": "Droit et Economie | Msgn/ Gestion et Finance",
+          "total": 9,
+          "filles": 2,
+          "garcons": 7,
+          "boursiers": 4,
+          "nonBoursiers": 5,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac STMG",
+          "combi": "Droit et Economie | Msgn/ Mercatique",
+          "total": 1,
+          "filles": 1,
+          "garcons": 0,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac STMG",
+          "combi": "Droit et Economie | Msgn/ Ressources humaines et communication",
+          "total": 5,
+          "filles": 2,
+          "garcons": 3,
+          "boursiers": 1,
+          "nonBoursiers": 4,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac STMG",
+          "combi": "Droit et Economie | Msgn/ Systèmes d'information et de Gestion",
+          "total": 1,
+          "filles": 1,
+          "garcons": 0,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Professionnel Agricole",
+          "combi": "Sans EDS",
+          "total": 2,
+          "filles": 2,
+          "garcons": 0,
+          "boursiers": 0,
+          "nonBoursiers": 2,
+          "isTotal": false
+        }
+      ]
+    },
+    {
+      "label": "CI",
+      "year": 2026,
+      "rows": [
+        {
+          "serie": "Bac Général",
+          "combi": "Arts Plastiques | Histoire-Géographie, Géopolitique et Sciences politiques",
+          "total": 1,
+          "filles": 1,
+          "garcons": 0,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Arts Plastiques | Langues, littératures et cultures étrangères et régionales",
+          "total": 1,
+          "filles": 1,
+          "garcons": 0,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Biologie/Ecologie | Physique-Chimie",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Cinéma-Audiovisuel | Sciences Economiques et Sociales",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Histoire-Géographie, Géopolitique et Sciences politiques | Humanités, Littérature et Philosophie",
+          "total": 6,
+          "filles": 6,
+          "garcons": 0,
+          "boursiers": 3,
+          "nonBoursiers": 3,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Histoire-Géographie, Géopolitique et Sciences politiques | Langues, littératures et cultures étrangères et régionales",
+          "total": 12,
+          "filles": 6,
+          "garcons": 6,
+          "boursiers": 2,
+          "nonBoursiers": 10,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Histoire-Géographie, Géopolitique et Sciences politiques | Mathématiques",
+          "total": 1,
+          "filles": 1,
+          "garcons": 0,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Histoire-Géographie, Géopolitique et Sciences politiques | Sciences de la vie et de la Terre",
+          "total": 2,
+          "filles": 1,
+          "garcons": 1,
+          "boursiers": 2,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Histoire-Géographie, Géopolitique et Sciences politiques | Sciences Economiques et Sociales",
+          "total": 13,
+          "filles": 8,
+          "garcons": 5,
+          "boursiers": 3,
+          "nonBoursiers": 10,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Humanités, Littérature et Philosophie | Langues, littératures et cultures étrangères et régionales",
+          "total": 2,
+          "filles": 2,
+          "garcons": 0,
+          "boursiers": 0,
+          "nonBoursiers": 2,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Humanités, Littérature et Philosophie | Sciences de la vie et de la Terre",
+          "total": 1,
+          "filles": 1,
+          "garcons": 0,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Humanités, Littérature et Philosophie | Sciences Economiques et Sociales",
+          "total": 2,
+          "filles": 2,
+          "garcons": 0,
+          "boursiers": 1,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Langues, littératures et cultures étrangères et régionales | Littérature et langues et cultures de l'Antiquité: Latin",
+          "total": 1,
+          "filles": 1,
+          "garcons": 0,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Langues, littératures et cultures étrangères et régionales | Mathématiques",
+          "total": 5,
+          "filles": 3,
+          "garcons": 2,
+          "boursiers": 3,
+          "nonBoursiers": 2,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Langues, littératures et cultures étrangères et régionales | Sciences de la vie et de la Terre",
+          "total": 4,
+          "filles": 2,
+          "garcons": 2,
+          "boursiers": 0,
+          "nonBoursiers": 4,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Langues, littératures et cultures étrangères et régionales | Sciences de l'ingénieur et sciences physiques",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Langues, littératures et cultures étrangères et régionales | Sciences Economiques et Sociales",
+          "total": 14,
+          "filles": 8,
+          "garcons": 6,
+          "boursiers": 4,
+          "nonBoursiers": 10,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Mathématiques | Physique-Chimie",
+          "total": 4,
+          "filles": 2,
+          "garcons": 2,
+          "boursiers": 2,
+          "nonBoursiers": 2,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Mathématiques | Sciences de l'ingénieur et sciences physiques",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Mathématiques | Sciences Economiques et Sociales",
+          "total": 14,
+          "filles": 7,
+          "garcons": 7,
+          "boursiers": 3,
+          "nonBoursiers": 11,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Musique | Sciences Economiques et Sociales",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Physique-Chimie | Sciences de la vie et de la Terre",
+          "total": 3,
+          "filles": 2,
+          "garcons": 1,
+          "boursiers": 1,
+          "nonBoursiers": 2,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Sciences de la vie et de la Terre | Éducation Physique, Pratiques Et Culture Sportives",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Sciences Economiques et Sociales | Sciences de la vie et de la Terre",
+          "total": 4,
+          "filles": 2,
+          "garcons": 2,
+          "boursiers": 1,
+          "nonBoursiers": 3,
+          "isTotal": false
+        },
+        {
+          "serie": "Total Bac Général",
+          "combi": "",
+          "total": 96,
+          "filles": 56,
+          "garcons": 40,
+          "boursiers": 31,
+          "nonBoursiers": 65,
+          "isTotal": true
+        },
+        {
+          "serie": "Bac STD2A",
+          "combi": "Analyse et méthodes en design | Conception et création en design et métiers d'art",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Total Bac STD2A",
+          "combi": "",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": true
+        },
+        {
+          "serie": "Bac STI2D",
+          "combi": "Ingénierie, innovation et développement durable | Physique-Chimie et Mathématiques",
+          "total": 4,
+          "filles": 1,
+          "garcons": 3,
+          "boursiers": 1,
+          "nonBoursiers": 3,
+          "isTotal": false
+        },
+        {
+          "serie": "Total Bac STI2D",
+          "combi": "",
+          "total": 4,
+          "filles": 1,
+          "garcons": 3,
+          "boursiers": 1,
+          "nonBoursiers": 3,
+          "isTotal": true
+        },
+        {
+          "serie": "Bac STMG",
+          "combi": "Droit et Economie | Msgn/ Gestion et Finance",
+          "total": 12,
+          "filles": 5,
+          "garcons": 7,
+          "boursiers": 6,
+          "nonBoursiers": 6,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac STMG",
+          "combi": "Droit et Economie | Msgn/ Mercatique",
+          "total": 30,
+          "filles": 19,
+          "garcons": 11,
+          "boursiers": 10,
+          "nonBoursiers": 20,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac STMG",
+          "combi": "Droit et Economie | Msgn/ Ressources humaines et communication",
+          "total": 10,
+          "filles": 7,
+          "garcons": 3,
+          "boursiers": 3,
+          "nonBoursiers": 7,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac STMG",
+          "combi": "Droit et Economie | Msgn/ Systèmes d'information et de Gestion",
+          "total": 3,
+          "filles": 3,
+          "garcons": 0,
+          "boursiers": 0,
+          "nonBoursiers": 3,
+          "isTotal": false
+        },
+        {
+          "serie": "Total Bac STMG",
+          "combi": "",
+          "total": 55,
+          "filles": 34,
+          "garcons": 21,
+          "boursiers": 19,
+          "nonBoursiers": 36,
+          "isTotal": true
+        },
+        {
+          "serie": "Bac ST2S",
+          "combi": "Chimie, biologie et physiopathologie humaines | Sciences et techniques sanitaires et sociales",
+          "total": 4,
+          "filles": 4,
+          "garcons": 0,
+          "boursiers": 3,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Total Bac ST2S",
+          "combi": "",
+          "total": 4,
+          "filles": 4,
+          "garcons": 0,
+          "boursiers": 3,
+          "nonBoursiers": 1,
+          "isTotal": true
+        },
+        {
+          "serie": "Bac Professionnel Agricole",
+          "combi": "Sans EDS",
+          "total": 12,
+          "filles": 9,
+          "garcons": 3,
+          "boursiers": 2,
+          "nonBoursiers": 10,
+          "isTotal": false
+        },
+        {
+          "serie": "Total Bac Professionnel Agricole",
+          "combi": "",
+          "total": 12,
+          "filles": 9,
+          "garcons": 3,
+          "boursiers": 2,
+          "nonBoursiers": 10,
+          "isTotal": true
+        }
+      ],
+      "raw": [
+        {
+          "serie": "Bac Général",
+          "combi": "Arts Plastiques | Histoire-Géographie, Géopolitique et Sciences politiques",
+          "total": 1,
+          "filles": 1,
+          "garcons": 0,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Arts Plastiques | Langues, littératures et cultures étrangères et régionales",
+          "total": 1,
+          "filles": 1,
+          "garcons": 0,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Biologie/Ecologie | Physique-Chimie",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Cinéma-Audiovisuel | Sciences Economiques et Sociales",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Histoire-Géographie, Géopolitique et Sciences politiques | Humanités, Littérature et Philosophie",
+          "total": 6,
+          "filles": 6,
+          "garcons": 0,
+          "boursiers": 3,
+          "nonBoursiers": 3,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Histoire-Géographie, Géopolitique et Sciences politiques | Langues, littératures et cultures étrangères et régionales",
+          "total": 12,
+          "filles": 6,
+          "garcons": 6,
+          "boursiers": 2,
+          "nonBoursiers": 10,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Histoire-Géographie, Géopolitique et Sciences politiques | Mathématiques",
+          "total": 1,
+          "filles": 1,
+          "garcons": 0,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Histoire-Géographie, Géopolitique et Sciences politiques | Sciences de la vie et de la Terre",
+          "total": 2,
+          "filles": 1,
+          "garcons": 1,
+          "boursiers": 2,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Histoire-Géographie, Géopolitique et Sciences politiques | Sciences Economiques et Sociales",
+          "total": 13,
+          "filles": 8,
+          "garcons": 5,
+          "boursiers": 3,
+          "nonBoursiers": 10,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Humanités, Littérature et Philosophie | Langues, littératures et cultures étrangères et régionales",
+          "total": 2,
+          "filles": 2,
+          "garcons": 0,
+          "boursiers": 0,
+          "nonBoursiers": 2,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Humanités, Littérature et Philosophie | Sciences de la vie et de la Terre",
+          "total": 1,
+          "filles": 1,
+          "garcons": 0,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Humanités, Littérature et Philosophie | Sciences Economiques et Sociales",
+          "total": 2,
+          "filles": 2,
+          "garcons": 0,
+          "boursiers": 1,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Langues, littératures et cultures étrangères et régionales | Littérature et langues et cultures de l'Antiquité: Latin",
+          "total": 1,
+          "filles": 1,
+          "garcons": 0,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Langues, littératures et cultures étrangères et régionales | Mathématiques",
+          "total": 5,
+          "filles": 3,
+          "garcons": 2,
+          "boursiers": 3,
+          "nonBoursiers": 2,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Langues, littératures et cultures étrangères et régionales | Sciences de la vie et de la Terre",
+          "total": 4,
+          "filles": 2,
+          "garcons": 2,
+          "boursiers": 0,
+          "nonBoursiers": 4,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Langues, littératures et cultures étrangères et régionales | Sciences de l'ingénieur et sciences physiques",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Langues, littératures et cultures étrangères et régionales | Sciences Economiques et Sociales",
+          "total": 14,
+          "filles": 8,
+          "garcons": 6,
+          "boursiers": 4,
+          "nonBoursiers": 10,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Mathématiques | Physique-Chimie",
+          "total": 4,
+          "filles": 2,
+          "garcons": 2,
+          "boursiers": 2,
+          "nonBoursiers": 2,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Mathématiques | Sciences de l'ingénieur et sciences physiques",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Mathématiques | Sciences Economiques et Sociales",
+          "total": 14,
+          "filles": 7,
+          "garcons": 7,
+          "boursiers": 3,
+          "nonBoursiers": 11,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Musique | Sciences Economiques et Sociales",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Physique-Chimie | Sciences de la vie et de la Terre",
+          "total": 3,
+          "filles": 2,
+          "garcons": 1,
+          "boursiers": 1,
+          "nonBoursiers": 2,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Sciences de la vie et de la Terre | Éducation Physique, Pratiques Et Culture Sportives",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 0,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Général",
+          "combi": "Sciences Economiques et Sociales | Sciences de la vie et de la Terre",
+          "total": 4,
+          "filles": 2,
+          "garcons": 2,
+          "boursiers": 1,
+          "nonBoursiers": 3,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac STD2A",
+          "combi": "Analyse et méthodes en design | Conception et création en design et métiers d'art",
+          "total": 1,
+          "filles": 0,
+          "garcons": 1,
+          "boursiers": 1,
+          "nonBoursiers": 0,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac STI2D",
+          "combi": "Ingénierie, innovation et développement durable | Physique-Chimie et Mathématiques",
+          "total": 4,
+          "filles": 1,
+          "garcons": 3,
+          "boursiers": 1,
+          "nonBoursiers": 3,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac STMG",
+          "combi": "Droit et Economie | Msgn/ Gestion et Finance",
+          "total": 12,
+          "filles": 5,
+          "garcons": 7,
+          "boursiers": 6,
+          "nonBoursiers": 6,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac STMG",
+          "combi": "Droit et Economie | Msgn/ Mercatique",
+          "total": 30,
+          "filles": 19,
+          "garcons": 11,
+          "boursiers": 10,
+          "nonBoursiers": 20,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac STMG",
+          "combi": "Droit et Economie | Msgn/ Ressources humaines et communication",
+          "total": 10,
+          "filles": 7,
+          "garcons": 3,
+          "boursiers": 3,
+          "nonBoursiers": 7,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac STMG",
+          "combi": "Droit et Economie | Msgn/ Systèmes d'information et de Gestion",
+          "total": 3,
+          "filles": 3,
+          "garcons": 0,
+          "boursiers": 0,
+          "nonBoursiers": 3,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac ST2S",
+          "combi": "Chimie, biologie et physiopathologie humaines | Sciences et techniques sanitaires et sociales",
+          "total": 4,
+          "filles": 4,
+          "garcons": 0,
+          "boursiers": 3,
+          "nonBoursiers": 1,
+          "isTotal": false
+        },
+        {
+          "serie": "Bac Professionnel Agricole",
+          "combi": "Sans EDS",
+          "total": 12,
+          "filles": 9,
+          "garcons": 3,
+          "boursiers": 2,
+          "nonBoursiers": 10,
+          "isTotal": false
+        }
+      ]
+    }
+  ]
+}
