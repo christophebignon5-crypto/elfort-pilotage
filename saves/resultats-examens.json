@@ -1,0 +1,568 @@
+{
+  "version": "1.0",
+  "date": "2026-06-15T00:14:15.415Z",
+  "app": "Résultats Examens",
+  "data": {
+    "db": {
+      "cap": {
+        "2025": {
+          "rows": [
+            {
+              "name": "CAP ADAL AFAT",
+              "sector": "Service",
+              "v": [
+                12,
+                12,
+                100
+              ]
+            },
+            {
+              "name": "CAP ADAL TOUR",
+              "sector": "Service",
+              "v": [
+                10,
+                5,
+                50
+              ]
+            },
+            {
+              "name": "CAP EPC",
+              "sector": "Service",
+              "v": [
+                29,
+                13,
+                44.8
+              ]
+            },
+            {
+              "name": "CAP BOU",
+              "sector": "Alimentation",
+              "v": [
+                15,
+                9,
+                60
+              ]
+            },
+            {
+              "name": "CAP POI",
+              "sector": "Alimentation",
+              "v": [
+                14,
+                6,
+                42.9
+              ]
+            },
+            {
+              "name": "CAP PAT",
+              "sector": "Alimentation",
+              "v": [
+                10,
+                8,
+                80
+              ]
+            },
+            {
+              "name": "CAP MMVF",
+              "sector": "Production",
+              "v": [
+                10,
+                8,
+                80
+              ]
+            },
+            {
+              "name": "CAP MMVT",
+              "sector": "Production",
+              "v": [
+                11,
+                8,
+                72.7
+              ]
+            }
+          ],
+          "mentions": {
+            "TB": 1,
+            "B": 8,
+            "AB": 25
+          }
+        },
+        "2026": {
+          "rows": [
+            {
+              "name": "CAP ADAL AFAT",
+              "sector": "Service",
+              "v": [
+                10,
+                0,
+                0
+              ]
+            },
+            {
+              "name": "CAP ADAL TOUR",
+              "sector": "Service",
+              "v": [
+                12,
+                0,
+                0
+              ]
+            },
+            {
+              "name": "CAP EPC",
+              "sector": "Service",
+              "v": [
+                26,
+                0,
+                0
+              ]
+            },
+            {
+              "name": "CAP BOU",
+              "sector": "Alimentation",
+              "v": [
+                11,
+                0,
+                0
+              ]
+            },
+            {
+              "name": "CAP POI",
+              "sector": "Alimentation",
+              "v": [
+                12,
+                0,
+                0
+              ]
+            },
+            {
+              "name": "CAP MMVF",
+              "sector": "Production",
+              "v": [
+                12,
+                0,
+                0
+              ]
+            },
+            {
+              "name": "CAP MMVT",
+              "sector": "Production",
+              "v": [
+                12,
+                0,
+                0
+              ]
+            }
+          ],
+          "mentions": {
+            "TB": 0,
+            "B": 0,
+            "AB": 0
+          }
+        }
+      },
+      "bacpro": {
+        "2025": {
+          "rows": [
+            {
+              "name": "TP MA",
+              "sector": "Service",
+              "v": [
+                25,
+                15,
+                4,
+                6,
+                3,
+                72
+              ]
+            },
+            {
+              "name": "TP COMMERCE",
+              "sector": "Service",
+              "v": [
+                32,
+                17,
+                3,
+                12,
+                2,
+                59.4
+              ]
+            },
+            {
+              "name": "TP BOU",
+              "sector": "Alimentation",
+              "v": [
+                12,
+                4,
+                1,
+                7,
+                2,
+                50
+              ]
+            },
+            {
+              "name": "TP POI",
+              "sector": "Alimentation",
+              "v": [
+                13,
+                5,
+                4,
+                4,
+                4,
+                69.2
+              ]
+            },
+            {
+              "name": "TP MMV",
+              "sector": "Production",
+              "v": [
+                9,
+                7,
+                0,
+                2,
+                0,
+                77.8
+              ]
+            },
+            {
+              "name": "TP MET",
+              "sector": "Production",
+              "v": [
+                4,
+                4,
+                0,
+                0,
+                0,
+                100
+              ]
+            }
+          ],
+          "mentions": {
+            "TB": 1,
+            "B": 8,
+            "AB": 18
+          }
+        },
+        "2026": {
+          "rows": [
+            {
+              "name": "TP MA",
+              "sector": "Service",
+              "v": [
+                27,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "name": "TP COMMERCE",
+              "sector": "Service",
+              "v": [
+                23,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "name": "TP BOU",
+              "sector": "Alimentation",
+              "v": [
+                12,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "name": "TP POI",
+              "sector": "Alimentation",
+              "v": [
+                10,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "name": "TP MMV",
+              "sector": "Production",
+              "v": [
+                15,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "name": "TP MET",
+              "sector": "Production",
+              "v": [
+                6,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "mentions": {
+            "TB": 0,
+            "B": 0,
+            "AB": 0
+          }
+        }
+      },
+      "bacg": {
+        "2025": {
+          "rows": [
+            {
+              "name": "TG 1",
+              "sector": "Général",
+              "v": [
+                29,
+                23,
+                5,
+                1,
+                5,
+                96.6
+              ]
+            },
+            {
+              "name": "TG 2",
+              "sector": "Général",
+              "v": [
+                25,
+                22,
+                2,
+                1,
+                2,
+                96
+              ]
+            },
+            {
+              "name": "T STMG",
+              "sector": "Technologique",
+              "v": [
+                29,
+                16,
+                8,
+                5,
+                8,
+                82.8
+              ]
+            }
+          ],
+          "mentions": {
+            "TB": 0,
+            "B": 0,
+            "AB": 0
+          }
+        },
+        "2026": {
+          "rows": [
+            {
+              "name": "TG 1",
+              "sector": "Général",
+              "v": [
+                20,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "name": "TG 2",
+              "sector": "Général",
+              "v": [
+                20,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "name": "T STMG",
+              "sector": "Technologique",
+              "v": [
+                31,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "mentions": {
+            "TB": 0,
+            "B": 0,
+            "AB": 0
+          }
+        }
+      },
+      "bts": {
+        "2025": {
+          "rows": [
+            {
+              "name": "BTS Comm. Intern.",
+              "sector": "Tertiaire",
+              "v": [
+                12,
+                12,
+                0,
+                0,
+                0,
+                100
+              ]
+            },
+            {
+              "name": "BTS GTLA",
+              "sector": "Tertiaire",
+              "v": [
+                13,
+                6,
+                1,
+                5,
+                1,
+                53.8
+              ]
+            },
+            {
+              "name": "BTS TOURISME",
+              "sector": "Tertiaire",
+              "v": [
+                7,
+                1,
+                0,
+                6,
+                0,
+                14.3
+              ]
+            }
+          ],
+          "mentions": {
+            "TB": 0,
+            "B": 0,
+            "AB": 0
+          }
+        },
+        "2026": {
+          "rows": [
+            {
+              "name": "BTS Comm. Intern.",
+              "sector": "Tertiaire",
+              "v": [
+                13,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "name": "BTS GTLA",
+              "sector": "Tertiaire",
+              "v": [
+                8,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "name": "BTS TOURISME",
+              "sector": "Tertiaire",
+              "v": [
+                2,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "mentions": {
+            "TB": 0,
+            "B": 0,
+            "AB": 0
+          }
+        }
+      },
+      "cs": {
+        "2025": {
+          "rows": [
+            {
+              "name": "CS ERV",
+              "sector": "Service",
+              "v": [
+                7,
+                7,
+                100
+              ]
+            },
+            {
+              "name": "CS OR",
+              "sector": "Production",
+              "v": [
+                12,
+                10,
+                83.3
+              ]
+            }
+          ],
+          "mentions": null
+        },
+        "2026": {
+          "rows": [
+            {
+              "name": "CS ERV",
+              "sector": "Service",
+              "v": [
+                5,
+                0,
+                0
+              ]
+            },
+            {
+              "name": "CS OR",
+              "sector": "Production",
+              "v": [
+                12,
+                0,
+                0
+              ]
+            }
+          ],
+          "mentions": {
+            "TB": 0,
+            "B": 0,
+            "AB": 0
+          }
+        }
+      }
+    },
+    "settings": {
+      "name": "LPO MANA",
+      "subtitle": "Tableau de bord des résultats par diplôme"
+    }
+  }
+}
