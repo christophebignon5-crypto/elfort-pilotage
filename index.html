@@ -674,7 +674,11 @@ document.querySelectorAll('.btn-launch').forEach(function (a) {
       );
       if (!putRes.ok) {
         var e = await putRes.json();
-        throw new Error(e.message || ('HTTP ' + putRes.status));
+        var detail = e.message || ('HTTP ' + putRes.status);
+        if (e.errors && e.errors.length) {
+          detail += ' :: ' + e.errors.map(function(x){ return x.message || JSON.stringify(x); }).join(' | ');
+        }
+        throw new Error(detail);
       }
       localStorage.setItem(SYNC_KEY, new Date().toISOString());
       updateMeta();
