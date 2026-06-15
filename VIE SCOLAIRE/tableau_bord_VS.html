@@ -324,7 +324,7 @@ function saveToGithub(payload, ghPath, label) {
       return fetch(url, { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, headers), body: JSON.stringify(body) });
     })
     .then(function(r) {
-      if (!r.ok) return r.json().then(function(e) { throw new Error(e.message || r.statusText); });
+      if (!r.ok) return r.json().then(function(e) { throw new Error((e.message || r.statusText) + (e.errors ? (' :: ' + e.errors.map(function(x){ return x.message || JSON.stringify(x); }).join(' | ')) : '')); });
       return r.json();
     });
 }

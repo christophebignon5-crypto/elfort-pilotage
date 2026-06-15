@@ -517,7 +517,7 @@ function saveToGithub(payload, ghPath, label){
       if(existing && existing.sha) body.sha = existing.sha;
       return fetch(url,{method:'PUT',headers:Object.assign({'Content-Type':'application/json'},headers),body:JSON.stringify(body)});
     })
-    .then(r=>{ if(!r.ok) return r.json().then(e=>{throw new Error(e.message||r.statusText)}); return r.json(); });
+    .then(r=>{ if(!r.ok) return r.json().then(e=>{throw new Error((e.message||r.statusText) + (e.errors?(' :: '+e.errors.map(x=>x.message||JSON.stringify(x)).join(' | ')):''))}); return r.json(); });
 }
 function saveResultatsToGithub(){
   const msg = document.getElementById('gh-msg');
