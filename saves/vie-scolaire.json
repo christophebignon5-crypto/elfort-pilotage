@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "date": "2026-06-15T00:13:23.608Z",
+  "date": "2026-06-20T19:52:54.529Z",
   "app": "Vie Scolaire",
   "data": {
     "annees": {
@@ -959,7 +959,271 @@
             "tr3": 9.8,
             "moy": 8.3
           }
-        ]
+        ],
+        "structure": {
+          "classes": [
+            {
+              "nom": "1 G1",
+              "effectif": 28,
+              "niveau": "1ERE"
+            },
+            {
+              "nom": "1 G2",
+              "effectif": 29,
+              "niveau": "1ERE"
+            },
+            {
+              "nom": "1 STMG",
+              "effectif": 32,
+              "niveau": "1ERE"
+            },
+            {
+              "nom": "1BTS CI",
+              "effectif": 10,
+              "niveau": "1BTS"
+            },
+            {
+              "nom": "1BTS GTL",
+              "effectif": 9,
+              "niveau": "1BTS"
+            },
+            {
+              "nom": "1BTS TOUR",
+              "effectif": 10,
+              "niveau": "1BTS"
+            },
+            {
+              "nom": "1CAP AFAT",
+              "effectif": 15,
+              "niveau": "CAP1"
+            },
+            {
+              "nom": "1CAP BOU",
+              "effectif": 12,
+              "niveau": "CAP1"
+            },
+            {
+              "nom": "1CAP EPC1",
+              "effectif": 15,
+              "niveau": "CAP1"
+            },
+            {
+              "nom": "1CAP EPC2",
+              "effectif": 14,
+              "niveau": "CAP1"
+            },
+            {
+              "nom": "1CAP MVF",
+              "effectif": 13,
+              "niveau": "CAP1"
+            },
+            {
+              "nom": "1CAP MVT",
+              "effectif": 12,
+              "niveau": "CAP1"
+            },
+            {
+              "nom": "1CAP POI",
+              "effectif": 13,
+              "niveau": "CAP1"
+            },
+            {
+              "nom": "1CAP TOUR",
+              "effectif": 14,
+              "niveau": "CAP1"
+            },
+            {
+              "nom": "1P BOU",
+              "effectif": 10,
+              "niveau": "1ERE"
+            },
+            {
+              "nom": "1P MA",
+              "effectif": 28,
+              "niveau": "1ERE"
+            },
+            {
+              "nom": "1P MCC",
+              "effectif": 12,
+              "niveau": "1ERE"
+            },
+            {
+              "nom": "1P MCV",
+              "effectif": 30,
+              "niveau": "1ERE"
+            },
+            {
+              "nom": "1P MET",
+              "effectif": 10,
+              "niveau": "1ERE"
+            },
+            {
+              "nom": "1P POI",
+              "effectif": 10,
+              "niveau": "1ERE"
+            },
+            {
+              "nom": "2 GT1",
+              "effectif": 24,
+              "niveau": "2NDE"
+            },
+            {
+              "nom": "2 GT2",
+              "effectif": 23,
+              "niveau": "2NDE"
+            },
+            {
+              "nom": "2 GT3",
+              "effectif": 23,
+              "niveau": "2NDE"
+            },
+            {
+              "nom": "2 GT4",
+              "effectif": 22,
+              "niveau": "2NDE"
+            },
+            {
+              "nom": "2P ALIM",
+              "effectif": 21,
+              "niveau": "2NDE"
+            },
+            {
+              "nom": "2P MCC",
+              "effectif": 12,
+              "niveau": "2NDE"
+            },
+            {
+              "nom": "2P MET",
+              "effectif": 9,
+              "niveau": "2NDE"
+            },
+            {
+              "nom": "2P MRC1",
+              "effectif": 29,
+              "niveau": "2NDE"
+            },
+            {
+              "nom": "2P MRC2",
+              "effectif": 30,
+              "niveau": "2NDE"
+            },
+            {
+              "nom": "CS ERV",
+              "effectif": 7,
+              "niveau": "MC3"
+            },
+            {
+              "nom": "CS OR",
+              "effectif": 12,
+              "niveau": "MC4"
+            },
+            {
+              "nom": "T G1",
+              "effectif": 20,
+              "niveau": "TERMINALE"
+            },
+            {
+              "nom": "T G2",
+              "effectif": 20,
+              "niveau": "TERMINALE"
+            },
+            {
+              "nom": "T STMG",
+              "effectif": 31,
+              "niveau": "TERMINALE"
+            },
+            {
+              "nom": "TBTS CI",
+              "effectif": 13,
+              "niveau": "2BTS"
+            },
+            {
+              "nom": "TBTS GTL",
+              "effectif": 8,
+              "niveau": "2BTS"
+            },
+            {
+              "nom": "TBTS TOU",
+              "effectif": 2,
+              "niveau": "2BTS"
+            },
+            {
+              "nom": "TCAP AFAT",
+              "effectif": 10,
+              "niveau": "CAP2"
+            },
+            {
+              "nom": "TCAP BOU",
+              "effectif": 11,
+              "niveau": "CAP2"
+            },
+            {
+              "nom": "TCAP EPC1",
+              "effectif": 14,
+              "niveau": "CAP2"
+            },
+            {
+              "nom": "TCAP EPC2",
+              "effectif": 14,
+              "niveau": "CAP2"
+            },
+            {
+              "nom": "TCAP MVF",
+              "effectif": 12,
+              "niveau": "CAP2"
+            },
+            {
+              "nom": "TCAP MVT",
+              "effectif": 12,
+              "niveau": "CAP2"
+            },
+            {
+              "nom": "TCAP POI",
+              "effectif": 12,
+              "niveau": "CAP2"
+            },
+            {
+              "nom": "TCAP TOUR",
+              "effectif": 12,
+              "niveau": "CAP2"
+            },
+            {
+              "nom": "TP BOU",
+              "effectif": 12,
+              "niveau": "TERMINALE"
+            },
+            {
+              "nom": "TP MA",
+              "effectif": 30,
+              "niveau": "TERMINALE"
+            },
+            {
+              "nom": "TP MCV",
+              "effectif": 23,
+              "niveau": "TERMINALE"
+            },
+            {
+              "nom": "TP MET",
+              "effectif": 6,
+              "niveau": "TERMINALE"
+            },
+            {
+              "nom": "TP MMV",
+              "effectif": 15,
+              "niveau": "TERMINALE"
+            },
+            {
+              "nom": "TP POI",
+              "effectif": 10,
+              "niveau": "TERMINALE"
+            },
+            {
+              "nom": "U EXTER",
+              "effectif": 7,
+              "niveau": "CAP1"
+            }
+          ]
+        }
       },
       "2024-2025": {
         "annee": "2024-2025",
@@ -2085,9 +2349,273 @@
             "tr3": 13.3,
             "moy": 9.7
           }
-        ]
+        ],
+        "structure": {
+          "classes": [
+            {
+              "nom": "1 G1",
+              "effectif": 21,
+              "niveau": "1ERE"
+            },
+            {
+              "nom": "1 G2",
+              "effectif": 20,
+              "niveau": "1ERE"
+            },
+            {
+              "nom": "1 STMG",
+              "effectif": 27,
+              "niveau": "1ERE"
+            },
+            {
+              "nom": "1BTS CI",
+              "effectif": 14,
+              "niveau": "1BTS"
+            },
+            {
+              "nom": "1BTS GTL",
+              "effectif": 10,
+              "niveau": "1BTS"
+            },
+            {
+              "nom": "1CAP AFAT",
+              "effectif": 15,
+              "niveau": "CAP1"
+            },
+            {
+              "nom": "1CAP BOU",
+              "effectif": 15,
+              "niveau": "CAP1"
+            },
+            {
+              "nom": "1CAP EPC1",
+              "effectif": 16,
+              "niveau": "CAP1"
+            },
+            {
+              "nom": "1CAP EPC2",
+              "effectif": 16,
+              "niveau": "CAP1"
+            },
+            {
+              "nom": "1CAP MVF",
+              "effectif": 13,
+              "niveau": "CAP1"
+            },
+            {
+              "nom": "1CAP MVT",
+              "effectif": 14,
+              "niveau": "CAP1"
+            },
+            {
+              "nom": "1CAP POI",
+              "effectif": 15,
+              "niveau": "CAP1"
+            },
+            {
+              "nom": "1CAP TOUR",
+              "effectif": 16,
+              "niveau": "CAP1"
+            },
+            {
+              "nom": "1P BOU",
+              "effectif": 15,
+              "niveau": "1ERE"
+            },
+            {
+              "nom": "1P MA",
+              "effectif": 32,
+              "niveau": "1ERE"
+            },
+            {
+              "nom": "1P MCV",
+              "effectif": 32,
+              "niveau": "1ERE"
+            },
+            {
+              "nom": "1P MET",
+              "effectif": 9,
+              "niveau": "1ERE"
+            },
+            {
+              "nom": "1P MMV",
+              "effectif": 15,
+              "niveau": "1ERE"
+            },
+            {
+              "nom": "1P POI",
+              "effectif": 12,
+              "niveau": "1ERE"
+            },
+            {
+              "nom": "2 GT1",
+              "effectif": 31,
+              "niveau": "2NDE"
+            },
+            {
+              "nom": "2 GT2",
+              "effectif": 32,
+              "niveau": "2NDE"
+            },
+            {
+              "nom": "2 GT3",
+              "effectif": 31,
+              "niveau": "2NDE"
+            },
+            {
+              "nom": "2 GT4",
+              "effectif": 32,
+              "niveau": "2NDE"
+            },
+            {
+              "nom": "2P ALIM",
+              "effectif": 23,
+              "niveau": "2NDE"
+            },
+            {
+              "nom": "2P MCC",
+              "effectif": 15,
+              "niveau": "2NDE"
+            },
+            {
+              "nom": "2P MET",
+              "effectif": 7,
+              "niveau": "2NDE"
+            },
+            {
+              "nom": "2P MRC1",
+              "effectif": 30,
+              "niveau": "2NDE"
+            },
+            {
+              "nom": "2P MRC2",
+              "effectif": 30,
+              "niveau": "2NDE"
+            },
+            {
+              "nom": "CS ERV",
+              "effectif": 8,
+              "niveau": "MC3"
+            },
+            {
+              "nom": "CS OR",
+              "effectif": 13,
+              "niveau": "MC4"
+            },
+            {
+              "nom": "T G1",
+              "effectif": 29,
+              "niveau": "TERMINALE"
+            },
+            {
+              "nom": "T G2",
+              "effectif": 25,
+              "niveau": "TERMINALE"
+            },
+            {
+              "nom": "T STMG",
+              "effectif": 30,
+              "niveau": "TERMINALE"
+            },
+            {
+              "nom": "TBTS CI",
+              "effectif": 13,
+              "niveau": "2BTS"
+            },
+            {
+              "nom": "TBTS GTL",
+              "effectif": 13,
+              "niveau": "2BTS"
+            },
+            {
+              "nom": "TBTS TOUR",
+              "effectif": 8,
+              "niveau": "2BTS"
+            },
+            {
+              "nom": "TCAP AFAT",
+              "effectif": 12,
+              "niveau": "CAP2"
+            },
+            {
+              "nom": "TCAP BOU",
+              "effectif": 15,
+              "niveau": "CAP2"
+            },
+            {
+              "nom": "TCAP EPC1",
+              "effectif": 14,
+              "niveau": "CAP2"
+            },
+            {
+              "nom": "TCAP EPC2",
+              "effectif": 15,
+              "niveau": "CAP2"
+            },
+            {
+              "nom": "TCAP MVF",
+              "effectif": 10,
+              "niveau": "CAP2"
+            },
+            {
+              "nom": "TCAP MVT",
+              "effectif": 11,
+              "niveau": "CAP2"
+            },
+            {
+              "nom": "TCAP PAT",
+              "effectif": 10,
+              "niveau": "CAP2"
+            },
+            {
+              "nom": "TCAP POI",
+              "effectif": 14,
+              "niveau": "CAP2"
+            },
+            {
+              "nom": "TCAP TOUR",
+              "effectif": 10,
+              "niveau": "CAP2"
+            },
+            {
+              "nom": "TP BOU",
+              "effectif": 12,
+              "niveau": "TERMINALE"
+            },
+            {
+              "nom": "TP MA",
+              "effectif": 25,
+              "niveau": "TERMINALE"
+            },
+            {
+              "nom": "TP MCV",
+              "effectif": 32,
+              "niveau": "TERMINALE"
+            },
+            {
+              "nom": "TP MET",
+              "effectif": 4,
+              "niveau": "TERMINALE"
+            },
+            {
+              "nom": "TP MMV",
+              "effectif": 9,
+              "niveau": "TERMINALE"
+            },
+            {
+              "nom": "TP POI",
+              "effectif": 13,
+              "niveau": "TERMINALE"
+            },
+            {
+              "nom": "U EXTER",
+              "effectif": 6,
+              "niveau": "CAP1"
+            }
+          ]
+        }
       }
     },
-    "active": "2024-2025"
+    "active": "2025-2026"
   }
 }
