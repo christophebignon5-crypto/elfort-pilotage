@@ -289,6 +289,62 @@ function parseExcel(buf) {
   };
 }
 
+/* ─── PARSEUR STRUCTURE & EFFECTIFS ─── */
+/* Normalise (minuscules + sans accents) pour comparer les en-têtes */
+function norm(s) {
+  return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+/* Construit un chercheur de colonne : toutes les keywords doivent figurer dans l'en-tête */
+function makeColFinder(hdr) {
+  var H = hdr.map(function(h) { return h == null ? '' : norm(h); });
+  return function() {
+    var kws = Array.prototype.slice.call(arguments).map(norm);
+    for (var i = 0; i < H.length; i++) {
+      if (!H[i]) continue;
+      var ok = kws.every(function(k) { return H[i].indexOf(k) !== -1; });
+      if (ok) return i;
+    }
+    return -1;
+  };
+}
+/* Squelette d'année vide (pour une année connue uniquement via la structure) */
+function emptyAnnee(annee) {
+  return {
+    annee: annee, tauxMensuel: [], sanctions: [], sanctTotaux: {},
+    sanctActiveKeys: [], elevesConc: 0, absEns: [], absFil: [], absGar: [],
+  };
+}
+/* Lit un classeur "structure et effectif" : une feuille par année (ex. 2024-2025),
+   chaque ligne = une classe. Ne conserve que Nom, Effectif et Niveau.
+   Retourne { annee: { classes:[...] } }. */
+function parseStructure(buf) {
+  var wb = XLSX.read(buf, { type: 'array', cellDates: true });
+  var result = {};
+  wb.SheetNames.forEach(function(name) {
+    var m = name.match(/(\d{4})-(\d{4})/);
+    if (!m) return;
+    var annee = m[1] + '-' + m[2];
+    var rows = XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1, defval: null });
+    if (!rows.length) return;
+    var f = makeColFinder(rows[0] || []);
+    var cNom = f('nom'), cEff = f('effectif'), cNiv = f('niveau');
+    var classes = [];
+    for (var i = 1; i < rows.length; i++) {
+      var r = rows[i];
+      if (cNom < 0 || r[cNom] == null || typeof r[cNom] !== 'string') continue;
+      var nom = String(r[cNom]).trim();
+      if (!nom || nom.toLowerCase() === 'total') continue;
+      classes.push({
+        nom: nom,
+        effectif: cEff >= 0 ? (Number(r[cEff]) || 0) : 0,
+        niveau: cNiv >= 0 && r[cNiv] != null ? String(r[cNiv]).trim() : '',
+      });
+    }
+    if (classes.length) result[annee] = { classes: classes };
+  });
+  return result;
+}
+
 /* ─── STOCKAGE ─── */
 var STORAGE_KEY = 'viescolaire_elfort_v1';
 function loadSt() {
@@ -334,9 +390,23 @@ var INIT = { annees: {}, active: null, tab: 'synthese' };
 function reducer(st, a) {
   if (a.type === 'ADD') {
     var annees = Object.assign({}, st.annees);
-    annees[a.d.annee] = a.d;
+    var prev = annees[a.d.annee];
+    /* Conserve une éventuelle structure déjà importée pour cette année */
+    annees[a.d.annee] = (prev && prev.structure)
+      ? Object.assign({}, a.d, { structure: prev.structure })
+      : a.d;
     saveSt({ annees: annees, active: a.d.annee });
     return Object.assign({}, st, { annees: annees, active: a.d.annee });
+  }
+  if (a.type === 'ADD_STRUCT') {
+    var annS = Object.assign({}, st.annees);
+    Object.keys(a.struct).forEach(function(an) {
+      var base = annS[an] || emptyAnnee(an);
+      annS[an] = Object.assign({}, base, { structure: a.struct[an] });
+    });
+    var actS = (st.active && annS[st.active]) ? st.active : (Object.keys(annS)[0] || null);
+    saveSt({ annees: annS, active: actS });
+    return Object.assign({}, st, { annees: annS, active: actS });
   }
   if (a.type === 'SET_ACTIVE') {
     saveSt({ annees: st.annees, active: a.v });
@@ -1003,11 +1073,130 @@ function TabComparaison(props) {
   );
 }
 
+/* ══ STRUCTURE & EFFECTIFS ══ */
+/* Ordre logique d'affichage des niveaux */
+var NIV_ORDER = ['2NDE','1ERE','TERMINALE','CAP1','CAP2','MC3','MC4','1BTS','2BTS'];
+function nivRank(n) { var i = NIV_ORDER.indexOf(n); return i === -1 ? 99 : i; }
+
+function TabStructure(props) {
+  var d = props.d;
+  if (!d) return React.createElement(Empty, null);
+  if (!d.structure || !d.structure.classes || !d.structure.classes.length) {
+    return (
+      <div className="empty">
+        <div className="icon">👥</div>
+        <h3>Aucune donnée de structure pour {d.annee}</h3>
+        <p>Cliquez sur "Importer Structure" dans la barre d'outils et sélectionnez le fichier
+        « structure et effectif.xlsx » (une feuille par année scolaire).</p>
+      </div>
+    );
+  }
+
+  var cl = d.structure.classes;
+  var totEff = cl.reduce(function(s, c) { return s + (c.effectif || 0); }, 0);
+  var nbCl = cl.length;
+
+  /* Agrégation par niveau */
+  var nivMap = {};
+  cl.forEach(function(c) {
+    var n = c.niveau || '—';
+    if (!nivMap[n]) nivMap[n] = { niveau: n, effectif: 0, classes: 0 };
+    nivMap[n].effectif += c.effectif; nivMap[n].classes += 1;
+  });
+  var parNiveau = Object.values(nivMap).sort(function(a, b) { return nivRank(a.niveau) - nivRank(b.niveau); });
+
+  /* Effectif par classe (trié décroissant) */
+  var parClasse = cl.slice().sort(function(a, b) { return b.effectif - a.effectif; });
+
+  return (
+    <div>
+      <div className="kpi-grid">
+        <div className="kpi-card" style={{borderLeftColor:'#1565c0'}}>
+          <span className="kpi-label">Effectif total</span>
+          <span className="kpi-value" style={{color:'#1565c0'}}>{totEff}</span>
+          <span className="kpi-sub">{nbCl} classes — {d.annee}</span>
+        </div>
+        <div className="kpi-card" style={{borderLeftColor:'#7b1fa2'}}>
+          <span className="kpi-label">Nombre de niveaux</span>
+          <span className="kpi-value" style={{color:'#7b1fa2'}}>{parNiveau.length}</span>
+          <span className="kpi-sub">{parNiveau.map(function(n){return n.niveau;}).join(', ')}</span>
+        </div>
+        <div className="kpi-card" style={{borderLeftColor:'#2e7d32'}}>
+          <span className="kpi-label">Effectif moyen / classe</span>
+          <span className="kpi-value" style={{color:'#2e7d32'}}>{nbCl ? r1(totEff / nbCl) : 0}</span>
+          <span className="kpi-sub">{nbCl} classes</span>
+        </div>
+      </div>
+
+      <div className="grid-2">
+        <ChartCard title={"Effectif par niveau — " + d.annee}>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={parNiveau} margin={{top:5,right:20,bottom:5,left:0}}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+              <XAxis dataKey="niveau" tick={{fontSize:11}} />
+              <YAxis tick={{fontSize:11}} allowDecimals={false} />
+              <Tooltip />
+              <Bar dataKey="effectif" name="Effectif" radius={[4,4,0,0]}>
+                {parNiveau.map(function(_, i) { return <Cell key={i} fill={PALETTE[i % PALETTE.length]} />; })}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+        <ChartCard title={"Effectif par classe — " + d.annee}>
+          <ResponsiveContainer width="100%" height={Math.max(280, parClasse.length * 18)}>
+            <BarChart data={parClasse} layout="vertical" margin={{top:5,right:20,bottom:5,left:70}}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+              <XAxis type="number" tick={{fontSize:11}} allowDecimals={false} />
+              <YAxis dataKey="nom" type="category" tick={{fontSize:10}} width={70} interval={0} />
+              <Tooltip />
+              <Bar dataKey="effectif" name="Effectif" fill="#1565c0" radius={[0,4,4,0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+      </div>
+
+      <div className="card">
+        <div className="card-title">Détail par classe — {d.annee}</div>
+        <div style={{overflowX:'auto'}}>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Nom</th><th>Niveau</th>
+                <th style={{textAlign:'center'}}>Effectif</th>
+              </tr>
+            </thead>
+            <tbody>
+              {cl.slice().sort(function(a, b) {
+                var r = nivRank(a.niveau) - nivRank(b.niveau);
+                return r !== 0 ? r : a.nom.localeCompare(b.nom);
+              }).map(function(c, i) {
+                return (
+                  <tr key={i}>
+                    <td><strong>{c.nom}</strong></td>
+                    <td>{c.niveau || '-'}</td>
+                    <td style={{textAlign:'center',fontWeight:700}}>{c.effectif || '-'}</td>
+                  </tr>
+                );
+              })}
+              <tr style={{background:'#f0f4f8',fontWeight:700}}>
+                <td colSpan={2}>TOTAL — {nbCl} classes</td>
+                <td style={{textAlign:'center'}}>{totEff}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 /* ══ GUIDE ══ */
 function TabGuide() {
   var steps = [
     { title: "Importer un fichier Excel", text: "Cliquez sur \"Importer Excel\" dans la barre d'outils. Selectionnez le fichier .xlsx de l'annee scolaire (ex : \"vie scolaire.xlsx\"). Le fichier doit contenir les feuilles TAUX, SANCTIONS et les feuilles d'absences par niveau. Les donnees sont extraites et affichees automatiquement." },
-    { title: "Naviguer entre les onglets", text: "\"Synthese\" = indicateurs cles. \"Absences mensuelles\" = taux mois par mois, just./non-just., genre, duree. \"Par niveau & genre\" = comparaison filles/garcons par niveau et trimestre. \"Sanctions\" = detail par type et par classe. \"Comparaison\" = evolution inter-annees. \"Guide\" = cette aide." },
+    { title: "Importer la structure et les effectifs", text: "Cliquez sur \"Importer Structure\" et selectionnez le fichier \"structure et effectif.xlsx\". Ce fichier contient une feuille par annee scolaire (ex : 2024-2025, 2025-2026), chaque ligne etant une classe. Seules les colonnes Nom, Effectif et Niveau sont utilisees. Les effectifs sont rattaches automatiquement a l'annee correspondante (creee si besoin) et affiches dans l'onglet \"Structure & Effectifs\"." },
+    { title: "Naviguer entre les onglets", text: "\"Synthese\" = indicateurs cles. \"Absences mensuelles\" = taux mois par mois, just./non-just., genre, duree. \"Par niveau & genre\" = comparaison filles/garcons par niveau et trimestre. \"Structure & Effectifs\" = effectif total et effectif par niveau et par classe. \"Sanctions\" = detail par type et par classe. \"Comparaison\" = evolution inter-annees. \"Guide\" = cette aide." },
     { title: "Changer l'annee affichee", text: "Si plusieurs annees sont importees, des boutons apparaissent dans la barre d'outils. Cliquez sur l'annee souhaitee pour basculer la vue." },
     { title: "Comparer les annees", text: "Importez un fichier Excel par annee scolaire. Rendez-vous dans l'onglet \"Comparaison\" pour les graphiques superposes. Au moins 2 annees sont necessaires." },
     { title: "Sauvegarder les donnees", text: "Cliquez sur \"Sauvegarder\" pour telecharger un fichier .json contenant toutes les annees importees. Le navigateur conserve aussi une copie locale automatiquement." },
@@ -1023,6 +1212,7 @@ function TabGuide() {
     ["Duree moyenne d'absence", "Nombre moyen de demi-journees consecutives par periode d'absence.", "Feuille TAUX — col. Duree moy. absence"],
     ["Taux par niveau (trimestriel)", "Taux d'absence trimestriel par niveau et genre, issu de PRONOTE.", "Feuilles Absence Fille-Garcon, Fille, Garcon"],
     ["Sanctions", "Nombre de chaque type de sanction par classe.", "Feuille SANCTIONS"],
+    ["Structure & Effectifs", "Effectif total, effectif par niveau et par classe.", "Fichier 'structure et effectif.xlsx' — colonnes Nom, Effectif, Niveau ; une feuille par annee (ex. 2024-2025)"],
   ];
 
   return (
@@ -1126,6 +1316,38 @@ function App() {
           notify('Annee ' + d.annee + ' importee avec succes', 'success');
         } catch(err) {
           notify('Erreur import : ' + err.message, 'error');
+          console.error(err);
+        }
+        setImporting(false);
+      };
+      reader.readAsArrayBuffer(f);
+    };
+    inp.click();
+  }
+
+  function importStructure() {
+    var inp = document.getElementById('file-input');
+    inp.accept = '.xlsx';
+    inp.value = '';
+    inp.onchange = function(e) {
+      var f = e.target.files[0];
+      if (!f) return;
+      setImporting(true);
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        try {
+          var buf = new Uint8Array(ev.target.result);
+          var struct = parseStructure(buf);
+          var keys = Object.keys(struct);
+          if (!keys.length) {
+            notify('Aucune feuille annuelle (ex. 2024-2025) trouvee dans ce fichier', 'error');
+          } else {
+            dispatch({ type: 'ADD_STRUCT', struct: struct });
+            dispatch({ type: 'SET_TAB', v: 'structure' });
+            notify('Structure importee : ' + keys.join(', '), 'success');
+          }
+        } catch(err) {
+          notify('Erreur import structure : ' + err.message, 'error');
           console.error(err);
         }
         setImporting(false);
@@ -1344,6 +1566,7 @@ function App() {
     { id: 'synthese',    lbl: 'Synthese' },
     { id: 'mensuel',     lbl: 'Absences mensuelles' },
     { id: 'niveaux',     lbl: 'Par niveau & genre' },
+    { id: 'structure',   lbl: 'Structure & Effectifs' },
     { id: 'sanctions',   lbl: 'Sanctions' },
     { id: 'comparaison', lbl: 'Comparaison' },
     { id: 'guide',       lbl: 'Guide' },
@@ -1372,6 +1595,9 @@ function App() {
       <div className="toolbar">
         <button className="btn btn-primary" onClick={importExcel} disabled={importing}>
           {importing ? 'Importation...' : 'Importer Excel'}
+        </button>
+        <button className="btn btn-outline" style={{borderColor:'#2e7d32',color:'#2e7d32'}} onClick={importStructure} disabled={importing} title="Importer le fichier structure et effectif.xlsx (une feuille par annee)">
+          👥 Importer Structure
         </button>
         <button className="btn btn-outline" onClick={loadJSON}>Charger</button>
         {years.length > 0 && (
@@ -1451,6 +1677,7 @@ function App() {
         {st.tab === 'synthese'    && <TabSynthese d={data} />}
         {st.tab === 'mensuel'     && <TabMensuel d={data} view={mensuelView} onView={setMensuelView} />}
         {st.tab === 'niveaux'     && <TabNiveaux d={data} tri={niveauxTri} onTri={setNiveauxTri} vue={niveauxVue} onVue={setNiveauxVue} />}
+        {st.tab === 'structure'   && <TabStructure d={data} />}
         {st.tab === 'sanctions'   && <TabSanctions d={data} />}
         {st.tab === 'comparaison' && <TabComparaison annees={st.annees} />}
         {st.tab === 'guide'       && <TabGuide />}
