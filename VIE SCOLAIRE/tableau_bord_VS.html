@@ -968,6 +968,10 @@ function TabComparaison(props) {
     );
   }
 
+  function effTot(a) {
+    return (a.structure && a.structure.classes)
+      ? a.structure.classes.reduce(function(s, c) { return s + (c.effectif || 0); }, 0) : 0;
+  }
   var resume = years.map(function(y, i) {
     var a = annees[y];
     return {
@@ -975,6 +979,7 @@ function TabComparaison(props) {
       tauxMoy: a.tauxMensuel.length ? r1(a.tauxMensuel.reduce(function(s, m) { return s + m.tauxAbs; }, 0) / a.tauxMensuel.length) : 0,
       totSanct: Object.values(a.sanctTotaux).reduce(function(s, v) { return s + v; }, 0),
       elevesConc: a.elevesConc,
+      effectif: effTot(a),
       color: PALETTE[i % PALETTE.length],
     };
   });
@@ -1011,6 +1016,48 @@ function TabComparaison(props) {
     return e;
   });
 
+  /* ── COMPARAISON DES EFFECTIFS (structure) ── */
+  var structYears = years.filter(function(y) {
+    var s = annees[y].structure;
+    return s && s.classes && s.classes.length;
+  });
+  var hasStruct = structYears.length > 0;
+
+  /* Effectif total + nombre de classes par année */
+  var effComp = years.map(function(y, i) {
+    var s = annees[y].structure;
+    var cls = (s && s.classes) ? s.classes : [];
+    return {
+      annee: y,
+      effectif: cls.reduce(function(t, c) { return t + (c.effectif || 0); }, 0),
+      classes: cls.length,
+      color: PALETTE[i % PALETTE.length],
+    };
+  });
+
+  /* Effectif par niveau, comparé entre années */
+  var allNivStruct = [];
+  structYears.forEach(function(y) {
+    annees[y].structure.classes.forEach(function(c) {
+      var n = c.niveau || '—';
+      if (allNivStruct.indexOf(n) === -1) allNivStruct.push(n);
+    });
+  });
+  allNivStruct.sort(function(a, b) { return nivRank(a) - nivRank(b); });
+  var effNivComp = allNivStruct.map(function(niv) {
+    var e = { niveau: niv };
+    years.forEach(function(y) {
+      var s = annees[y].structure;
+      if (s && s.classes) {
+        var tot = s.classes.reduce(function(t, c) {
+          return t + ((c.niveau || '—') === niv ? (c.effectif || 0) : 0);
+        }, 0);
+        e[y] = tot || null;
+      } else { e[y] = null; }
+    });
+    return e;
+  });
+
   return (
     <div>
       <div className="kpi-grid">
@@ -1019,7 +1066,7 @@ function TabComparaison(props) {
             <div key={r.annee} className="kpi-card" style={{borderLeftColor:r.color}}>
               <span className="kpi-label">{r.annee}</span>
               <span className="kpi-value" style={{color:r.color}}>{r.tauxMoy}%</span>
-              <span className="kpi-sub">Taux moy. | {r.totSanct} sanctions | {r.elevesConc} eleves conc.</span>
+              <span className="kpi-sub">Taux moy. | {r.totSanct} sanctions | {r.elevesConc} eleves conc.{r.effectif > 0 ? ' | Effectif ' + r.effectif : ''}</span>
             </div>
           );
         })}
@@ -1069,6 +1116,45 @@ function TabComparaison(props) {
           </ResponsiveContainer>
         </ChartCard>
       </div>
+
+      {hasStruct ? (
+        <div className="grid-2">
+          <ChartCard title="Effectif total compare">
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={effComp} margin={{top:5,right:30,bottom:5,left:0}}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                <XAxis dataKey="annee" tick={{fontSize:11}} />
+                <YAxis tick={{fontSize:11}} allowDecimals={false} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="effectif" name="Effectif total" radius={[4,4,0,0]}>
+                  {effComp.map(function(r, i) { return <Cell key={i} fill={r.color} />; })}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+          <ChartCard title="Effectif par niveau compare">
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={effNivComp} margin={{top:5,right:30,bottom:5,left:0}}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                <XAxis dataKey="niveau" tick={{fontSize:11}} />
+                <YAxis tick={{fontSize:11}} allowDecimals={false} />
+                <Tooltip />
+                <Legend />
+                {years.map(function(y, i) {
+                  return <Bar key={y} dataKey={y} name={y} fill={PALETTE[i % PALETTE.length]} radius={[4,4,0,0]} />;
+                })}
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+        </div>
+      ) : (
+        <div className="card">
+          <div className="alert alert-warn">
+            Aucun effectif a comparer. Importez le fichier « structure et effectif.xlsx » via le bouton « Importer Structure » pour activer les graphiques d'effectifs.
+          </div>
+        </div>
+      )}
     </div>
   );
 }
