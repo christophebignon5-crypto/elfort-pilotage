@@ -367,31 +367,6 @@ const saveData = data => {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e){}
 };
 
-// ===== SAUVEGARDE GITHUB (partagée avec le Hub) =====
-const GH_USER='christophebignon5-crypto', GH_REPO='elfort-pilotage', GH_PAT_KEY='_hub_elfort_pat';
-function ghToB64(str){ return btoa(unescape(encodeURIComponent(str))); }
-function saveToGithub(payload, ghPath, label){
-  let token = localStorage.getItem(GH_PAT_KEY) || '';
-  if(!token){
-    token = prompt('Token d\'accès GitHub (Personal Access Token classique, droit "repo") :\n\nCréez-le sur github.com/settings/tokens/new\nIl sera mémorisé sur cet appareil et partagé avec le Hub et les autres applications.');
-    if(!token) return Promise.reject(new Error('Token requis'));
-    token = token.trim();
-    if(!token) return Promise.reject(new Error('Token requis'));
-    localStorage.setItem(GH_PAT_KEY, token);
-  }
-  const content = ghToB64(JSON.stringify({version:'1.0',date:new Date().toISOString(),app:label,data:payload}, null, 2));
-  const url = 'https://api.github.com/repos/'+GH_USER+'/'+GH_REPO+'/contents/'+ghPath;
-  const headers = {'Authorization':'token '+token,'Accept':'application/vnd.github+json'};
-  return fetch(url+'?ref=main',{headers:headers})
-    .then(r=> r.status===200 ? r.json() : null)
-    .then(existing=>{
-      const body = {message:'Sauvegarde '+label+' - '+new Date().toLocaleString('fr-FR'), content:content, branch:'main'};
-      if(existing && existing.sha) body.sha = existing.sha;
-      return fetch(url,{method:'PUT',headers:Object.assign({'Content-Type':'application/json'},headers),body:JSON.stringify(body)});
-    })
-    .then(r=>{ if(!r.ok) return r.json().then(e=>{throw new Error((e.message||r.statusText) + (e.errors?(' :: '+e.errors.map(x=>x.message||JSON.stringify(x)).join(' | ')):''))}); return r.json(); });
-}
-
 // ===== COMPOSANT: BADGE STATUT =====
 const StatutBadge = ({abs}) => {
   const s = statut(abs);
@@ -1262,15 +1237,6 @@ const ParametresPage = ({data, onRestore}) => {
   const xlsxEnseignantsRef = useRef();
   const [msg, setMsg] = useState('');
   const [preview, setPreview] = useState(null); // {type, parsed, mode}
-  const [ghMsg, setGhMsg] = useState('');
-
-  const saveToGithubApp = () => {
-    setGhMsg('⏳ Envoi vers GitHub...');
-    saveToGithub(data, 'saves/gestion-abs-personnel.json', 'Gestion Absences Personnel')
-      .then(()=> setGhMsg('✅ Sauvegarde envoyée sur GitHub'))
-      .catch(err=> setGhMsg('❌ Erreur GitHub : '+err.message));
-  };
-
   const exportData = () => {
     const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
     const url = URL.createObjectURL(blob);
@@ -1454,16 +1420,6 @@ const ParametresPage = ({data, onRestore}) => {
         <div style={{marginTop:12,fontSize:12,color:'#888'}}>
           Données actuelles : <strong>{data.personnel.length}</strong> membres du personnel · <strong>{data.absences.length}</strong> absences enregistrées
         </div>
-      </div>
-
-      <div className="card">
-        <div className="card-title">☁️ Sauvegarde GitHub</div>
-        <p style={{fontSize:13,color:'#555',marginBottom:16}}>
-          Envoie les données de cette application vers le dépôt GitHub du Hub (fichier <code>saves/gestion-abs-personnel.json</code>),
-          pour les retrouver depuis n'importe quel appareil.
-        </p>
-        <button className="btn" style={{background:'#24292e',color:'#fff'}} onClick={saveToGithubApp}>☁️ Sauvegarder sur GitHub</button>
-        {ghMsg && <div style={{marginTop:10,fontSize:13}}>{ghMsg}</div>}
       </div>
 
       <div className="card">
