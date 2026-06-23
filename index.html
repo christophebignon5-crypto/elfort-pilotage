@@ -637,18 +637,32 @@ document.querySelectorAll('.btn-launch').forEach(function (a) {
     showStatus('✅ ' + n + ' entrée(s) restaurée(s). Rechargez les applications pour voir vos données.', 'ok');
   }
 
-  /* ── Sauvegarde Firebase ── */
+  /* ── Sauvegarde Firebase (un document par clé localStorage) ── */
+  function encodeKey(k) { return k.replace(/[\/\.#\$\[\]]/g, function(c) { return '_' + c.charCodeAt(0) + '_'; }); }
+  function decodeKey(k) { return k.replace(/_(\d+)_/g, function(_, n) { return String.fromCharCode(+n); }); }
+
   btnCloudSave.addEventListener('click', function () {
     btnCloudSave.disabled = true;
     showStatus('☁️ Connexion Google…', 'info');
-    saveToCloud(gatherData(), 'backup-global')
-      .then(function () {
+    fbEnsureAuth().then(function (user) {
+      var collected = gatherData();
+      var entries = Object.keys(collected.data);
+      var col = fbDb.collection('users').doc(user.uid).collection('backup');
+      var batch = fbDb.batch();
+      batch.set(col.doc('_meta'), { date: new Date().toISOString(), version: '1.2', keys: entries.length });
+      entries.forEach(function (k) {
+        var val = collected.data[k];
+        var json = typeof val === 'string' ? val : JSON.stringify(val);
+        batch.set(col.doc(encodeKey(k)), { key: k, json: json });
+      });
+      return batch.commit().then(function () {
         localStorage.setItem(SYNC_KEY, new Date().toISOString());
         updateMeta();
-        showStatus('✅ Sauvegarde en ligne effectuée (' + Object.keys(gatherData().data).length + ' entrées).', 'ok');
-      })
-      .catch(function (err) { showStatus('❌ Erreur : ' + err.message, 'err'); })
-      .finally(function () { btnCloudSave.disabled = false; });
+        showStatus('✅ Sauvegarde en ligne effectuée (' + entries.length + ' entrées).', 'ok');
+      });
+    })
+    .catch(function (err) { showStatus('❌ Erreur : ' + err.message, 'err'); })
+    .finally(function () { btnCloudSave.disabled = false; });
   });
 
   /* ── Chargement Firebase ── */
@@ -656,10 +670,22 @@ document.querySelectorAll('.btn-launch').forEach(function (a) {
     if (!confirm('Charger la sauvegarde en ligne remplacera les données locales actuelles. Continuer ?')) return;
     btnCloudLoad.disabled = true;
     showStatus('⬇️ Connexion Google…', 'info');
-    loadFromCloud('backup-global')
-      .then(function (data) { restoreData(data); })
-      .catch(function (err) { showStatus('❌ Erreur : ' + err.message, 'err'); })
-      .finally(function () { btnCloudLoad.disabled = false; });
+    fbEnsureAuth().then(function (user) {
+      return fbDb.collection('users').doc(user.uid).collection('backup').get().then(function (snap) {
+        if (snap.empty) throw new Error('Aucune sauvegarde trouvée en ligne');
+        var n = 0;
+        snap.forEach(function (doc) {
+          if (doc.id === '_meta') return;
+          var d = doc.data();
+          localStorage.setItem(d.key, d.json);
+          n++;
+        });
+        updateMeta();
+        showStatus('✅ ' + n + ' entrée(s) restaurée(s). Rechargez les applications pour voir vos données.', 'ok');
+      });
+    })
+    .catch(function (err) { showStatus('❌ Erreur : ' + err.message, 'err'); })
+    .finally(function () { btnCloudLoad.disabled = false; });
   });
 
   /* ── Téléchargement local ── */
