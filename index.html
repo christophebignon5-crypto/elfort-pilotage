@@ -184,6 +184,10 @@ body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color
 .app-card:nth-child(5){animation-delay:.24s}
 .app-card:nth-child(6){animation-delay:.29s}
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
+<script src="firebase-shared.js"></script>
 </head>
 <body>
 
@@ -451,32 +455,19 @@ body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color
     <div class="save-card-head">
       <div class="head-icon">💾</div>
       <div>
-        <h2>Sauvegardes &amp; Synchronisation GitHub</h2>
-        <p>Un seul fichier global regroupe les données de toutes vos applications — stocké sur votre dépôt GitHub</p>
+        <h2>Sauvegardes &amp; Synchronisation</h2>
+        <p>Sauvegardez toutes les données de vos applications en un clic via votre compte Google (Firebase)</p>
       </div>
     </div>
     <div class="save-card-body">
 
-      <!-- Configuration du token (masqué si déjà configuré) -->
-      <div class="token-box" id="token-box">
-        <div class="token-box-title">⚙️ Configuration requise — Personal Access Token GitHub</div>
-        <div class="token-box-desc">
-          Pour activer la synchronisation, saisissez votre PAT GitHub. Il sera conservé localement dans votre navigateur.<br>
-          Créez-le sur <strong>github.com → Settings → Developer settings → Personal access tokens → Fine-grained</strong>, avec accès en écriture (<em>Contents</em>) au dépôt <strong>elfort-pilotage</strong>.
-        </div>
-        <div class="token-row">
-          <input type="password" id="pat-input" class="token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false">
-          <button class="btn-action btn-token-save" id="btn-save-token">Enregistrer</button>
-        </div>
-      </div>
-
       <!-- Boutons d'action -->
       <div class="save-actions">
-        <button class="btn-action btn-gh-save" id="btn-gh-save" disabled>
-          ☁️ Sauvegarder sur GitHub
+        <button class="btn-action btn-gh-save" id="btn-cloud-save">
+          ☁️ Sauvegarder en ligne
         </button>
-        <button class="btn-action btn-gh-load" id="btn-gh-load" disabled>
-          ⬇️ Charger depuis GitHub
+        <button class="btn-action btn-gh-load" id="btn-cloud-load">
+          ⬇️ Charger depuis le cloud
         </button>
         <button class="btn-action btn-local-dl" id="btn-local-dl">
           💾 Télécharger (local)
@@ -485,7 +476,6 @@ body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color
           📤 Charger un fichier local
           <input type="file" id="local-file-input" accept=".json" style="display:none">
         </label>
-        <button class="btn-action btn-token-edit" id="btn-token-edit">🔑 Modifier le token</button>
       </div>
 
       <!-- Statut -->
@@ -494,7 +484,7 @@ body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color
       <!-- Méta-infos -->
       <div class="save-meta" id="save-meta">
         <div class="save-meta-item">📦 <strong id="meta-keys">—</strong>&nbsp;entrées sauvegardables</div>
-        <div class="save-meta-item">🕒 Dernière sync GitHub : <strong id="meta-last-gh">jamais</strong></div>
+        <div class="save-meta-item">🕒 Dernière sync : <strong id="meta-last-gh">jamais</strong></div>
         <div class="save-meta-item">💻 Volume données local : <strong id="meta-size">—</strong></div>
       </div>
 
@@ -583,33 +573,19 @@ document.querySelectorAll('.btn-launch').forEach(function (a) {
 });
 
 /* ════════════════════════════════════════
-   4. SAUVEGARDES GLOBALES
+   4. SAUVEGARDES GLOBALES (Firebase)
 ════════════════════════════════════════ */
 (function () {
-  /* ── Config ── */
-  var GH_USER  = 'christophebignon5-crypto';
-  var GH_REPO  = 'elfort-pilotage';
-  var GH_FILE  = 'saves/backup-global.json';
-  var PAT_KEY  = '_hub_elfort_pat';
   var SYNC_KEY = '_hub_elfort_last_sync';
 
-  /* ── Éléments ── */
-  var tokenBox   = document.getElementById('token-box');
-  var patInput   = document.getElementById('pat-input');
-  var btnSavePAT = document.getElementById('btn-save-token');
-  var btnEditTok = document.getElementById('btn-token-edit');
-  var btnGhSave  = document.getElementById('btn-gh-save');
-  var btnGhLoad  = document.getElementById('btn-gh-load');
-  var btnLocalDl = document.getElementById('btn-local-dl');
-  var localInput = document.getElementById('local-file-input');
-  var statusEl   = document.getElementById('save-status');
-  var metaKeys   = document.getElementById('meta-keys');
-  var metaLastGh = document.getElementById('meta-last-gh');
-  var metaSize   = document.getElementById('meta-size');
-
-  /* ── Helpers ── */
-  function getToken() { return localStorage.getItem(PAT_KEY) || ''; }
-  function hasToken() { return !!getToken(); }
+  var btnCloudSave = document.getElementById('btn-cloud-save');
+  var btnCloudLoad = document.getElementById('btn-cloud-load');
+  var btnLocalDl   = document.getElementById('btn-local-dl');
+  var localInput   = document.getElementById('local-file-input');
+  var statusEl     = document.getElementById('save-status');
+  var metaKeys     = document.getElementById('meta-keys');
+  var metaLastGh   = document.getElementById('meta-last-gh');
+  var metaSize     = document.getElementById('meta-size');
 
   function showStatus(msg, type) {
     statusEl.textContent = msg;
@@ -618,14 +594,11 @@ document.querySelectorAll('.btn-launch').forEach(function (a) {
     statusEl._t = setTimeout(function () { statusEl.className = 'save-status'; }, 6000);
   }
 
-  function toB64(str) { return btoa(unescape(encodeURIComponent(str))); }
-  function fromB64(b64) { return decodeURIComponent(escape(atob(b64.replace(/\n/g, '')))); }
-
   function updateMeta() {
     var keys = 0, bytes = 0;
     for (var i = 0; i < localStorage.length; i++) {
       var k = localStorage.key(i);
-      if (k === PAT_KEY || k === SYNC_KEY) continue;
+      if (k === SYNC_KEY) continue;
       keys++;
       bytes += (localStorage.getItem(k) || '').length;
     }
@@ -635,43 +608,27 @@ document.querySelectorAll('.btn-launch').forEach(function (a) {
     metaLastGh.textContent = last ? new Date(last).toLocaleString('fr-FR') : 'jamais';
   }
 
-  function refreshUI() {
-    var ok = hasToken();
-    tokenBox.className = ok ? 'token-box hide' : 'token-box';
-    btnGhSave.disabled = !ok;
-    btnGhLoad.disabled = !ok;
-    updateMeta();
-  }
-
-  /* ── Détecte les valeurs ressemblant à un token / secret (PAT GitHub, clés API…) ── */
   var SECRET_PATTERN = /ghp_[A-Za-z0-9]{30,40}|gho_[A-Za-z0-9]{30,40}|github_pat_[A-Za-z0-9_]{60,}|sk-[A-Za-z0-9]{20,}|AKIA[A-Z0-9]{16}/;
-  function containsSecret(raw) {
-    return typeof raw === 'string' && SECRET_PATTERN.test(raw);
-  }
 
-  /* ── Collecte toutes les données localStorage ── */
   function gatherData() {
     var d = {
-      meta: { date: new Date().toISOString(), version: '1.1', hub: 'LPO Léopold Elfort — Mana, Guyane' },
+      meta: { date: new Date().toISOString(), version: '1.2', hub: 'LPO Léopold Elfort — Mana, Guyane' },
       data: {}
     };
     for (var i = 0; i < localStorage.length; i++) {
       var k = localStorage.key(i);
-      if (k === PAT_KEY) continue; /* ne jamais sauvegarder le token du Hub */
       var raw = localStorage.getItem(k);
-      if (/token|pat|secret|password/i.test(k) || containsSecret(raw)) continue; /* ne jamais sauvegarder un token d'une autre application */
+      if (/token|pat|secret|password/i.test(k) || (typeof raw === 'string' && SECRET_PATTERN.test(raw))) continue;
       try   { d.data[k] = JSON.parse(raw); }
       catch (e) { d.data[k] = raw; }
     }
     return d;
   }
 
-  /* ── Restauration ── */
   function restoreData(d) {
     if (!d || !d.data) { showStatus('Format de fichier invalide ou corrompu.', 'err'); return; }
     var n = 0;
     Object.keys(d.data).forEach(function (k) {
-      if (k === PAT_KEY) return;
       var v = d.data[k];
       localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v));
       n++;
@@ -680,98 +637,29 @@ document.querySelectorAll('.btn-launch').forEach(function (a) {
     showStatus('✅ ' + n + ' entrée(s) restaurée(s). Rechargez les applications pour voir vos données.', 'ok');
   }
 
-  /* ── Token ── */
-  btnSavePAT.addEventListener('click', function () {
-    var v = (patInput.value || '').trim();
-    if (!v.startsWith('ghp_') && !v.startsWith('github_pat_')) {
-      showStatus('⚠️ Le token doit commencer par ghp_ ou github_pat_', 'err'); return;
-    }
-    localStorage.setItem(PAT_KEY, v);
-    patInput.value = '';
-    refreshUI();
-    showStatus('🔑 Token enregistré. Synchronisation GitHub activée.', 'ok');
+  /* ── Sauvegarde Firebase ── */
+  btnCloudSave.addEventListener('click', function () {
+    btnCloudSave.disabled = true;
+    showStatus('☁️ Connexion Google…', 'info');
+    saveToCloud(gatherData(), 'backup-global')
+      .then(function () {
+        localStorage.setItem(SYNC_KEY, new Date().toISOString());
+        updateMeta();
+        showStatus('✅ Sauvegarde en ligne effectuée (' + Object.keys(gatherData().data).length + ' entrées).', 'ok');
+      })
+      .catch(function (err) { showStatus('❌ Erreur : ' + err.message, 'err'); })
+      .finally(function () { btnCloudSave.disabled = false; });
   });
 
-  btnEditTok.addEventListener('click', function () {
-    localStorage.removeItem(PAT_KEY);
-    refreshUI();
-    showStatus('Token supprimé — configurez un nouveau token ci-dessus.', 'info');
-  });
-
-  /* ── Sauvegarde sur GitHub ── */
-  btnGhSave.addEventListener('click', async function () {
-    var token = getToken();
-    if (!token) return;
-    btnGhSave.disabled = true;
-    showStatus('☁️ Envoi vers GitHub…', 'info');
-    try {
-      var payload = JSON.stringify(gatherData(), null, 2);
-      var content = toB64(payload);
-
-      /* Récupérer le SHA du fichier existant */
-      var getRes = await fetch(
-        'https://api.github.com/repos/' + GH_USER + '/' + GH_REPO + '/contents/' + GH_FILE,
-        { headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json' } }
-      );
-      var sha = null;
-      if (getRes.ok) sha = (await getRes.json()).sha;
-
-      var body = {
-        message: 'Sauvegarde globale — ' + new Date().toLocaleDateString('fr-FR', {day:'2-digit',month:'2-digit',year:'numeric'}),
-        content: content
-      };
-      if (sha) body.sha = sha;
-
-      var putRes = await fetch(
-        'https://api.github.com/repos/' + GH_USER + '/' + GH_REPO + '/contents/' + GH_FILE,
-        {
-          method: 'PUT',
-          headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json', Accept: 'application/vnd.github.v3+json' },
-          body: JSON.stringify(body)
-        }
-      );
-      if (!putRes.ok) {
-        var e = await putRes.json();
-        var detail = e.message || ('HTTP ' + putRes.status);
-        if (e.errors && e.errors.length) {
-          detail += ' :: ' + e.errors.map(function(x){ return x.message || JSON.stringify(x); }).join(' | ');
-        }
-        throw new Error(detail);
-      }
-      localStorage.setItem(SYNC_KEY, new Date().toISOString());
-      updateMeta();
-      showStatus('✅ Sauvegardé sur GitHub (' + Object.keys(gatherData().data).length + ' entrées).', 'ok');
-    } catch (err) {
-      showStatus('❌ Erreur GitHub : ' + err.message, 'err');
-    } finally {
-      btnGhSave.disabled = false;
-    }
-  });
-
-  /* ── Chargement depuis GitHub ── */
-  btnGhLoad.addEventListener('click', async function () {
-    var token = getToken();
-    if (!token) return;
-    if (!confirm('Charger la sauvegarde GitHub remplacera les données locales actuelles. Continuer ?')) return;
-    btnGhLoad.disabled = true;
-    showStatus('⬇️ Chargement depuis GitHub…', 'info');
-    try {
-      var res = await fetch(
-        'https://api.github.com/repos/' + GH_USER + '/' + GH_REPO + '/contents/' + GH_FILE,
-        { headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json' } }
-      );
-      if (!res.ok) {
-        if (res.status === 404) throw new Error('Aucune sauvegarde trouvée sur GitHub — effectuez d\'abord une sauvegarde.');
-        throw new Error('HTTP ' + res.status);
-      }
-      var file = await res.json();
-      var data = JSON.parse(fromB64(file.content));
-      restoreData(data);
-    } catch (err) {
-      showStatus('❌ Erreur : ' + err.message, 'err');
-    } finally {
-      btnGhLoad.disabled = false;
-    }
+  /* ── Chargement Firebase ── */
+  btnCloudLoad.addEventListener('click', function () {
+    if (!confirm('Charger la sauvegarde en ligne remplacera les données locales actuelles. Continuer ?')) return;
+    btnCloudLoad.disabled = true;
+    showStatus('⬇️ Connexion Google…', 'info');
+    loadFromCloud('backup-global')
+      .then(function (data) { restoreData(data); })
+      .catch(function (err) { showStatus('❌ Erreur : ' + err.message, 'err'); })
+      .finally(function () { btnCloudLoad.disabled = false; });
   });
 
   /* ── Téléchargement local ── */
@@ -799,8 +687,7 @@ document.querySelectorAll('.btn-launch').forEach(function (a) {
     localInput.value = '';
   });
 
-  /* ── Initialisation ── */
-  refreshUI();
+  updateMeta();
 })();
 </script>
 </body>
