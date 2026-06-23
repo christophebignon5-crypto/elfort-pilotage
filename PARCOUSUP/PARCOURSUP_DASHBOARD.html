@@ -150,6 +150,10 @@
   ::-webkit-scrollbar{width:6px;height:6px;}
   ::-webkit-scrollbar-thumb{background:#ccd4e8;border-radius:3px;}
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
+<script src="../firebase-shared.js"></script>
 </head>
 <body>
 
@@ -210,6 +214,8 @@
   <div style="display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap;align-items:center;">
     <button class="btn btn-primary" onclick="loadAllFiles()">▶ Charger et Analyser</button>
     <button class="btn btn-danger" onclick="clearAll()">✕ Tout effacer</button>
+    <button class="btn btn-primary" style="background:#ff6f00" onclick="saveParcoursupCloud()">☁️ Sauvegarder en ligne</button>
+    <button class="btn btn-primary" style="background:#1565c0" onclick="loadParcoursupCloud()">☁️ Charger en ligne</button>
     <span style="font-size:12px;color:var(--muted)">Traitement 100% local — aucune donnée envoyée sur un serveur.</span>
   </div>
   <div class="section-title" style="font-size:16px;margin-bottom:12px;">Jeux de données chargés</div>
@@ -255,6 +261,19 @@ function loadDatasetsLS(){
     datasets=d;
     return true;
   }catch(e){ return false; }
+}
+
+function saveParcoursupCloud(){
+  showToast('Connexion Google...','success');
+  saveToCloud(datasets, 'parcoursup-dashboard')
+    .then(()=>showToast('Sauvegarde en ligne effectuée ✓','success'))
+    .catch(err=>showToast('Erreur : '+err.message,'error'));
+}
+function loadParcoursupCloud(){
+  showToast('Connexion Google...','success');
+  loadFromCloud('parcoursup-dashboard')
+    .then(d=>{ datasets=d; localStorage.setItem('parcoursup_datasets',JSON.stringify(d)); showToast('Données restaurées — rechargement...','success'); setTimeout(()=>location.reload(),800); })
+    .catch(err=>showToast('Erreur : '+err.message,'error'));
 }
 
 const PALETTE=['#1e4fa0','#e8a020','#d43f3f','#1a8a8a','#7c3aed','#059669','#ea580c','#0284c7','#c2410c','#4f46e5','#0891b2','#b45309'];

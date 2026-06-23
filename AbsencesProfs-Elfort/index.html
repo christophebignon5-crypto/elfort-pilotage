@@ -74,6 +74,10 @@ body{font-family:Arial,sans-serif;background:#f0f4f8;color:#222;font-size:14px}
 .toast{position:fixed;bottom:22px;right:22px;z-index:9999;padding:11px 18px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.25);font-size:.86rem;color:white;max-width:340px}
 .err-box{background:#ffebee;border:2px solid #c62828;border-radius:8px;padding:20px;margin:20px;font-family:monospace;font-size:.85rem;color:#c62828;white-space:pre-wrap}
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
+<script src="../firebase-shared.js"></script>
 </head>
 <body>
 <div id="root"><div style="padding:40px;color:#888;text-align:center">Chargement en cours…</div></div>
@@ -983,6 +987,20 @@ function App() {
         {years.length > 0 && (
           <button className="btn btn-success" onClick={saveJSON}>Sauvegarder</button>
         )}
+        {years.length > 0 && (
+          <button className="btn btn-outline" style={{borderColor:'#ff6f00',color:'#ff6f00'}} onClick={function() {
+            notify('Connexion Google...', 'info');
+            saveToCloud({ annees: st.annees, active: st.active }, 'absences-profs')
+              .then(function() { notify('Sauvegarde en ligne effectuée', 'success'); })
+              .catch(function(err) { notify('Erreur : ' + err.message, 'error'); });
+          }}>☁️ Sauvegarder en ligne</button>
+        )}
+        <button className="btn btn-outline" style={{borderColor:'#1565c0',color:'#1565c0'}} onClick={function() {
+          notify('Connexion Google...', 'info');
+          loadFromCloud('absences-profs')
+            .then(function(d) { saveSt(d); notify('Données restaurées — rechargement...', 'success'); setTimeout(function(){ location.reload(); }, 800); })
+            .catch(function(err) { notify('Erreur : ' + err.message, 'error'); });
+        }}>☁️ Charger en ligne</button>
         {data && (
           <button className="btn btn-outline" style={{ borderColor: '#7b1fa2', color: '#7b1fa2' }} onClick={exportPPTXAnnee} title={'Exporter un PPTX pour ' + st.active}>
             ▶ PPTX {st.active}

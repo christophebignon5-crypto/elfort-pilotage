@@ -162,6 +162,10 @@
         .aide-statut-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
         .aide-statut-card { border-radius:6px; padding:10px 12px; font-size:12px; }
     </style>
+    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
+    <script src="../firebase-shared.js"></script>
 </head>
 <body ondragover="event.preventDefault()" ondrop="dataManager.importProjectJSON(event)">
 
@@ -492,6 +496,8 @@
         <button onclick="dataManager.exportBackup()" class="btn-o">💾 Export</button>
         <button onclick="document.getElementById('file-restore').click()" class="btn-o" style="background:var(--ok); color:white;">📂 Charger</button>
         <input type="file" id="file-restore" hidden onchange="dataManager.restoreBackup(this)">
+        <button onclick="dataManager.saveToCloud()" class="btn-o" style="background:#ff6f00; color:white;">☁️ En ligne</button>
+        <button onclick="dataManager.loadFromCloud()" class="btn-o" style="background:#1565c0; color:white;">☁️ Charger cloud</button>
     </nav>
 </header>
 
@@ -1067,6 +1073,29 @@ const dataManager = {
     exportBackup() {
         const data = {projects:this.list, config:conf.data, sources:conf.srcs, struct:conf.struct, tpls:conf.tpls, refs:conf.refs, accs:conf.accs, axes:conf.axes};
         const a = document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(data)], {type:'application/json'})); a.download="BACKUP_PROJETS.json"; a.click();
+    },
+    saveToCloud() {
+        const data = {projects:this.list, config:conf.data, sources:conf.srcs, struct:conf.struct, tpls:conf.tpls, refs:conf.refs, accs:conf.accs, axes:conf.axes};
+        saveToCloud(data, 'gestion-projets')
+            .then(() => alert("✅ Sauvegarde en ligne effectuée"))
+            .catch(err => alert("❌ Erreur : " + err.message));
+    },
+    loadFromCloud() {
+        loadFromCloud('gestion-projets')
+            .then(d => {
+                if(d.projects) this.list = d.projects;
+                if(d.config) conf.data = d.config;
+                if(d.sources) conf.srcs = d.sources;
+                if(d.struct) conf.struct = d.struct;
+                if(d.tpls) conf.tpls = d.tpls;
+                if(d.refs) conf.refs = d.refs;
+                if(d.accs) conf.accs = d.accs;
+                if(d.axes) conf.axes = d.axes;
+                this.saveToNav(); conf.save();
+                alert("✅ Données restaurées — rechargement...");
+                location.reload();
+            })
+            .catch(err => alert("❌ Erreur : " + err.message));
     },
     restoreBackup(el) {
         if(!el.files[0]) return;

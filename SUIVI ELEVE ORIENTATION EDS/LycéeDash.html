@@ -84,6 +84,10 @@
     .three-col{grid-template-columns:1fr}
   }
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
+<script src="../firebase-shared.js"></script>
 </head>
 <body>
 
@@ -1386,6 +1390,13 @@ function renderParams(){
         <button class="btn-primary" onclick="importJSON()">📥 Charger JSON</button>
         <div id="json-msg" style="margin-top:0.5rem"></div>
       </div>
+      <div class="chart-container">
+        <h3 style="color:#1e3a5f;margin-bottom:0.75rem;font-size:0.95rem">☁️ Sauvegarde en ligne (Firebase)</h3>
+        <p style="font-size:0.85rem;color:#555;margin-bottom:0.75rem">Sauvegardez ou restaurez vos données via votre compte Google.</p>
+        <button class="btn-primary" onclick="saveLyceeDashCloud()">☁️ Sauvegarder en ligne</button>
+        <button class="btn-primary" style="background:#1565c0" onclick="loadLyceeDashCloud()">☁️ Charger en ligne</button>
+        <div id="cloud-msg" style="margin-top:0.5rem"></div>
+      </div>
     </div>
 
     ${sectionHeader('ℹ️','À propos')}
@@ -1489,6 +1500,20 @@ function exportJSON(){
   URL.revokeObjectURL(url);
 }
 
+function saveLyceeDashCloud(){
+  const msg=document.getElementById('cloud-msg');
+  msg.innerHTML='⏳ Connexion Google...';
+  saveToCloud(getData(), 'lyceedash')
+    .then(()=>{ msg.innerHTML='<span style="color:#2e7d32">✅ Sauvegarde en ligne effectuée</span>'; })
+    .catch(err=>{ msg.innerHTML='<span style="color:#c62828">❌ '+err.message+'</span>'; });
+}
+function loadLyceeDashCloud(){
+  const msg=document.getElementById('cloud-msg');
+  msg.innerHTML='⏳ Connexion Google...';
+  loadFromCloud('lyceedash')
+    .then(d=>{ saveData(d); msg.innerHTML='<span style="color:#2e7d32">✅ Données restaurées — rechargement...</span>'; setTimeout(()=>location.reload(),800); })
+    .catch(err=>{ msg.innerHTML='<span style="color:#c62828">❌ '+err.message+'</span>'; });
+}
 function importJSON(){
   const file=document.getElementById('import-json-file').files[0];
   if(!file){alert('Veuillez sélectionner un fichier JSON.');return;}

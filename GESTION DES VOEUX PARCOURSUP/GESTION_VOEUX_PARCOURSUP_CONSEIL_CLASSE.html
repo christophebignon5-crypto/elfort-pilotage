@@ -1138,6 +1138,10 @@
 
         /* end styles */
     </style>
+    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
+    <script src="../firebase-shared.js"></script>
 </head>
 <body>
     <div class="container">
@@ -1163,6 +1167,12 @@
             </button>
             <button class="btn btn-info" onclick="chargerEspaceTravail()">
                 📂 Charger espace
+            </button>
+            <button class="btn btn-purple" style="background:#ff6f00" onclick="saveVoeuxCloud()">
+                ☁️ Sauvegarder en ligne
+            </button>
+            <button class="btn btn-purple" style="background:#1565c0" onclick="loadVoeuxCloud()">
+                ☁️ Charger en ligne
             </button>
             <button class="btn btn-warning" onclick="imprimerPages()">
                 🖨️ Imprimer fiches
@@ -1304,6 +1314,21 @@
                 affichageMode = snapshot.affichageMode || 'cartes';
                 return true;
             } catch(e) { return false; }
+        }
+
+        function saveVoeuxCloud() {
+            autoSaveToLocalStorage();
+            afficherToast('☁️ Connexion Google...');
+            const raw = localStorage.getItem(LS_KEY);
+            saveToCloud(raw ? JSON.parse(raw) : {}, 'gestion-voeux')
+                .then(() => afficherToast('✅ Sauvegarde en ligne effectuée'))
+                .catch(err => afficherToast('❌ Erreur : ' + err.message));
+        }
+        function loadVoeuxCloud() {
+            afficherToast('☁️ Connexion Google...');
+            loadFromCloud('gestion-voeux')
+                .then(d => { localStorage.setItem(LS_KEY, JSON.stringify(d)); afficherToast('✅ Données restaurées — rechargement...'); setTimeout(() => location.reload(), 800); })
+                .catch(err => afficherToast('❌ Erreur : ' + err.message));
         }
 
         // Avis possibles

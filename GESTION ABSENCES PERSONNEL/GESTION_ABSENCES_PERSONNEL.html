@@ -161,6 +161,10 @@ tr:hover td{background:#fafafa}
   .rapport-filters{grid-template-columns:1fr}
 }
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
+<script src="../firebase-shared.js"></script>
 </head>
 <body>
 <div id="root"></div>
@@ -1237,6 +1241,19 @@ const ParametresPage = ({data, onRestore}) => {
   const xlsxEnseignantsRef = useRef();
   const [msg, setMsg] = useState('');
   const [preview, setPreview] = useState(null); // {type, parsed, mode}
+  const [cloudMsg, setCloudMsg] = useState('');
+  const saveToCloudApp = () => {
+    setCloudMsg('⏳ Connexion Google...');
+    saveToCloud(data, 'gestion-abs-personnel')
+      .then(()=> setCloudMsg('✅ Sauvegarde en ligne effectuée'))
+      .catch(err=> setCloudMsg('❌ Erreur : '+err.message));
+  };
+  const loadFromCloudApp = () => {
+    setCloudMsg('⏳ Connexion Google...');
+    loadFromCloud('gestion-abs-personnel')
+      .then(d=> { saveData(d); onRestore(d); setCloudMsg('✅ Données restaurées'); })
+      .catch(err=> setCloudMsg('❌ Erreur : '+err.message));
+  };
   const exportData = () => {
     const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
     const url = URL.createObjectURL(blob);
@@ -1420,6 +1437,18 @@ const ParametresPage = ({data, onRestore}) => {
         <div style={{marginTop:12,fontSize:12,color:'#888'}}>
           Données actuelles : <strong>{data.personnel.length}</strong> membres du personnel · <strong>{data.absences.length}</strong> absences enregistrées
         </div>
+      </div>
+
+      <div className="card">
+        <div className="card-title">☁️ Sauvegarde en ligne (Firebase)</div>
+        <p style={{fontSize:13,color:'#555',marginBottom:16}}>
+          Sauvegardez ou restaurez vos données via votre compte Google.
+        </p>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          <button className="btn" style={{background:'#ff6f00',color:'#fff'}} onClick={saveToCloudApp}>☁️ Sauvegarder en ligne</button>
+          <button className="btn" style={{background:'#1565c0',color:'#fff'}} onClick={loadFromCloudApp}>☁️ Charger en ligne</button>
+        </div>
+        {cloudMsg && <div style={{marginTop:10,fontSize:13}}>{cloudMsg}</div>}
       </div>
 
       <div className="card">
