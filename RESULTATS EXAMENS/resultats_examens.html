@@ -139,10 +139,6 @@
   }
   .print-title { display: none; }
 </style>
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
-<script src="../firebase-shared.js"></script>
 </head>
 <body>
 
@@ -236,18 +232,6 @@
       <button class="btn btn-outline-danger btn-sm btn-settings-action" onclick="resetData()">
         <i class="bi bi-arrow-counterclockwise me-2"></i>Réinitialiser toutes les données
       </button>
-    </div>
-
-    <!-- Sauvegarde en ligne -->
-    <div class="settings-section">
-      <h6><i class="bi bi-cloud me-1"></i>Sauvegarde en ligne (Firebase)</h6>
-      <button class="btn btn-outline-dark btn-sm btn-settings-action" onclick="saveResultatsCloud()">
-        <i class="bi bi-cloud-upload me-2"></i>Sauvegarder en ligne
-      </button>
-      <button class="btn btn-outline-primary btn-sm btn-settings-action" onclick="loadResultatsCloud()">
-        <i class="bi bi-cloud-download me-2"></i>Charger en ligne
-      </button>
-      <div id="cloud-msg" style="font-size:0.85rem;margin-top:0.4rem"></div>
     </div>
 
     <!-- Impression -->
@@ -502,21 +486,6 @@ function saveToStorage() {
   localStorage.setItem('lpo_mana_db', JSON.stringify(DB));
 }
 
-function saveResultatsCloud(){
-  const msg = document.getElementById('cloud-msg');
-  msg.innerHTML = '⏳ Connexion Google...';
-  saveToCloud({ db: DB, settings: schoolSettings }, 'resultats-examens')
-    .then(()=>{ msg.innerHTML = '<span class="text-success">✅ Sauvegarde en ligne effectuée</span>'; })
-    .catch(err=>{ msg.innerHTML = '<span class="text-danger">❌ '+err.message+'</span>'; });
-}
-function loadResultatsCloud(){
-  const msg = document.getElementById('cloud-msg');
-  msg.innerHTML = '⏳ Connexion Google...';
-  loadFromCloud('resultats-examens')
-    .then(d=>{ DB = d.db || {}; if(d.settings) Object.assign(schoolSettings, d.settings); saveToStorage(); msg.innerHTML = '<span class="text-success">✅ Données restaurées — rechargement...</span>'; setTimeout(()=>location.reload(),800); })
-    .catch(err=>{ msg.innerHTML = '<span class="text-danger">❌ '+err.message+'</span>'; });
-}
-
 // ==================== TAB SWITCHING ====================
 function switchTab(tab, btn) {
   document.querySelectorAll('.tab-pane-content').forEach(el => el.classList.add('d-none'));
@@ -735,12 +704,12 @@ function renderCharts(tab) {
     return parseFloat(fmtTaux(t.taux));
   });
 
-  // Specialty lines (top 6)
+  // Specialty lines (all)
   const allSpecNames = [...new Set(
     years.flatMap(y => DB[tab][y].rows.map(r=>r.name))
-  )].slice(0,6);
+  )];
 
-  const specColors = ['#2563eb','#16a34a','#ea580c','#9333ea','#0891b2','#be123c'];
+  const specColors = ['#2563eb','#16a34a','#ea580c','#9333ea','#0891b2','#be123c','#b45309','#0f766e'];
   const datasets = [
     {
       label: 'Taux global (%)',
