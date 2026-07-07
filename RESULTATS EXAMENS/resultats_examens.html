@@ -534,7 +534,7 @@ function renderTab(tab) {
   // Chart section
   html += `
   <div class="row g-3 mt-1">
-    <div class="col-lg-8">
+    <div class="col-12">
       <div class="chart-card">
         <div class="d-flex align-items-center justify-content-between mb-3">
           <h6 class="fw-bold mb-0" style="color:${cfg.color}"><i class="bi bi-bar-chart-fill me-2"></i>Taux de réussite par année</h6>
@@ -542,18 +542,7 @@ function renderTab(tab) {
             <i class="bi bi-clipboard me-1"></i>Copier
           </button>
         </div>
-        <canvas id="chart-main-${tab}" height="120"></canvas>
-      </div>
-    </div>
-    <div class="col-lg-4">
-      <div class="chart-card h-100">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-          <h6 class="fw-bold mb-0" style="color:${cfg.color}"><i class="bi bi-pie-chart-fill me-2"></i>Répartition ${latestYear||''}</h6>
-          <button class="btn btn-sm btn-outline-secondary" onclick="copyChartImage('chart-pie-${tab}', this)">
-            <i class="bi bi-clipboard me-1"></i>Copier
-          </button>
-        </div>
-        <canvas id="chart-pie-${tab}" height="200"></canvas>
+        <canvas id="chart-main-${tab}" height="100"></canvas>
       </div>
     </div>
   </div>`;
@@ -691,7 +680,6 @@ function statCard(label, value, color, icon) {
 // ==================== CHARTS ====================
 function renderCharts(tab) {
   if (charts[tab+'_main']) { charts[tab+'_main'].destroy(); }
-  if (charts[tab+'_pie'])  { charts[tab+'_pie'].destroy();  }
 
   const cfg = TABS[tab];
   const years = Object.keys(DB[tab]).map(Number).sort();
@@ -752,36 +740,6 @@ function renderCharts(tab) {
     });
   }
 
-  // Pie: latest year admitted vs refused
-  const latestYear = years[years.length-1];
-  const rows = DB[tab][latestYear].rows;
-  let admitted=0, refused=0, oral=0;
-  rows.forEach(r => {
-    admitted += (r.v[1]||0)+(r.v[4]||0);
-    if (r.v.length > 3) {
-      oral    += r.v[2]||0;
-      refused += r.v[3]||0;
-    } else {
-      refused += (r.v[0]||0)-(r.v[1]||0);
-    }
-  });
-
-  const ctxPie = document.getElementById(`chart-pie-${tab}`);
-  if (ctxPie) {
-    charts[tab+'_pie'] = new Chart(ctxPie, {
-      type: 'doughnut',
-      data: {
-        labels: ['Admis','Oral de contrôle','Refusés'],
-        datasets:[{ data:[admitted,oral,refused],
-          backgroundColor:['#22c55e','#f59e0b','#ef4444'],
-          borderWidth:2, borderColor:'white' }]
-      },
-      options: {
-        responsive:true, cutout:'65%',
-        plugins:{ legend:{ position:'bottom', labels:{ boxWidth:12, font:{size:11} } } }
-      }
-    });
-  }
 }
 
 // ==================== COPIE GRAPHIQUE ====================
