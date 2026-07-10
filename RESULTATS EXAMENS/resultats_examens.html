@@ -355,16 +355,15 @@ let DB = {
   cap: {
     2025: {
       rows: [
-        { name:'CAP ADAL AFAT', sector:'Service',      v:[12,12,100] },
-        { name:'CAP ADAL TOUR', sector:'Service',      v:[10,5,50] },
-        { name:'CAP EPC',       sector:'Service',      v:[29,13,44.8] },
-        { name:'CAP BOU',       sector:'Alimentation', v:[15,9,60] },
-        { name:'CAP POI',       sector:'Alimentation', v:[14,6,42.9] },
-        { name:'CAP PAT',       sector:'Alimentation', v:[10,8,80] },
-        { name:'CAP MMVF',      sector:'Production',   v:[10,8,80] },
-        { name:'CAP MMVT',      sector:'Production',   v:[11,8,72.7] },
+        { name:'CAP ADAL AFAT', sector:'Service',      v:[12,12,100],  mentions: null },
+        { name:'CAP ADAL TOUR', sector:'Service',      v:[10,5,50],    mentions: null },
+        { name:'CAP EPC',       sector:'Service',      v:[29,13,44.8], mentions: {TB:0, B:5,  AB:12} },
+        { name:'CAP BOU',       sector:'Alimentation', v:[15,9,60],    mentions: {TB:0, B:0,  AB:3} },
+        { name:'CAP POI',       sector:'Alimentation', v:[14,6,42.9],  mentions: {TB:0, B:3,  AB:6} },
+        { name:'CAP PAT',       sector:'Alimentation', v:[10,8,80],    mentions: null },
+        { name:'CAP MMVF',      sector:'Production',   v:[10,8,80],    mentions: {TB:1, B:1,  AB:3} },
+        { name:'CAP MMVT',      sector:'Production',   v:[11,8,72.7],  mentions: {TB:0, B:2,  AB:3} },
       ],
-      mentions: { TB:1, B:8, AB:25 },
     },
     2026: {
       rows: [
@@ -376,20 +375,18 @@ let DB = {
         { name:'CAP MMVF',      sector:'Production',   v:[12,0,0] },
         { name:'CAP MMVT',      sector:'Production',   v:[12,0,0] },
       ],
-      mentions: { TB:0, B:0, AB:0 },
     }
   },
   bacpro: {
     2025: {
       rows: [
-        { name:'TP MA',       sector:'Service',      v:[25,15,4,6,3,72] },
-        { name:'TP COMMERCE', sector:'Service',      v:[32,17,3,12,2,59.4] },
-        { name:'TP BOU',      sector:'Alimentation', v:[12,4,1,7,2,50] },
-        { name:'TP POI',      sector:'Alimentation', v:[13,5,4,4,4,69.2] },
-        { name:'TP MMV',      sector:'Production',   v:[9,7,0,2,0,77.8] },
-        { name:'TP MET',      sector:'Production',   v:[4,4,0,0,0,100] },
+        { name:'TP MA',       sector:'Service',      v:[25,15,4,6,3,72],    mentions: {TB:1, B:6, AB:9} },
+        { name:'TP COMMERCE', sector:'Service',      v:[32,17,3,12,2,59.4], mentions: {TB:0, B:4, AB:9} },
+        { name:'TP BOU',      sector:'Alimentation', v:[12,4,1,7,2,50],     mentions: {TB:0, B:1, AB:3} },
+        { name:'TP POI',      sector:'Alimentation', v:[13,5,4,4,4,69.2],   mentions: {TB:0, B:0, AB:2} },
+        { name:'TP MMV',      sector:'Production',   v:[9,7,0,2,0,77.8],    mentions: {TB:0, B:2, AB:3} },
+        { name:'TP MET',      sector:'Production',   v:[4,4,0,0,0,100],     mentions: {TB:0, B:2, AB:3} },
       ],
-      mentions: { TB:1, B:8, AB:18 },
     },
     2026: {
       rows: [
@@ -400,17 +397,15 @@ let DB = {
         { name:'TP MMV',      sector:'Production',   v:[15,0,0,0,0,0] },
         { name:'TP MET',      sector:'Production',   v:[6,0,0,0,0,0] },
       ],
-      mentions: { TB:0, B:0, AB:0 },
     }
   },
   bacg: {
     2025: {
       rows: [
-        { name:'TG 1',   sector:'Général',       v:[29,23,5,1,5,96.6] },
-        { name:'TG 2',   sector:'Général',       v:[25,22,2,1,2,96] },
-        { name:'T STMG', sector:'Technologique', v:[29,16,8,5,8,82.8] },
+        { name:'TG 1',   sector:'Général',       v:[29,23,5,1,5,96.6], mentions: {TB:0, B:3, AB:14} },
+        { name:'TG 2',   sector:'Général',       v:[25,22,2,1,2,96],   mentions: null },
+        { name:'T STMG', sector:'Technologique', v:[29,16,8,5,8,82.8], mentions: {TB:0, B:2, AB:13} },
       ],
-      mentions: { TB:0, B:0, AB:0 },
     },
     2026: {
       rows: [
@@ -418,7 +413,6 @@ let DB = {
         { name:'TG 2',   sector:'Général',       v:[20,0,0,0,0,0] },
         { name:'T STMG', sector:'Technologique', v:[31,0,0,0,0,0] },
       ],
-      mentions: { TB:0, B:0, AB:0 },
     }
   },
   bts: {
@@ -428,7 +422,6 @@ let DB = {
         { name:'BTS GTLA',          sector:'Tertiaire', v:[13,6,1,5,1,53.8] },
         { name:'BTS TOURISME',      sector:'Tertiaire', v:[7,1,0,6,0,14.3] },
       ],
-      mentions: { TB:0, B:0, AB:0 },
     },
     2026: {
       rows: [
@@ -436,7 +429,6 @@ let DB = {
         { name:'BTS GTLA',          sector:'Tertiaire', v:[8,0,0,0,0,0] },
         { name:'BTS TOURISME',      sector:'Tertiaire', v:[2,0,0,0,0,0] },
       ],
-      mentions: { TB:0, B:0, AB:0 },
     }
   },
   cs: {
@@ -445,14 +437,12 @@ let DB = {
         { name:'CS ERV', sector:'Service',    v:[7,7,100] },
         { name:'CS OR',  sector:'Production', v:[12,10,83.3] },
       ],
-      mentions: { TB:0, B:0, AB:0 },
     },
     2026: {
       rows: [
         { name:'CS ERV', sector:'Service',    v:[5,0,0] },
         { name:'CS OR',  sector:'Production', v:[12,0,0] },
       ],
-      mentions: { TB:0, B:0, AB:0 },
     }
   },
 };
@@ -570,29 +560,35 @@ function renderYearContent(tab, year) {
   const cfg  = TABS[tab];
   const data = DB[tab][year];
   const cols = COLS[tab];
-  const hasMentions = !!data.mentions;
-
   // Compute totals
   const totals = computeTotals(tab, data.rows);
+
+  // Calcul total mentions depuis les lignes
+  const totalMentions = data.rows.reduce((acc, r) => ({
+    TB: acc.TB + (r.mentions?.TB||0),
+    B:  acc.B  + (r.mentions?.B||0),
+    AB: acc.AB + (r.mentions?.AB||0),
+  }), {TB:0, B:0, AB:0});
+  const hasMentions = data.rows.some(r => r.mentions);
+  const totalM = totalMentions.TB + totalMentions.B + totalMentions.AB;
 
   // Stats cards
   let html = `<div class="row g-3 mb-3">`;
   html += statCard('Inscrits / Présents', totals.inscrits, '#1e293b', 'bi-people-fill');
   html += statCard('Admis total', totals.admis, cfg.color, 'bi-patch-check-fill');
   html += statCard('Taux de réussite', fmtTaux(totals.taux) + '%', tauxColor(totals.taux), 'bi-percent');
-  if (hasMentions && data.mentions) {
-    const totalM = (data.mentions.TB||0)+(data.mentions.B||0)+(data.mentions.AB||0);
+  if (hasMentions && totalM > 0) {
     html += statCard('Total mentions', totalM, '#7c3aed', 'bi-stars');
   }
   html += `</div>`;
 
   // Mentions row
-  if (hasMentions && data.mentions && ((data.mentions.TB||0)+(data.mentions.B||0)+(data.mentions.AB||0)) > 0) {
+  if (hasMentions && totalM > 0) {
     html += `<div class="mb-3 d-flex align-items-center gap-2 flex-wrap">
       <span class="fw-semibold text-secondary small">MENTIONS :</span>
-      <span class="mention-pill mention-tb">TB : ${data.mentions.TB||0}</span>
-      <span class="mention-pill mention-b">B : ${data.mentions.B||0}</span>
-      <span class="mention-pill mention-ab">AB : ${data.mentions.AB||0}</span>
+      <span class="mention-pill mention-tb">TB : ${totalMentions.TB}</span>
+      <span class="mention-pill mention-b">B : ${totalMentions.B}</span>
+      <span class="mention-pill mention-ab">AB : ${totalMentions.AB}</span>
     </div>`;
   }
 
@@ -602,12 +598,13 @@ function renderYearContent(tab, year) {
   <thead><tr>
     <th>Spécialité</th><th>Secteur</th>`;
   cols.forEach(c => html += `<th class="text-center">${c}</th>`);
+  if (hasMentions) html += `<th class="text-center">Mentions</th>`;
   html += `<th class="text-center">Actions</th></tr></thead><tbody>`;
 
   const sectors = [...new Set(data.rows.map(r => r.sector))];
   sectors.forEach(sec => {
     const rows = data.rows.filter(r => r.sector === sec);
-    html += `<tr class="sector-header"><td colspan="${cols.length+3}"><i class="bi bi-chevron-right me-1"></i>${sec}</td></tr>`;
+    html += `<tr class="sector-header"><td colspan="${cols.length+3+(hasMentions?1:0)}"><i class="bi bi-chevron-right me-1"></i>${sec}</td></tr>`;
     rows.forEach((row, idx) => {
       const globalIdx = data.rows.indexOf(row);
       const taux = row.v[row.v.length-1];
@@ -619,6 +616,14 @@ function renderYearContent(tab, year) {
         const cls = isTaux ? `taux-cell ${tauxClass(val)}` : '';
         html += `<td class="text-center ${cls}">${isTaux ? fmtTaux(val)+'%' : (val===0&&vi>0?'—':val)}</td>`;
       });
+      if (hasMentions) {
+        const m = row.mentions;
+        html += `<td class="text-center small">` + (m
+          ? `<span class="mention-pill mention-tb" style="font-size:0.75rem;padding:0.1rem 0.45rem">TB:${m.TB||0}</span>
+             <span class="mention-pill mention-b"  style="font-size:0.75rem;padding:0.1rem 0.45rem">B:${m.B||0}</span>
+             <span class="mention-pill mention-ab" style="font-size:0.75rem;padding:0.1rem 0.45rem">AB:${m.AB||0}</span>`
+          : `<span class="text-muted">—</span>`) + `</td>`;
+      }
       html += `<td class="text-center">
         <button class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="openEditModal('${tab}',${year},${globalIdx})">
           <i class="bi bi-pencil"></i>
@@ -635,8 +640,15 @@ function renderYearContent(tab, year) {
     for(let i=2;i<cols.length-2;i++) html += `<td></td>`;
     html += `<td></td>`;
   }
-  html += `<td class="text-center taux-cell ${tauxClass(totals.taux)}">${fmtTaux(totals.taux)}%</td>
-    <td></td></tr>`;
+  html += `<td class="text-center taux-cell ${tauxClass(totals.taux)}">${fmtTaux(totals.taux)}%</td>`;
+  if (hasMentions) {
+    html += `<td class="text-center small">
+      <span class="mention-pill mention-tb" style="font-size:0.75rem;padding:0.1rem 0.45rem">TB:${totalMentions.TB}</span>
+      <span class="mention-pill mention-b"  style="font-size:0.75rem;padding:0.1rem 0.45rem">B:${totalMentions.B}</span>
+      <span class="mention-pill mention-ab" style="font-size:0.75rem;padding:0.1rem 0.45rem">AB:${totalMentions.AB}</span>
+    </td>`;
+  }
+  html += `<td></td></tr>`;
 
   html += `</tbody></table></div>
   <div class="card-footer bg-transparent d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -784,16 +796,7 @@ function openAddModal(tab) {
   <button class="btn btn-outline-secondary btn-sm mt-2" onclick="addSpecialtyRow('${tab}')">
     <i class="bi bi-plus-lg me-1"></i>Ajouter une spécialité
   </button>
-  <hr>
-  <div class="row g-2">
-    <div class="col-12"><strong class="small">Mentions</strong></div>
-    <div class="col-4"><label class="form-label small">Très Bien</label>
-      <input type="number" class="form-control form-control-sm" id="men-tb" value="0" min="0"></div>
-    <div class="col-4"><label class="form-label small">Bien</label>
-      <input type="number" class="form-control form-control-sm" id="men-b" value="0" min="0"></div>
-    <div class="col-4"><label class="form-label small">Assez Bien</label>
-      <input type="number" class="form-control form-control-sm" id="men-ab" value="0" min="0"></div>
-  </div>`;
+  `;
 
   document.getElementById('addModalBody').innerHTML = html;
   fillModalForYear(tab, nextYear);
@@ -831,14 +834,8 @@ function fillModalRows(tab, yearData) {
     yearData.rows.forEach(row => {
       container.insertAdjacentHTML('beforeend', buildSpecialtyInputRow(tab, row));
     });
-    document.getElementById('men-tb').value = yearData.mentions?.TB || 0;
-    document.getElementById('men-b').value  = yearData.mentions?.B  || 0;
-    document.getElementById('men-ab').value = yearData.mentions?.AB || 0;
   } else {
     container.insertAdjacentHTML('beforeend', buildSpecialtyInputRow(tab, null));
-    document.getElementById('men-tb').value = 0;
-    document.getElementById('men-b').value  = 0;
-    document.getElementById('men-ab').value = 0;
   }
 }
 
@@ -869,16 +866,7 @@ function duplicateYear(tab, srcYear) {
   <button class="btn btn-outline-secondary btn-sm mt-2" onclick="addSpecialtyRow('${tab}')">
     <i class="bi bi-plus-lg me-1"></i>Ajouter une spécialité
   </button>
-  <hr>
-  <div class="row g-2">
-    <div class="col-12"><strong class="small">Mentions</strong></div>
-    <div class="col-4"><label class="form-label small">Très Bien</label>
-      <input type="number" class="form-control form-control-sm" id="men-tb" value="0" min="0"></div>
-    <div class="col-4"><label class="form-label small">Bien</label>
-      <input type="number" class="form-control form-control-sm" id="men-b" value="0" min="0"></div>
-    <div class="col-4"><label class="form-label small">Assez Bien</label>
-      <input type="number" class="form-control form-control-sm" id="men-ab" value="0" min="0"></div>
-  </div>`;
+  `;
 
   document.getElementById('addModalTitle').textContent = `Dupliquer ${srcYear} → ${targetYear} — ${cfg.label}`;
   document.getElementById('addModalBody').innerHTML = html;
@@ -930,7 +918,25 @@ function buildSpecialtyInputRow(tab, row) {
     <label class="form-label small fw-semibold mb-1 text-center d-block text-muted">Taux</label>
     <div class="form-control text-center fw-bold bg-white ${tauxClass(taux)} sp-taux-preview">${fmtTaux(taux)} %</div>
   </div>`;
-  html += `</div></div>`;
+  html += `</div>`;
+
+  // Ligne 3 : mentions
+  const men = row?.mentions || {TB:0, B:0, AB:0};
+  html += `<div class="row g-2 mt-1 pt-2 border-top align-items-center">
+    <div class="col-auto"><small class="text-muted fw-semibold">Mentions :</small></div>
+    <div class="col-auto">
+      <label class="form-label small text-muted mb-1 d-block text-center">Très Bien</label>
+      <input type="number" class="form-control form-control-sm text-center sp-men-tb" value="${men.TB||0}" min="0" style="width:65px">
+    </div>
+    <div class="col-auto">
+      <label class="form-label small text-muted mb-1 d-block text-center">Bien</label>
+      <input type="number" class="form-control form-control-sm text-center sp-men-b" value="${men.B||0}" min="0" style="width:65px">
+    </div>
+    <div class="col-auto">
+      <label class="form-label small text-muted mb-1 d-block text-center">Assez Bien</label>
+      <input type="number" class="form-control form-control-sm text-center sp-men-ab" value="${men.AB||0}" min="0" style="width:65px">
+    </div>
+  </div></div>`;
   return html;
 }
 
@@ -962,17 +968,17 @@ function saveYear() {
     const vals   = [...rowEl.querySelectorAll('.sp-val')].map(i => parseFloat(i.value)||0);
     if (!name) return;
     const taux = calcTaux(tab, vals);
-    rows.push({ name, sector, v: [...vals, taux] });
+    const menTB = parseInt(rowEl.querySelector('.sp-men-tb')?.value)||0;
+    const menB  = parseInt(rowEl.querySelector('.sp-men-b')?.value)||0;
+    const menAB = parseInt(rowEl.querySelector('.sp-men-ab')?.value)||0;
+    const mentions = (menTB+menB+menAB > 0) ? {TB:menTB, B:menB, AB:menAB} : null;
+    rows.push({ name, sector, v: [...vals, taux], mentions });
   });
 
   if (!rows.length) { alert('Ajoutez au moins une spécialité.'); return; }
 
-  const TB = parseInt(document.getElementById('men-tb').value)||0;
-  const B  = parseInt(document.getElementById('men-b').value)||0;
-  const AB = parseInt(document.getElementById('men-ab').value)||0;
-
   if (!DB[tab]) DB[tab] = {};
-  DB[tab][year] = { rows, mentions: { TB, B, AB } };
+  DB[tab][year] = { rows };
   saveToStorage();
   if (addModalObj) addModalObj.hide();
   renderTab(tab);
@@ -1011,6 +1017,19 @@ function openEditModal(tab, year, rowIndex) {
   html += `<div class="col-6 col-md-4">
     <label class="form-label fw-semibold text-muted">Taux (calculé)</label>
     <div class="form-control bg-light fw-bold ${tauxClass(taux)}">${fmtTaux(taux)} %</div>
+  </div>
+  <div class="col-12"><hr class="my-2"><small class="text-muted fw-semibold">Mentions</small></div>
+  <div class="col-4">
+    <label class="form-label fw-semibold">Très Bien</label>
+    <input type="number" class="form-control" id="edit-men-tb" value="${row.mentions?.TB||0}" min="0">
+  </div>
+  <div class="col-4">
+    <label class="form-label fw-semibold">Bien</label>
+    <input type="number" class="form-control" id="edit-men-b" value="${row.mentions?.B||0}" min="0">
+  </div>
+  <div class="col-4">
+    <label class="form-label fw-semibold">Assez Bien</label>
+    <input type="number" class="form-control" id="edit-men-ab" value="${row.mentions?.AB||0}" min="0">
   </div></div>`;
 
   document.getElementById('editModalBody').innerHTML = html;
@@ -1027,6 +1046,10 @@ function saveEdit() {
   const vals  = fcols.map((_, i) => parseFloat(document.getElementById(`edit-v${i}`).value)||0);
   const taux  = calcTaux(tab, vals);
   row.v = [...vals, taux];
+  const menTB = parseInt(document.getElementById('edit-men-tb').value)||0;
+  const menB  = parseInt(document.getElementById('edit-men-b').value)||0;
+  const menAB = parseInt(document.getElementById('edit-men-ab').value)||0;
+  row.mentions = (menTB+menB+menAB > 0) ? {TB:menTB, B:menB, AB:menAB} : null;
   saveToStorage();
   if (editModalObj) editModalObj.hide();
   renderYearContent(tab, year);
