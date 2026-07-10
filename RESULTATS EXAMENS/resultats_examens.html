@@ -351,7 +351,7 @@ const DEFAULT_SECTORS = {
 };
 
 // Données 2025 (résultats définitifs) et 2026 (inscriptions)
-let DB = {
+const INITIAL_DB = {
   cap: {
     2025: {
       rows: [
@@ -448,6 +448,7 @@ let DB = {
 };
 
 // ==================== STATE ====================
+let DB = JSON.parse(JSON.stringify(INITIAL_DB));
 let currentTab = 'cap';
 let editCtx = null;
 let addCtx  = null;
@@ -469,7 +470,28 @@ window.addEventListener('DOMContentLoaded', () => {
 function loadFromStorage() {
   const saved = localStorage.getItem('lpo_mana_db');
   if (saved) {
-    try { DB = JSON.parse(saved); } catch(e) {}
+    try { DB = JSON.parse(saved); } catch(e) { return; }
+    // Migration : inject missing row-level mentions from INITIAL_DB
+    let migrated = false;
+    for (const tab of Object.keys(INITIAL_DB)) {
+      for (const year of Object.keys(INITIAL_DB[tab])) {
+        if (!DB[tab]?.[year]) continue;
+        for (const defRow of INITIAL_DB[tab][year].rows) {
+          if (defRow.mentions === null || defRow.mentions === undefined) continue;
+          const row = (DB[tab][year].rows||[]).find(r => r.name === defRow.name);
+          if (row && row.mentions === undefined) {
+            row.mentions = defRow.mentions;
+            migrated = true;
+          }
+        }
+        // Supprimer l'ancien champ mentions au niveau année
+        if (DB[tab][year].mentions !== undefined) {
+          delete DB[tab][year].mentions;
+          migrated = true;
+        }
+      }
+    }
+    if (migrated) saveToStorage();
   }
 }
 function saveToStorage() {
