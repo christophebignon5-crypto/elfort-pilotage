@@ -7,6 +7,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 <style>
   :root {
     --cap-color: #2563eb;
@@ -355,63 +356,63 @@ const INITIAL_DB = {
   cap: {
     2025: {
       rows: [
-        { name:'CAP ADAL AFAT', sector:'Service',      v:[12,12,100],  mentions: null },
-        { name:'CAP ADAL TOUR', sector:'Service',      v:[10,5,50],    mentions: null },
-        { name:'CAP EPC',       sector:'Service',      v:[29,13,44.8], mentions: {TB:0, B:5,  AB:12} },
-        { name:'CAP BOU',       sector:'Alimentation', v:[15,9,60],    mentions: {TB:0, B:0,  AB:3} },
-        { name:'CAP POI',       sector:'Alimentation', v:[14,6,42.9],  mentions: {TB:0, B:3,  AB:6} },
-        { name:'CAP PAT',       sector:'Alimentation', v:[10,8,80],    mentions: null },
-        { name:'CAP MMVF',      sector:'Production',   v:[10,8,80],    mentions: {TB:1, B:1,  AB:3} },
-        { name:'CAP MMVT',      sector:'Production',   v:[11,8,72.7],  mentions: {TB:0, B:2,  AB:3} },
+        { name:'CAP ADAL AFAT', sector:'Service',      v:[12,12,100]  },
+        { name:'CAP ADAL TOUR', sector:'Service',      v:[10,5,50]    },
+        { name:'CAP EPC',       sector:'Service',      v:[29,13,44.8] },
+        { name:'CAP BOU',       sector:'Alimentation', v:[15,9,60]    },
+        { name:'CAP POI',       sector:'Alimentation', v:[14,6,42.9]  },
+        { name:'CAP PAT',       sector:'Alimentation', v:[10,8,80]    },
+        { name:'CAP MMVF',      sector:'Production',   v:[10,8,80]    },
+        { name:'CAP MMVT',      sector:'Production',   v:[11,8,72.7]  },
       ],
     },
     2026: {
       rows: [
-        { name:'CAP ADAL AFAT', sector:'Service',      v:[10,0,0] },
-        { name:'CAP ADAL TOUR', sector:'Service',      v:[12,0,0] },
-        { name:'CAP EPC',       sector:'Service',      v:[26,0,0] },
-        { name:'CAP BOU',       sector:'Alimentation', v:[11,0,0] },
-        { name:'CAP POI',       sector:'Alimentation', v:[12,0,0] },
-        { name:'CAP MMVF',      sector:'Production',   v:[12,0,0] },
-        { name:'CAP MMVT',      sector:'Production',   v:[12,0,0] },
+        { name:'CAP ADAL AFAT', sector:'Service',      v:[10,0,0],  mentions: null },
+        { name:'CAP ADAL TOUR', sector:'Service',      v:[12,0,0],  mentions: null },
+        { name:'CAP EPC',       sector:'Service',      v:[26,0,0],  mentions: {TB:0, B:5,  AB:12} },
+        { name:'CAP BOU',       sector:'Alimentation', v:[11,0,0],  mentions: {TB:0, B:0,  AB:3} },
+        { name:'CAP POI',       sector:'Alimentation', v:[12,0,0],  mentions: {TB:0, B:3,  AB:6} },
+        { name:'CAP MMVF',      sector:'Production',   v:[12,0,0],  mentions: {TB:1, B:1,  AB:3} },
+        { name:'CAP MMVT',      sector:'Production',   v:[12,0,0],  mentions: {TB:0, B:2,  AB:3} },
       ],
     }
   },
   bacpro: {
     2025: {
       rows: [
-        { name:'TP MA',       sector:'Service',      v:[25,15,4,6,3,72],    mentions: {TB:1, B:6, AB:9} },
-        { name:'TP COMMERCE', sector:'Service',      v:[32,17,3,12,2,59.4], mentions: {TB:0, B:4, AB:9} },
-        { name:'TP BOU',      sector:'Alimentation', v:[12,4,1,7,2,50],     mentions: {TB:0, B:1, AB:3} },
-        { name:'TP POI',      sector:'Alimentation', v:[13,5,4,4,4,69.2],   mentions: {TB:0, B:0, AB:2} },
-        { name:'TP MMV',      sector:'Production',   v:[9,7,0,2,0,77.8],    mentions: {TB:0, B:2, AB:3} },
-        { name:'TP MET',      sector:'Production',   v:[4,4,0,0,0,100],     mentions: {TB:0, B:2, AB:3} },
+        { name:'TP MA',       sector:'Service',      v:[25,15,4,6,3,72]    },
+        { name:'TP COMMERCE', sector:'Service',      v:[32,17,3,12,2,59.4] },
+        { name:'TP BOU',      sector:'Alimentation', v:[12,4,1,7,2,50]     },
+        { name:'TP POI',      sector:'Alimentation', v:[13,5,4,4,4,69.2]   },
+        { name:'TP MMV',      sector:'Production',   v:[9,7,0,2,0,77.8]    },
+        { name:'TP MET',      sector:'Production',   v:[4,4,0,0,0,100]     },
       ],
     },
     2026: {
       rows: [
-        { name:'TP MA',       sector:'Service',      v:[27,0,0,0,0,0] },
-        { name:'TP COMMERCE', sector:'Service',      v:[23,0,0,0,0,0] },
-        { name:'TP BOU',      sector:'Alimentation', v:[12,0,0,0,0,0] },
-        { name:'TP POI',      sector:'Alimentation', v:[10,0,0,0,0,0] },
-        { name:'TP MMV',      sector:'Production',   v:[15,0,0,0,0,0] },
-        { name:'TP MET',      sector:'Production',   v:[6,0,0,0,0,0] },
+        { name:'TP MA',       sector:'Service',      v:[27,0,0,0,0,0], mentions: {TB:1, B:6, AB:9} },
+        { name:'TP COMMERCE', sector:'Service',      v:[23,0,0,0,0,0], mentions: {TB:0, B:4, AB:9} },
+        { name:'TP BOU',      sector:'Alimentation', v:[12,0,0,0,0,0], mentions: {TB:0, B:1, AB:3} },
+        { name:'TP POI',      sector:'Alimentation', v:[10,0,0,0,0,0], mentions: {TB:0, B:0, AB:2} },
+        { name:'TP MMV',      sector:'Production',   v:[15,0,0,0,0,0], mentions: {TB:0, B:2, AB:3} },
+        { name:'TP MET',      sector:'Production',   v:[6,0,0,0,0,0],  mentions: {TB:0, B:2, AB:3} },
       ],
     }
   },
   bacg: {
     2025: {
       rows: [
-        { name:'TG 1',   sector:'Général',       v:[29,23,5,1,5,96.6], mentions: {TB:0, B:3, AB:14} },
-        { name:'TG 2',   sector:'Général',       v:[25,22,2,1,2,96],   mentions: null },
-        { name:'T STMG', sector:'Technologique', v:[29,16,8,5,8,82.8], mentions: {TB:0, B:2, AB:13} },
+        { name:'TG 1',   sector:'Général',       v:[29,23,5,1,5,96.6] },
+        { name:'TG 2',   sector:'Général',       v:[25,22,2,1,2,96]   },
+        { name:'T STMG', sector:'Technologique', v:[29,16,8,5,8,82.8] },
       ],
     },
     2026: {
       rows: [
-        { name:'TG 1',   sector:'Général',       v:[20,0,0,0,0,0] },
-        { name:'TG 2',   sector:'Général',       v:[20,0,0,0,0,0] },
-        { name:'T STMG', sector:'Technologique', v:[31,0,0,0,0,0] },
+        { name:'TG 1',   sector:'Général',       v:[20,0,0,0,0,0], mentions: {TB:0, B:3, AB:14} },
+        { name:'TG 2',   sector:'Général',       v:[20,0,0,0,0,0], mentions: null },
+        { name:'T STMG', sector:'Technologique', v:[31,0,0,0,0,0], mentions: {TB:0, B:2, AB:13} },
       ],
     }
   },
@@ -479,7 +480,7 @@ function loadFromStorage() {
         for (const defRow of INITIAL_DB[tab][year].rows) {
           if (defRow.mentions === null || defRow.mentions === undefined) continue;
           const row = (DB[tab][year].rows||[]).find(r => r.name === defRow.name);
-          if (row && row.mentions === undefined) {
+          if (row && !row.mentions) {
             row.mentions = defRow.mentions;
             migrated = true;
           }
@@ -535,8 +536,10 @@ function renderTab(tab) {
   // Year pills
   html += `<div class="year-pills d-flex flex-wrap gap-2 mb-4" id="pills-${tab}">`;
   years.forEach(y => {
+    const yData = DB[tab][y];
+    const hasMen = yData?.rows?.some(r => r.mentions);
     html += `<button class="btn ${y===latestYear ? 'btn-'+tab : 'btn-outline-secondary'}"
-      id="pill-${tab}-${y}" onclick="selectYear('${tab}',${y})">${y}</button>`;
+      id="pill-${tab}-${y}" onclick="selectYear('${tab}',${y})">${y}${hasMen ? ' <i class="bi bi-stars" style="font-size:0.75rem;vertical-align:middle"></i>' : ''}</button>`;
   });
   html += `</div>`;
 
@@ -675,7 +678,10 @@ function renderYearContent(tab, year) {
   html += `</tbody></table></div>
   <div class="card-footer bg-transparent d-flex justify-content-between align-items-center flex-wrap gap-2">
     <small class="text-muted">Année ${year}</small>
-    <div class="d-flex gap-2">
+    <div class="d-flex gap-2 flex-wrap">
+      ${['cap','bacpro','bacg'].includes(tab) ? `<button class="btn btn-sm btn-outline-success" onclick="importMentionsExcel('${tab}',${year})">
+        <i class="bi bi-file-earmark-excel me-1"></i>Importer mentions (Excel)
+      </button>` : ''}
       <button class="btn btn-sm btn-outline-primary" onclick="duplicateYear('${tab}',${year})">
         <i class="bi bi-copy me-1"></i>Dupliquer vers ${year+1}
       </button>
@@ -1197,9 +1203,27 @@ function importData() {
         } else {
           DB = imported;
         }
+        // Inject per-row mentions from INITIAL_DB for rows that have no mentions
+        for (const tab of Object.keys(INITIAL_DB)) {
+          for (const year of Object.keys(INITIAL_DB[tab])) {
+            if (!DB[tab]?.[year]) continue;
+            // Remove old year-level mentions field if present
+            if (DB[tab][year].mentions !== undefined) delete DB[tab][year].mentions;
+            for (const defRow of INITIAL_DB[tab][year].rows) {
+              if (defRow.mentions === null || defRow.mentions === undefined) continue;
+              const row = (DB[tab][year].rows||[]).find(r => r.name === defRow.name);
+              if (row && !row.mentions) row.mentions = defRow.mentions;
+            }
+          }
+        }
         saveToStorage();
         applySettings();
         renderTab(currentTab);
+        // Si l'année affichée par défaut n'a pas de mentions, naviguer vers la plus récente qui en a
+        const tabData = DB[currentTab];
+        const sortedYrs = Object.keys(tabData||{}).map(Number).sort((a,b)=>b-a);
+        const latestWithMentions = sortedYrs.find(y => tabData[y]?.rows?.some(r => r.mentions));
+        if (latestWithMentions && latestWithMentions !== sortedYrs[0]) selectYear(currentTab, latestWithMentions);
         updateBadges();
       } catch { alert('Fichier JSON invalide.'); }
     };
@@ -1213,6 +1237,197 @@ function resetData() {
   if (!confirm('Confirmez-vous la suppression de toutes les données ?')) return;
   localStorage.removeItem('lpo_mana_db');
   location.reload();
+}
+
+// ==================== IMPORT MENTIONS EXCEL ====================
+
+const MENTION_MATCH = {
+  cap: [
+    { name:'CAP ADAL AFAT', keys:['ADAL AFAT','ADAL-AFAT'] },
+    { name:'CAP ADAL TOUR', keys:['ADAL TOUR','ADAL-TOUR','ADAL'] },
+    { name:'CAP EPC',       keys:['EPC','EMPLOY'] },
+    { name:'CAP BOU',       keys:['BOU','BOULANG'] },
+    { name:'CAP POI',       keys:['POI','POISSON'] },
+    { name:'CAP PAT',       keys:['PAT','PÂTISS','PATISS'] },
+    { name:'CAP MMVF',      keys:['MMVF','MMV F','FERRANT'] },
+    { name:'CAP MMVT',      keys:['MMVT','MMV T','TRAVAUX'] },
+  ],
+  bacpro: [
+    { name:'TP MA',       keys:['ACCUEIL','METROPO',' MA ','TP MA'] },
+    { name:'TP COMMERCE', keys:['COMMERC','VENTE'] },
+    { name:'TP BOU',      keys:['BOU','BOULANG'] },
+    { name:'TP POI',      keys:['POI','POISSON'] },
+    { name:'TP MMV',      keys:['MMV','MARÉCHAL','MARECHAL'] },
+    { name:'TP MET',      keys:['MET','MÉTIER','METIER'] },
+  ],
+  bacg: [
+    { name:'T STMG', keys:['STMG','SCIENCES ET TECH'] },
+    { name:'TG 1',   keys:['TG 1','GEN 1','GÉNÉRALE 1','GENERALE 1'] },
+    { name:'TG 2',   keys:['TG 2','GEN 2','GÉNÉRALE 2','GENERALE 2'] },
+  ],
+};
+
+function matchSpecialtyToRow(specName, tab) {
+  const up = specName.toUpperCase();
+  for (const c of (MENTION_MATCH[tab] || [])) {
+    if (c.keys.some(k => up.includes(k))) return c.name;
+  }
+  return null;
+}
+
+function importMentionsExcel(tab, year) {
+  if (typeof XLSX === 'undefined') {
+    alert("La bibliothèque SheetJS n'est pas disponible (connexion internet requise au premier chargement).");
+    return;
+  }
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.xlsx,.xls,.ods';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const wb = XLSX.read(new Uint8Array(ev.target.result), {type:'array'});
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const allRows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+        if (!allRows.length) { alert('Fichier vide.'); return; }
+
+        // Trouver la ligne d'en-tête (première ligne avec ≥3 cellules non vides)
+        let hi = 0;
+        for (let i = 0; i < Math.min(10, allRows.length); i++) {
+          if (allRows[i].filter(c => String(c).trim() !== '').length >= 3) { hi = i; break; }
+        }
+        const headers = allRows[hi].map(h => String(h).toUpperCase().trim());
+
+        // Colonne Résultat : chercher dans les headers, puis scanner les données
+        let resCol = headers.findIndex(h => /RÉSULT|RESULT|DÉCIS|MENTION/.test(h));
+        if (resCol === -1) {
+          outer: for (let r = hi+1; r < Math.min(hi+40, allRows.length); r++) {
+            for (let c = 0; c < allRows[r].length; c++) {
+              if (/ADMIS MENTION/i.test(String(allRows[r][c]))) { resCol = c; break outer; }
+            }
+          }
+        }
+        if (resCol === -1) { alert("Colonne Résultat introuvable.\nAssurez-vous que le fichier contient des valeurs 'Admis Mention …'."); return; }
+
+        // Colonne Spécialité
+        const SPEC_WORDS = /SPÉCIAL|SPECIAL|FORMAT|FILIÈR|FILIER|LIBEL|DIPLÔM|DIPLOM|SÉRIE|SERIE/;
+        let specCol = headers.findIndex((h, i) => i !== resCol && SPEC_WORDS.test(h));
+        if (specCol === -1) {
+          // Heuristique : colonne avec le plus de valeurs répétées (groupement)
+          let best = -1, bestScore = 0;
+          for (let c = 0; c < headers.length; c++) {
+            if (c === resCol) continue;
+            const vals = allRows.slice(hi+1).map(r => String(r[c]||'').trim()).filter(v => v.length > 2);
+            const uniq = new Set(vals).size;
+            const score = uniq > 1 && uniq < vals.length * 0.6 ? vals.length / uniq : 0;
+            if (score > bestScore) { bestScore = score; best = c; }
+          }
+          specCol = best;
+        }
+        if (specCol === -1) { alert("Colonne Spécialité introuvable."); return; }
+
+        // Comptage mentions par spécialité
+        const counts = {};
+        for (let r = hi+1; r < allRows.length; r++) {
+          const res  = String(allRows[r][resCol] || '').toUpperCase().trim();
+          const spec = String(allRows[r][specCol] || '').trim();
+          if (!spec || !res.includes('ADMIS MENTION')) continue;
+          if (!counts[spec]) counts[spec] = {TB:0, B:0, AB:0};
+          if (/TRÈS BIEN|TRES BIEN/.test(res))   counts[spec].TB++;
+          else if (/ASSEZ BIEN/.test(res))        counts[spec].AB++;
+          else if (/\bBIEN\b/.test(res))          counts[spec].B++;
+        }
+
+        if (!Object.keys(counts).length) {
+          alert("Aucune mention trouvée.\nVérifiez que la colonne Résultat contient des valeurs 'Admis Mention Très Bien / Bien / Assez Bien'.");
+          return;
+        }
+
+        const mapping = {};
+        for (const spec of Object.keys(counts)) mapping[spec] = matchSpecialtyToRow(spec, tab);
+        showMentionsMappingModal(tab, year, counts, mapping);
+      } catch(err) { alert('Erreur lors de la lecture du fichier : ' + err.message); }
+    };
+    reader.readAsArrayBuffer(file);
+  };
+  input.click();
+}
+
+function showMentionsMappingModal(tab, year, counts, mapping) {
+  const rowNames = (DB[tab]?.[year]?.rows || []).map(r => r.name);
+  const specs = Object.keys(counts);
+  let rows = '';
+  specs.forEach(spec => {
+    const m = counts[spec];
+    const matched = mapping[spec] || '';
+    rows += `<tr>
+      <td class="small text-muted">${spec}</td>
+      <td class="text-center fw-bold text-primary">${m.TB}</td>
+      <td class="text-center fw-bold text-success">${m.B}</td>
+      <td class="text-center fw-bold text-warning">${m.AB}</td>
+      <td>
+        <select class="form-select form-select-sm men-map-sel" data-spec="${spec.replace(/"/g,'&quot;')}">
+          <option value="">— Ignorer —</option>
+          ${rowNames.map(n => `<option value="${n}"${n===matched?' selected':''}>${n}</option>`).join('')}
+        </select>
+      </td>
+    </tr>`;
+  });
+
+  document.getElementById('mentionsMappingModal')?.remove();
+  document.body.insertAdjacentHTML('beforeend', `
+    <div class="modal fade" id="mentionsMappingModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="bi bi-file-earmark-excel me-2 text-success"></i>Import mentions Excel — ${tab.toUpperCase()} ${year}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <p class="text-muted small mb-3">Vérifiez la correspondance entre les spécialités du fichier Excel et les lignes de l'application, puis cliquez sur <strong>Appliquer</strong>.</p>
+            <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead class="table-light"><tr>
+                <th>Spécialité (Excel)</th>
+                <th class="text-center">TB</th><th class="text-center">B</th><th class="text-center">AB</th>
+                <th>→ Ligne dans l'app</th>
+              </tr></thead>
+              <tbody>${rows}</tbody>
+            </table></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+            <button class="btn btn-success" onclick="applyMentionsMapping('${tab}',${year})">
+              <i class="bi bi-check-lg me-1"></i>Appliquer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>`);
+
+  window._pendingMenCounts = counts;
+  new bootstrap.Modal(document.getElementById('mentionsMappingModal')).show();
+}
+
+function applyMentionsMapping(tab, year) {
+  const counts = window._pendingMenCounts || {};
+  document.querySelectorAll('#mentionsMappingModal .men-map-sel').forEach(sel => {
+    const spec   = sel.dataset.spec;
+    const appRow = sel.value;
+    if (!appRow || !counts[spec]) return;
+    const row = (DB[tab]?.[year]?.rows || []).find(r => r.name === appRow);
+    if (row) {
+      const ex = row.mentions || {TB:0, B:0, AB:0};
+      row.mentions = { TB: ex.TB + counts[spec].TB, B: ex.B + counts[spec].B, AB: ex.AB + counts[spec].AB };
+    }
+  });
+  bootstrap.Modal.getInstance(document.getElementById('mentionsMappingModal'))?.hide();
+  saveToStorage();
+  renderTab(tab);
+  selectYear(tab, year);
 }
 </script>
 </body>
