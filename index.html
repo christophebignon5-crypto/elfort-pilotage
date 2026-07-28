@@ -641,7 +641,16 @@ document.querySelectorAll('.btn-launch').forEach(function (a) {
   function encodeKey(k) { return k.replace(/[\/\.#\$\[\]]/g, function(c) { return '_' + c.charCodeAt(0) + '_'; }); }
   function decodeKey(k) { return k.replace(/_(\d+)_/g, function(_, n) { return String.fromCharCode(+n); }); }
 
+  function checkProtocol() {
+    if (location.protocol === 'file:') {
+      showStatus('⚠️ La sauvegarde en ligne nécessite d\'ouvrir le hub via son URL GitHub Pages (https://), pas depuis un fichier local.', 'err');
+      return false;
+    }
+    return true;
+  }
+
   btnCloudSave.addEventListener('click', function () {
+    if (!checkProtocol()) return;
     btnCloudSave.disabled = true;
     showStatus('☁️ Connexion Google…', 'info');
     fbEnsureAuth().then(function (user) {
@@ -667,6 +676,7 @@ document.querySelectorAll('.btn-launch').forEach(function (a) {
 
   /* ── Chargement Firebase ── */
   btnCloudLoad.addEventListener('click', function () {
+    if (!checkProtocol()) return;
     if (!confirm('Charger la sauvegarde en ligne remplacera les données locales actuelles. Continuer ?')) return;
     btnCloudLoad.disabled = true;
     showStatus('⬇️ Connexion Google…', 'info');
