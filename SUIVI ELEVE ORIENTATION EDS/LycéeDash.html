@@ -104,6 +104,12 @@
     <div class="sidebar-nav-item" data-page="comparatif">📈 Comparatif</div>
     <div class="sidebar-nav-item" data-page="params">⚙️ Paramètres</div>
   </div>
+  <div style="padding:0.75rem 1rem;border-top:1px solid rgba(255,255,255,0.15)">
+    <div style="font-size:0.7rem;opacity:0.7;margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.05em">Sauvegarde en ligne</div>
+    <button onclick="saveLyceeDashCloud()" style="width:100%;margin-bottom:0.4rem;padding:0.45rem 0.6rem;background:#ff6f00;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:0.8rem">☁️ Sauvegarder</button>
+    <button onclick="loadLyceeDashCloud()" style="width:100%;padding:0.45rem 0.6rem;background:#1565c0;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:0.8rem">☁️ Charger</button>
+    <div id="cloud-msg-sidebar" style="font-size:0.75rem;margin-top:0.35rem;color:#fff;opacity:0.9"></div>
+  </div>
   <div class="sidebar-bottom" id="sb-year"></div>
 </div>
 
@@ -1502,17 +1508,21 @@ function exportJSON(){
 
 function saveLyceeDashCloud(){
   const msg=document.getElementById('cloud-msg');
-  msg.innerHTML='⏳ Connexion Google...';
+  const msg2=document.getElementById('cloud-msg-sidebar');
+  function setMsg(html){ if(msg) msg.innerHTML=html; if(msg2) msg2.innerHTML=html; }
+  setMsg('⏳ Connexion Google...');
   saveToCloud(getData(), 'lyceedash')
-    .then(()=>{ msg.innerHTML='<span style="color:#2e7d32">✅ Sauvegarde en ligne effectuée</span>'; })
-    .catch(err=>{ msg.innerHTML='<span style="color:#c62828">❌ '+err.message+'</span>'; });
+    .then(()=>{ setMsg('<span style="color:#a5d6a7">✅ Sauvegarde effectuée</span>'); })
+    .catch(err=>{ setMsg('<span style="color:#ef9a9a">❌ '+err.message+'</span>'); });
 }
 function loadLyceeDashCloud(){
   const msg=document.getElementById('cloud-msg');
-  msg.innerHTML='⏳ Connexion Google...';
+  const msg2=document.getElementById('cloud-msg-sidebar');
+  function setMsg(html){ if(msg) msg.innerHTML=html; if(msg2) msg2.innerHTML=html; }
+  setMsg('⏳ Connexion Google...');
   loadFromCloud('lyceedash')
-    .then(d=>{ saveData(d); msg.innerHTML='<span style="color:#2e7d32">✅ Données restaurées — rechargement...</span>'; setTimeout(()=>location.reload(),800); })
-    .catch(err=>{ msg.innerHTML='<span style="color:#c62828">❌ '+err.message+'</span>'; });
+    .then(d=>{ saveData(d); setMsg('<span style="color:#a5d6a7">✅ Restauré — rechargement...</span>'); setTimeout(()=>location.reload(),800); })
+    .catch(err=>{ setMsg('<span style="color:#ef9a9a">❌ '+err.message+'</span>'); });
 }
 function importJSON(){
   const file=document.getElementById('import-json-file').files[0];

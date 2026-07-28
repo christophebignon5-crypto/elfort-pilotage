@@ -1663,14 +1663,12 @@ function App() {
         {years.length > 0 && (
           <button className="btn btn-success" onClick={saveJSON}>Sauvegarder</button>
         )}
-        {years.length > 0 && (
-          <button className="btn btn-outline" style={{borderColor:'#ff6f00',color:'#ff6f00'}} onClick={function() {
+        <button className="btn btn-outline" style={{borderColor:'#ff6f00',color:'#ff6f00'}} onClick={function() {
             notify('Connexion Google...', 'info');
             saveToCloud(JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'), 'vie-scolaire')
               .then(function() { notify('Sauvegarde en ligne effectuee', 'success'); })
               .catch(function(err) { notify('Erreur : ' + err.message, 'error'); });
           }}>☁️ Sauvegarder en ligne</button>
-        )}
         <button className="btn btn-outline" style={{borderColor:'#ff6f00',color:'#ff6f00'}} onClick={function() {
           notify('Connexion Google...', 'info');
           loadFromCloud('vie-scolaire')
