@@ -346,105 +346,105 @@ function calcTaux(tab, v) {
 const DEFAULT_SECTORS = {
   cap:    ['Service','Alimentation','Production'],
   bacpro: ['Service','Alimentation','Production'],
-  bacg:   ['Général','Technologique','BTS'],
+  bacg:   ['Général','Technologique'],
   bts:    ['Tertiaire','Industriel'],
   cs:     ['Service','Production'],
 };
 
-// Données 2025 (résultats définitifs) et 2026 (inscriptions)
+// Données par défaut : sessions 2025 et 2026 (résultats définitifs)
 const INITIAL_DB = {
   cap: {
     2025: {
       rows: [
-        { name:'CAP ADAL AFAT', sector:'Service',      v:[12,12,100]  },
-        { name:'CAP ADAL TOUR', sector:'Service',      v:[10,5,50]    },
-        { name:'CAP EPC',       sector:'Service',      v:[29,13,44.8] },
-        { name:'CAP BOU',       sector:'Alimentation', v:[15,9,60]    },
-        { name:'CAP POI',       sector:'Alimentation', v:[14,6,42.9]  },
-        { name:'CAP PAT',       sector:'Alimentation', v:[10,8,80]    },
-        { name:'CAP MMVF',      sector:'Production',   v:[10,8,80]    },
-        { name:'CAP MMVT',      sector:'Production',   v:[11,8,72.7]  },
+        { name:'CAP ADAL AFAT', sector:'Service',       v:[12,12,100] },
+        { name:'CAP ADAL TOUR', sector:'Service',       v:[10,5,50] },
+        { name:'CAP EPC',       sector:'Service',       v:[29,13,44.8] },
+        { name:'CAP BOU',       sector:'Alimentation',  v:[15,9,60] },
+        { name:'CAP POI',       sector:'Alimentation',  v:[14,6,42.9] },
+        { name:'CAP PAT',       sector:'Alimentation',  v:[10,8,80] },
+        { name:'CAP MMVF',      sector:'Production',    v:[10,8,80] },
+        { name:'CAP MMVT',      sector:'Production',    v:[11,8,72.7] },
       ],
     },
     2026: {
       rows: [
-        { name:'CAP ADAL AFAT', sector:'Service',      v:[10,0,0],  mentions: null },
-        { name:'CAP ADAL TOUR', sector:'Service',      v:[12,0,0],  mentions: null },
-        { name:'CAP EPC',       sector:'Service',      v:[26,0,0],  mentions: {TB:0, B:5,  AB:12} },
-        { name:'CAP BOU',       sector:'Alimentation', v:[11,0,0],  mentions: {TB:0, B:0,  AB:3} },
-        { name:'CAP POI',       sector:'Alimentation', v:[12,0,0],  mentions: {TB:0, B:3,  AB:6} },
-        { name:'CAP MMVF',      sector:'Production',   v:[12,0,0],  mentions: {TB:1, B:1,  AB:3} },
-        { name:'CAP MMVT',      sector:'Production',   v:[12,0,0],  mentions: {TB:0, B:2,  AB:3} },
+        { name:'CAP ADAL AFAT', sector:'Service',       v:[10,7,70] },
+        { name:'CAP ADAL TOUR', sector:'Service',       v:[12,12,100], mentions: {TB:1, B:4, AB:1} },
+        { name:'CAP EPC',       sector:'Service',       v:[26,19,73.1], mentions: {TB:0, B:5, AB:12} },
+        { name:'CAP BOU',       sector:'Alimentation',  v:[11,10,90.9], mentions: {TB:0, B:0, AB:3} },
+        { name:'CAP POI',       sector:'Alimentation',  v:[12,12,100], mentions: {TB:0, B:3, AB:6} },
+        { name:'CAP MMVF',      sector:'Production',    v:[12,7,58.3], mentions: {TB:1, B:1, AB:3} },
+        { name:'CAP MMVT',      sector:'Production',    v:[12,6,50], mentions: {TB:0, B:2, AB:3} },
       ],
-    }
+    },
   },
   bacpro: {
     2025: {
       rows: [
-        { name:'TP MA',       sector:'Service',      v:[25,15,4,6,3,72]    },
-        { name:'TP COMMERCE', sector:'Service',      v:[32,17,3,12,2,59.4] },
-        { name:'TP BOU',      sector:'Alimentation', v:[12,4,1,7,2,50]     },
-        { name:'TP POI',      sector:'Alimentation', v:[13,5,4,4,4,69.2]   },
-        { name:'TP MMV',      sector:'Production',   v:[9,7,0,2,0,77.8]    },
-        { name:'TP MET',      sector:'Production',   v:[4,4,0,0,0,100]     },
+        { name:'TP MA',       sector:'Service',       v:[25,15,4,6,3,72] },
+        { name:'TP COMMERCE', sector:'Service',       v:[32,17,3,12,2,59.4] },
+        { name:'TP BOU',      sector:'Alimentation',  v:[12,4,1,7,2,50] },
+        { name:'TP POI',      sector:'Alimentation',  v:[13,5,4,4,4,69.2] },
+        { name:'TP MMV',      sector:'Production',    v:[9,7,0,2,0,77.8] },
+        { name:'TP MET',      sector:'Production',    v:[4,4,0,0,0,100] },
       ],
     },
     2026: {
       rows: [
-        { name:'TP MA',       sector:'Service',      v:[27,0,0,0,0,0], mentions: {TB:1, B:6, AB:9} },
-        { name:'TP COMMERCE', sector:'Service',      v:[23,0,0,0,0,0], mentions: {TB:0, B:4, AB:9} },
-        { name:'TP BOU',      sector:'Alimentation', v:[12,0,0,0,0,0], mentions: {TB:0, B:1, AB:3} },
-        { name:'TP POI',      sector:'Alimentation', v:[10,0,0,0,0,0], mentions: {TB:0, B:0, AB:2} },
-        { name:'TP MMV',      sector:'Production',   v:[15,0,0,0,0,0], mentions: {TB:0, B:2, AB:3} },
-        { name:'TP MET',      sector:'Production',   v:[6,0,0,0,0,0],  mentions: {TB:0, B:2, AB:3} },
+        { name:'TP MA',       sector:'Service',       v:[27,22,0,0,0,81.5], mentions: {TB:1, B:6, AB:9} },
+        { name:'TP COMMERCE', sector:'Service',       v:[23,18,2,0,2,87], mentions: {TB:0, B:4, AB:9} },
+        { name:'TP BOU',      sector:'Alimentation',  v:[12,10,2,0,1,91.7], mentions: {TB:0, B:1, AB:3} },
+        { name:'TP POI',      sector:'Alimentation',  v:[10,9,1,0,0,90], mentions: {TB:0, B:0, AB:2} },
+        { name:'TP MMV',      sector:'Production',    v:[15,13,1,0,1,93.3], mentions: {TB:0, B:2, AB:3} },
+        { name:'TP MET',      sector:'Production',    v:[6,5,1,0,1,100], mentions: {TB:0, B:2, AB:3} },
       ],
-    }
+    },
   },
   bacg: {
     2025: {
       rows: [
         { name:'TG 1',   sector:'Général',       v:[29,23,5,1,5,96.6] },
-        { name:'TG 2',   sector:'Général',       v:[25,22,2,1,2,96]   },
+        { name:'TG 2',   sector:'Général',       v:[25,22,2,1,2,96] },
         { name:'T STMG', sector:'Technologique', v:[29,16,8,5,8,82.8] },
       ],
     },
     2026: {
       rows: [
-        { name:'TG 1',   sector:'Général',       v:[20,0,0,0,0,0], mentions: {TB:0, B:3, AB:14} },
-        { name:'TG 2',   sector:'Général',       v:[20,0,0,0,0,0], mentions: null },
-        { name:'T STMG', sector:'Technologique', v:[31,0,0,0,0,0], mentions: {TB:0, B:2, AB:13} },
+        { name:'TG 1',   sector:'Général',       v:[20,14,6,0,5,95], mentions: {TB:0, B:3, AB:14} },
+        { name:'TG 2',   sector:'Général',       v:[20,16,3,0,2,90] },
+        { name:'T STMG', sector:'Technologique', v:[31,28,3,0,3,100], mentions: {TB:0, B:2, AB:13} },
       ],
-    }
+    },
   },
   bts: {
     2025: {
       rows: [
-        { name:'BTS Comm. Intern.', sector:'Tertiaire', v:[12,12,0,0,0,100] },
-        { name:'BTS GTLA',          sector:'Tertiaire', v:[13,6,1,5,1,53.8] },
-        { name:'BTS TOURISME',      sector:'Tertiaire', v:[7,1,0,6,0,14.3] },
+        { name:'BTS Comm. Intern.', sector:'Tertiaire',     v:[12,12,0,0,0,100] },
+        { name:'BTS GTLA',          sector:'Tertiaire',     v:[13,6,1,5,1,53.8] },
+        { name:'BTS TOURISME',      sector:'Tertiaire',     v:[7,1,0,6,0,14.3] },
       ],
     },
     2026: {
       rows: [
-        { name:'BTS Comm. Intern.', sector:'Tertiaire', v:[13,0,0,0,0,0] },
-        { name:'BTS GTLA',          sector:'Tertiaire', v:[8,0,0,0,0,0] },
-        { name:'BTS TOURISME',      sector:'Tertiaire', v:[2,0,0,0,0,0] },
+        { name:'BTS Comm. Intern.', sector:'Tertiaire',     v:[13,11,1,1,1,92.3] },
+        { name:'BTS GTLA',          sector:'Tertiaire',     v:[8,4,2,2,2,75] },
+        { name:'BTS TOURISME',      sector:'Tertiaire',     v:[2,1,0,1,0,50] },
       ],
-    }
+    },
   },
   cs: {
     2025: {
       rows: [
-        { name:'CS ERV', sector:'Service',    v:[7,7,100] },
-        { name:'CS OR',  sector:'Production', v:[12,10,83.3] },
+        { name:'CS ERV', sector:'Service',       v:[7,7,100] },
+        { name:'CS OR',  sector:'Production',    v:[12,10,83.3] },
       ],
     },
     2026: {
       rows: [
-        { name:'CS ERV', sector:'Service',    v:[5,0,0] },
-        { name:'CS OR',  sector:'Production', v:[12,0,0] },
+        { name:'CS ERV', sector:'Service',       v:[5,4,80] },
+        { name:'CS OR',  sector:'Production',    v:[12,10,83.3] },
       ],
-    }
+    },
   },
 };
 
@@ -472,28 +472,24 @@ function loadFromStorage() {
   const saved = localStorage.getItem('lpo_mana_db');
   if (saved) {
     try { DB = JSON.parse(saved); } catch(e) { return; }
-    // Migration : inject missing row-level mentions from INITIAL_DB
-    let migrated = false;
-    for (const tab of Object.keys(INITIAL_DB)) {
-      for (const year of Object.keys(INITIAL_DB[tab])) {
-        if (!DB[tab]?.[year]) continue;
-        for (const defRow of INITIAL_DB[tab][year].rows) {
-          if (defRow.mentions === null || defRow.mentions === undefined) continue;
-          const row = (DB[tab][year].rows||[]).find(r => r.name === defRow.name);
-          if (row && !row.mentions) {
-            row.mentions = defRow.mentions;
-            migrated = true;
-          }
-        }
-        // Supprimer l'ancien champ mentions au niveau année
-        if (DB[tab][year].mentions !== undefined) {
-          delete DB[tab][year].mentions;
-          migrated = true;
-        }
+    // Les données enregistrées font foi : on ne réinjecte plus les mentions par défaut
+    // (sinon des mentions effacées volontairement réapparaissaient à chaque ouverture).
+    if (removeYearLevelMentions(DB)) saveToStorage();
+  }
+}
+
+// Supprime l'ancien champ "mentions" au niveau année (format obsolète)
+function removeYearLevelMentions(db) {
+  let changed = false;
+  for (const tab of Object.keys(db || {})) {
+    for (const year of Object.keys(db[tab] || {})) {
+      if (db[tab][year] && db[tab][year].mentions !== undefined) {
+        delete db[tab][year].mentions;
+        changed = true;
       }
     }
-    if (migrated) saveToStorage();
   }
+  return changed;
 }
 function saveToStorage() {
   localStorage.setItem('lpo_mana_db', JSON.stringify(DB));
@@ -551,13 +547,14 @@ function renderTab(tab) {
   <div class="row g-3 mt-1">
     <div class="col-12">
       <div class="chart-card">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-          <h6 class="fw-bold mb-0" style="color:${cfg.color}"><i class="bi bi-bar-chart-fill me-2"></i>Taux de réussite par année</h6>
+        <div class="d-flex align-items-center justify-content-between mb-1">
+          <h6 class="fw-bold mb-0" style="color:${cfg.color}"><i class="bi bi-bar-chart-fill me-2"></i>Comparaison des sessions — taux de réussite par spécialité</h6>
           <button class="btn btn-sm btn-outline-secondary" onclick="copyChartImage('chart-main-${tab}', this)">
             <i class="bi bi-clipboard me-1"></i>Copier
           </button>
         </div>
-        <canvas id="chart-main-${tab}" height="100"></canvas>
+        <div class="text-muted small mb-3" id="chart-note-${tab}"></div>
+        <div style="position:relative;height:360px"><canvas id="chart-main-${tab}"></canvas></div>
       </div>
     </div>
   </div>`;
@@ -586,7 +583,8 @@ function renderYearContent(tab, year) {
   const data = DB[tab][year];
   const cols = COLS[tab];
   // Compute totals
-  const totals = computeTotals(tab, data.rows);
+  const totals  = computeTotals(tab, data.rows);
+  const pending = isYearPending(tab, data.rows);
 
   // Calcul total mentions depuis les lignes
   const totalMentions = data.rows.reduce((acc, r) => ({
@@ -598,10 +596,17 @@ function renderYearContent(tab, year) {
   const totalM = totalMentions.TB + totalMentions.B + totalMentions.AB;
 
   // Stats cards
-  let html = `<div class="row g-3 mb-3">`;
+  let html = '';
+  if (pending) {
+    html += `<div class="alert alert-secondary py-2 small"><i class="bi bi-hourglass-split me-1"></i>
+      Session ${year} : résultats en attente (aucun admis saisi). Elle n'apparaît pas dans le graphique de comparaison.</div>`;
+  }
+  html += `<div class="row g-3 mb-3">`;
   html += statCard('Inscrits / Présents', totals.inscrits, '#1e293b', 'bi-people-fill');
-  html += statCard('Admis total', totals.admis, cfg.color, 'bi-patch-check-fill');
-  html += statCard('Taux de réussite', fmtTaux(totals.taux) + '%', tauxColor(totals.taux), 'bi-percent');
+  html += statCard('Admis total', pending ? '—' : totals.admis, cfg.color, 'bi-patch-check-fill');
+  html += pending
+    ? statCard('Taux de réussite', 'En attente', '#94a3b8', 'bi-hourglass-split')
+    : statCard('Taux de réussite', fmtTaux(totals.taux) + '%', tauxColor(totals.taux), 'bi-percent');
   if (hasMentions && totalM > 0) {
     html += statCard('Total mentions', totalM, '#7c3aed', 'bi-stars');
   }
@@ -632,15 +637,16 @@ function renderYearContent(tab, year) {
     html += `<tr class="sector-header"><td colspan="${cols.length+3+(hasMentions?1:0)}"><i class="bi bi-chevron-right me-1"></i>${sec}</td></tr>`;
     rows.forEach((row, idx) => {
       const globalIdx = data.rows.indexOf(row);
-      const taux = row.v[row.v.length-1];
+      const taux = calcTaux(tab, row.v);
       html += `<tr>
-        <td class="fw-semibold">${row.name}</td>
-        <td><span class="badge bg-light text-dark">${row.sector}</span></td>`;
-      row.v.forEach((val, vi) => {
-        const isTaux = vi === row.v.length-1;
-        const cls = isTaux ? `taux-cell ${tauxClass(val)}` : '';
-        html += `<td class="text-center ${cls}">${isTaux ? fmtTaux(val)+'%' : (val===0&&vi>0?'—':val)}</td>`;
+        <td class="fw-semibold">${esc(row.name)}</td>
+        <td><span class="badge bg-light text-dark">${esc(row.sector)}</span></td>`;
+      row.v.slice(0, FORM_COLS[tab].length).forEach((val, vi) => {
+        html += `<td class="text-center">${val===0&&vi>0?'—':val}</td>`;
       });
+      html += pending
+        ? `<td class="text-center text-muted small">en attente</td>`
+        : `<td class="text-center taux-cell ${tauxClass(taux)}">${fmtTaux(taux)}%</td>`;
       if (hasMentions) {
         const m = row.mentions;
         html += `<td class="text-center small">` + (m
@@ -656,16 +662,16 @@ function renderYearContent(tab, year) {
     });
   });
 
-  // Total row
+  // Total row : somme de chaque colonne (admis 1er et 2nd groupe chacun dans sa colonne)
   html += `<tr class="fw-bold table-light">
-    <td>TOTAL</td><td></td>
-    <td class="text-center">${totals.inscrits}</td>
-    <td class="text-center">${totals.admis}</td>`;
-  if (cols.length > 3) {
-    for(let i=2;i<cols.length-2;i++) html += `<td></td>`;
-    html += `<td></td>`;
-  }
-  html += `<td class="text-center taux-cell ${tauxClass(totals.taux)}">${fmtTaux(totals.taux)}%</td>`;
+    <td>TOTAL</td><td></td>`;
+  FORM_COLS[tab].forEach((_, ci) => {
+    const sum = data.rows.reduce((s, r) => s + (r.v[ci]||0), 0);
+    html += `<td class="text-center">${sum}</td>`;
+  });
+  html += pending
+    ? `<td class="text-center text-muted small">en attente</td>`
+    : `<td class="text-center taux-cell ${tauxClass(totals.taux)}">${fmtTaux(totals.taux)}%</td>`;
   if (hasMentions) {
     html += `<td class="text-center small">
       <span class="mention-pill mention-tb" style="font-size:0.75rem;padding:0.1rem 0.45rem">TB:${totalMentions.TB}</span>
@@ -683,7 +689,7 @@ function renderYearContent(tab, year) {
         <i class="bi bi-file-earmark-excel me-1"></i>Importer mentions (Excel)
       </button>` : ''}
       <button class="btn btn-sm btn-outline-primary" onclick="duplicateYear('${tab}',${year})">
-        <i class="bi bi-copy me-1"></i>Dupliquer vers ${year+1}
+        <i class="bi bi-copy me-1"></i>Préparer la session ${Math.max(...Object.keys(DB[tab]).map(Number)) + 1}
       </button>
       <button class="btn btn-sm btn-outline-danger" onclick="deleteYear('${tab}',${year})">
         <i class="bi bi-trash me-1"></i>Supprimer
@@ -705,6 +711,36 @@ function computeTotals(tab, rows) {
   return { inscrits, admis, taux };
 }
 
+// Session sans aucun admis saisi = résultats pas encore connus (et non 0 % de réussite)
+function isYearPending(tab, rows) {
+  return computeTotals(tab, rows || []).admis === 0;
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// Options du menu Secteur, en conservant un secteur hors liste (sinon il serait remplacé en silence)
+function sectorOptions(tab, current) {
+  const list = [...DEFAULT_SECTORS[tab]];
+  if (current && !list.includes(current)) list.push(current);
+  return list.map(s => `<option ${s===current?'selected':''}>${esc(s)}</option>`).join('');
+}
+
+// Contrôle de cohérence d'une ligne ; renvoie la liste des anomalies
+function checkRow(tab, name, v) {
+  const issues = [];
+  if (FORM_COLS[tab].length === 2) {
+    if (v[1] > v[0]) issues.push(`${name} : plus d'admis (${v[1]}) que d'inscrits (${v[0]})`);
+  } else {
+    const [ins, adm1, oral, ref, adm2] = v;
+    if (adm1 + adm2 === 0) return issues; // résultats pas encore saisis
+    if (adm1 + oral + ref > ins) issues.push(`${name} : Admis 1er + Oral + Refusés = ${adm1+oral+ref}, supérieur aux ${ins} ${FORM_COLS[tab][0].toLowerCase()}`);
+    if (adm2 > oral) issues.push(`${name} : ${adm2} admis au 2nd groupe pour seulement ${oral} à l'oral`);
+  }
+  return issues;
+}
+
 function statCard(label, value, color, icon) {
   return `<div class="col-6 col-md-3">
     <div class="stat-card card h-100">
@@ -718,68 +754,146 @@ function statCard(label, value, color, icon) {
 }
 
 // ==================== CHARTS ====================
-function renderCharts(tab) {
-  if (charts[tab+'_main']) { charts[tab+'_main'].destroy(); }
+// Graphique de comparaison : une barre par session pour chaque spécialité,
+// valeurs écrites au-dessus des barres, « Ensemble » mis en évidence à droite.
+const MAX_SESSIONS_COMPARED = 3;
 
-  const cfg = TABS[tab];
-  const years = Object.keys(DB[tab]).map(Number).sort();
-  if (!years.length) return;
+function hexToRgba(hex, a) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
+}
 
-  // Main bar: taux global par année + courbes par spécialité
-  const yearLabels = years.map(String);
-  const tauxByYear = years.map(y => {
-    const t = computeTotals(tab, DB[tab][y].rows);
-    return parseFloat(fmtTaux(t.taux));
-  });
-
-  const allSpecNames = [...new Set(
-    years.flatMap(y => DB[tab][y].rows.map(r=>r.name))
-  )];
-
-  const specColors = ['#2563eb','#16a34a','#ea580c','#9333ea','#0891b2','#be123c','#ec4899','#ca8a04'];
-  const datasets = [
-    {
-      label: 'Taux global (%)',
-      data: tauxByYear,
-      backgroundColor: cfg.color + '33',
-      borderColor: cfg.color,
-      borderWidth: 2,
-      type: 'bar',
-      yAxisID: 'y',
-      order: 2,
-    },
-    ...allSpecNames.map((name, i) => ({
-      label: name,
-      data: years.map(y => {
-        const row = (DB[tab][y].rows||[]).find(r=>r.name===name);
-        return row ? parseFloat(fmtTaux(row.v[row.v.length-1])) : null;
-      }),
-      borderColor: specColors[i % specColors.length],
-      backgroundColor: specColors[i % specColors.length],
-      type: 'line',
-      yAxisID: 'y',
-      tension: 0.3,
-      spanGaps: true,
-      pointRadius: 5,
-      borderWidth: 2,
-      order: 1,
-    }))
-  ];
-
-  const ctxMain = document.getElementById(`chart-main-${tab}`);
-  if (ctxMain) {
-    charts[tab+'_main'] = new Chart(ctxMain, {
-      data: { labels: yearLabels, datasets },
-      options: {
-        responsive: true, interaction: { mode:'index', intersect:false },
-        plugins: { legend:{ position:'bottom', labels:{ boxWidth:12, font:{size:11} } } },
-        scales: {
-          y: { beginAtZero:true, max:100, ticks:{ callback: v=>v+'%' }, title:{ display:true, text:'Taux de réussite' } }
-        }
-      }
+const valueLabelsPlugin = {
+  id: 'valueLabels',
+  afterDatasetsDraw(chart) {
+    const { ctx } = chart;
+    const nbBars = chart.data.labels.length * chart.data.datasets.length;
+    ctx.save();
+    ctx.font = `600 ${nbBars > 24 ? 10 : 11}px "Segoe UI", Arial, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillStyle = '#334155';
+    chart.data.datasets.forEach((ds, i) => {
+      const meta = chart.getDatasetMeta(i);
+      if (meta.hidden) return;
+      meta.data.forEach((bar, j) => {
+        const v = ds.data[j];
+        if (v === null || v === undefined) return;
+        ctx.fillText(Math.round(v) + '%', bar.x, bar.y - 3);
+      });
     });
+    ctx.restore();
+  }
+};
+
+// Fond grisé derrière la colonne « Ensemble »
+const totalBandPlugin = {
+  id: 'totalBand',
+  beforeDatasetsDraw(chart) {
+    const x = chart.scales.x, area = chart.chartArea;
+    const last = chart.data.labels.length - 1;
+    if (last < 1) return;
+    const half = (x.getPixelForValue(last) - x.getPixelForValue(last - 1)) / 2;
+    const { ctx } = chart;
+    ctx.save();
+    ctx.fillStyle = '#f1f5f9';
+    ctx.fillRect(x.getPixelForValue(last) - half, area.top, half * 2, area.bottom - area.top);
+    ctx.restore();
+  }
+};
+
+function renderCharts(tab) {
+  if (charts[tab+'_main']) { charts[tab+'_main'].destroy(); delete charts[tab+'_main']; }
+
+  const cfg   = TABS[tab];
+  const note  = document.getElementById(`chart-note-${tab}`);
+  const ctxMain = document.getElementById(`chart-main-${tab}`);
+  const years = Object.keys(DB[tab] || {}).map(Number).sort((a,b) => a-b);
+  if (!years.length || !ctxMain) return;
+
+  const pendingYears = years.filter(y => isYearPending(tab, DB[tab][y].rows));
+  const resultYears  = years.filter(y => !pendingYears.includes(y));
+  const compared     = resultYears.slice(-MAX_SESSIONS_COMPARED);
+
+  if (!compared.length) {
+    if (note) note.textContent = 'Aucune session avec résultats pour le moment.';
+    ctxMain.parentElement.style.display = 'none';
+    return;
+  }
+  ctxMain.parentElement.style.display = '';
+  if (note) {
+    let txt = `Sessions comparées : ${compared.join(', ')}`;
+    if (resultYears.length > compared.length) txt += ` (les ${MAX_SESSIONS_COMPARED} dernières)`;
+    if (pendingYears.length) txt += ` — résultats en attente : ${pendingYears.join(', ')}`;
+    note.textContent = txt + '.';
   }
 
+  // Spécialités : ordre de la session la plus récente, puis celles qui n'existent plus
+  const specNames = [];
+  [...compared].reverse().forEach(y => DB[tab][y].rows.forEach(r => {
+    if (!specNames.includes(r.name)) specNames.push(r.name);
+  }));
+  const labels = [...specNames, 'ENSEMBLE'];
+
+  // Teinte du diplôme : claire pour les anciennes sessions, pleine pour la dernière
+  const alphas = compared.length === 1 ? [1] : compared.map((_, i) => 0.3 + 0.7 * i / (compared.length - 1));
+
+  const datasets = compared.map((y, i) => {
+    const rows = DB[tab][y].rows;
+    const details = labels.map(name => {
+      if (name === 'ENSEMBLE') return computeTotals(tab, rows);
+      const r = rows.find(row => row.name === name);
+      return r ? computeTotals(tab, [r]) : null;
+    });
+    return {
+      label: `Session ${y}`,
+      data: details.map(d => d ? parseFloat(fmtTaux(d.taux)) : null),
+      details,
+      backgroundColor: hexToRgba(cfg.color, alphas[i]),
+      borderColor: cfg.color,
+      borderWidth: i === compared.length - 1 ? 0 : 1,
+      borderRadius: 4,
+      maxBarThickness: 46,
+    };
+  });
+
+  charts[tab+'_main'] = new Chart(ctxMain, {
+    type: 'bar',
+    data: { labels, datasets },
+    plugins: [totalBandPlugin, valueLabelsPlugin],
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: { padding: { top: 22 } },
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 14, padding: 16, font: { size: 12 } } },
+        tooltip: {
+          callbacks: {
+            label: c => {
+              const d = c.dataset.details[c.dataIndex];
+              return d ? `${c.dataset.label} : ${fmtTaux(d.taux).replace('.', ',')} % (${d.admis} admis / ${d.inscrits})` : '';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            font: ctx => ({ size: 11, weight: ctx.index === labels.length - 1 ? 'bold' : 'normal' }),
+            maxRotation: 0, autoSkip: false,
+            callback: function(v) { const l = this.getLabelForValue(v); return l.length > 14 ? l.split(' ') : l; }
+          }
+        },
+        y: {
+          beginAtZero: true, max: 100,
+          ticks: { stepSize: 25, callback: v => v + '%' },
+          grid: { color: '#e2e8f0' },
+          border: { display: false }
+        }
+      }
+    }
+  });
 }
 
 // ==================== COPIE GRAPHIQUE ====================
@@ -879,8 +993,8 @@ function duplicateYear(tab, srcYear) {
 
   const html = `
   <div class="alert alert-info py-2 small mb-3">
-    <i class="bi bi-copy me-1"></i>Copie de <strong>${srcYear}</strong> vers <strong>${targetYear}</strong>.
-    Mettez à jour les valeurs puis enregistrez.
+    <i class="bi bi-copy me-1"></i>Spécialités et inscrits de <strong>${srcYear}</strong> repris pour <strong>${targetYear}</strong>
+    (résultats et mentions remis à zéro). Mettez à jour les inscrits puis enregistrez.
   </div>
   <div class="mb-3">
     <label class="form-label fw-semibold">Année cible</label>
@@ -898,7 +1012,13 @@ function duplicateYear(tab, srcYear) {
 
   document.getElementById('addModalTitle').textContent = `Dupliquer ${srcYear} → ${targetYear} — ${cfg.label}`;
   document.getElementById('addModalBody').innerHTML = html;
-  fillModalRows(tab, DB[tab][srcYear]);
+  // On ne garde que les spécialités et les inscrits : les résultats sont à saisir
+  const blank = { rows: DB[tab][srcYear].rows.map(r => ({
+    name: r.name, sector: r.sector,
+    v: FORM_COLS[tab].map((_, i) => i === 0 ? (r.v[0]||0) : 0),
+    mentions: null,
+  })) };
+  fillModalRows(tab, blank);
 
   addModalObj = bootstrap.Modal.getOrCreateInstance(modal);
   addModalObj.show();
@@ -916,12 +1036,12 @@ function buildSpecialtyInputRow(tab, row) {
     <div class="row g-2 align-items-end mb-2">
       <div class="col">
         <label class="form-label small fw-semibold mb-1">Nom de la spécialité</label>
-        <input type="text" class="form-control sp-name" value="${name}" placeholder="ex: CAP BOU">
+        <input type="text" class="form-control sp-name" value="${esc(name)}" placeholder="ex: CAP BOU">
       </div>
       <div class="col-auto" style="min-width:170px">
         <label class="form-label small fw-semibold mb-1">Secteur</label>
         <select class="form-select sp-sector">
-          ${sectors.map(s => `<option ${s===sector?'selected':''}>${s}</option>`).join('')}
+          ${sectorOptions(tab, sector)}
         </select>
       </div>
       <div class="col-auto d-flex align-items-end">
@@ -1004,6 +1124,8 @@ function saveYear() {
   });
 
   if (!rows.length) { alert('Ajoutez au moins une spécialité.'); return; }
+  const issues = rows.flatMap(r => checkRow(tab, r.name, r.v));
+  if (issues.length && !confirm('Incohérences détectées :\n\n• ' + issues.join('\n• ') + '\n\nEnregistrer quand même ?')) return;
 
   if (!DB[tab]) DB[tab] = {};
   DB[tab][year] = { rows };
@@ -1027,12 +1149,12 @@ function openEditModal(tab, year, rowIndex) {
   let html = `<div class="row g-2">
     <div class="col-md-6">
       <label class="form-label fw-semibold">Nom</label>
-      <input type="text" class="form-control" id="edit-name" value="${row.name}">
+      <input type="text" class="form-control" id="edit-name" value="${esc(row.name)}">
     </div>
     <div class="col-md-6">
       <label class="form-label fw-semibold">Secteur</label>
       <select class="form-select" id="edit-sector">
-        ${sectors.map(s=>`<option ${s===row.sector?'selected':''}>${s}</option>`).join('')}
+        ${sectorOptions(tab, row.sector)}
       </select>
     </div>`;
 
@@ -1069,9 +1191,13 @@ function saveEdit() {
   const { tab, year, rowIndex } = editCtx;
   const fcols = FORM_COLS[tab];
   const row   = DB[tab][year].rows[rowIndex];
-  row.name    = document.getElementById('edit-name').value.trim();
-  row.sector  = document.getElementById('edit-sector').value;
+  const name  = document.getElementById('edit-name').value.trim();
+  if (!name) { alert('Le nom de la spécialité est obligatoire.'); return; }
   const vals  = fcols.map((_, i) => parseFloat(document.getElementById(`edit-v${i}`).value)||0);
+  const issues = checkRow(tab, name, vals);
+  if (issues.length && !confirm('Incohérences détectées :\n\n• ' + issues.join('\n• ') + '\n\nEnregistrer quand même ?')) return;
+  row.name    = name;
+  row.sector  = document.getElementById('edit-sector').value;
   const taux  = calcTaux(tab, vals);
   row.v = [...vals, taux];
   const menTB = parseInt(document.getElementById('edit-men-tb').value)||0;
@@ -1147,9 +1273,22 @@ function saveSettings() {
 function printCurrentTab() { printTab(currentTab); }
 
 function printTab(tab) {
-  // Ensure tab content is rendered
   const tabEl = document.getElementById('tab-' + tab);
   if (!tabEl) return;
+
+  // Affiche l'onglet demandé (sinon un onglet jamais ouvert s'imprime vide),
+  // puis laisse au graphique le temps de se dessiner avant l'impression
+  if (tab !== currentTab) {
+    const btn = document.querySelector(`.nav-diploma .nav-link[data-tab="${tab}"]`);
+    switchTab(tab, btn);
+    bootstrap.Offcanvas.getInstance(document.getElementById('settingsPanel'))?.hide();
+    setTimeout(() => doPrint(tab, tabEl), 700);
+  } else {
+    doPrint(tab, tabEl);
+  }
+}
+
+function doPrint(tab, tabEl) {
 
   // Mark active tab for print CSS
   document.querySelectorAll('.tab-pane-content').forEach(el => el.classList.remove('print-active'));
@@ -1203,19 +1342,8 @@ function importData() {
         } else {
           DB = imported;
         }
-        // Inject per-row mentions from INITIAL_DB for rows that have no mentions
-        for (const tab of Object.keys(INITIAL_DB)) {
-          for (const year of Object.keys(INITIAL_DB[tab])) {
-            if (!DB[tab]?.[year]) continue;
-            // Remove old year-level mentions field if present
-            if (DB[tab][year].mentions !== undefined) delete DB[tab][year].mentions;
-            for (const defRow of INITIAL_DB[tab][year].rows) {
-              if (defRow.mentions === null || defRow.mentions === undefined) continue;
-              const row = (DB[tab][year].rows||[]).find(r => r.name === defRow.name);
-              if (row && !row.mentions) row.mentions = defRow.mentions;
-            }
-          }
-        }
+        removeYearLevelMentions(DB);
+        for (const tab of Object.keys(TABS)) if (!DB[tab]) DB[tab] = {};
         saveToStorage();
         applySettings();
         renderTab(currentTab);
@@ -1414,16 +1542,20 @@ function showMentionsMappingModal(tab, year, counts, mapping) {
 
 function applyMentionsMapping(tab, year) {
   const counts = window._pendingMenCounts || {};
+  // Cumul des spécialités Excel associées à une même ligne, puis remplacement
+  // (un second import du même fichier ne double donc plus les mentions)
+  const perRow = {};
   document.querySelectorAll('#mentionsMappingModal .men-map-sel').forEach(sel => {
     const spec   = sel.dataset.spec;
     const appRow = sel.value;
     if (!appRow || !counts[spec]) return;
-    const row = (DB[tab]?.[year]?.rows || []).find(r => r.name === appRow);
-    if (row) {
-      const ex = row.mentions || {TB:0, B:0, AB:0};
-      row.mentions = { TB: ex.TB + counts[spec].TB, B: ex.B + counts[spec].B, AB: ex.AB + counts[spec].AB };
-    }
+    const acc = perRow[appRow] || (perRow[appRow] = {TB:0, B:0, AB:0});
+    acc.TB += counts[spec].TB; acc.B += counts[spec].B; acc.AB += counts[spec].AB;
   });
+  for (const [appRow, m] of Object.entries(perRow)) {
+    const row = (DB[tab]?.[year]?.rows || []).find(r => r.name === appRow);
+    if (row) row.mentions = m;
+  }
   bootstrap.Modal.getInstance(document.getElementById('mentionsMappingModal'))?.hide();
   saveToStorage();
   renderTab(tab);
