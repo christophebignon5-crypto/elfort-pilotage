@@ -335,12 +335,28 @@ const FORM_COLS = {
   cs:     ['Inscrits','Admis'],
 };
 
-function calcTaux(tab, v) {
-  const inscrits = v[0] || 0;
-  if (inscrits === 0) return 0;
+// Taux de réussite = admis / présents (méthode ministérielle).
+// BTS : la 1re colonne est déjà « Présents ». Autres diplômes : champ « presents »
+// facultatif ; s'il n'est pas renseigné, on se rabat sur les inscrits.
+function hasPresentsField(tab) { return tab !== 'bts'; }
+
+function presentsOf(tab, v, presents) {
+  if (hasPresentsField(tab) && presents !== null && presents !== undefined && presents !== '') return presents;
+  return v[0] || 0;
+}
+
+function calcTaux(tab, v, presents) {
+  const denom = presentsOf(tab, v, presents);
+  if (!denom) return 0;
   let admis = v[1] || 0;
   if (tab === 'bacpro' || tab === 'bacg' || tab === 'bts') admis += v[4] || 0;
-  return parseFloat((admis / inscrits * 100).toFixed(1));
+  return parseFloat((admis / denom * 100).toFixed(1));
+}
+
+function readPresents(input) {
+  if (!input || input.value.trim() === '') return null;
+  const n = parseInt(input.value);
+  return isNaN(n) ? null : n;
 }
 
 const DEFAULT_SECTORS = {
@@ -581,7 +597,8 @@ function renderYearContent(tab, year) {
   if (!container || !year || !DB[tab][year]) return;
   const cfg  = TABS[tab];
   const data = DB[tab][year];
-  const cols = COLS[tab];
+  // Colonne « Présents » ajoutée après « Inscrits » (sauf BTS, déjà en présents)
+  const cols = hasPresentsField(tab) ? [COLS[tab][0], 'Présents', ...COLS[tab].slice(1)] : COLS[tab];
   // Compute totals
   const totals  = computeTotals(tab, data.rows);
   const pending = isYearPending(tab, data.rows);
@@ -602,7 +619,8 @@ function renderYearContent(tab, year) {
       Session ${year} : résultats en attente (aucun admis saisi). Elle n'apparaît pas dans le graphique de comparaison.</div>`;
   }
   html += `<div class="row g-3 mb-3">`;
-  html += statCard('Inscrits / Présents', totals.inscrits, '#1e293b', 'bi-people-fill');
+  html += statCard(hasPresentsField(tab) ? `Présents <span class="text-lowercase">(${totals.inscrits} inscrits)</span>` : 'Présents',
+                   totals.presents, '#1e293b', 'bi-people-fill');
   html += statCard('Admis total', pending ? '—' : totals.admis, cfg.color, 'bi-patch-check-fill');
   html += pending
     ? statCard('Taux de réussite', 'En attente', '#94a3b8', 'bi-hourglass-split')
@@ -637,12 +655,13 @@ function renderYearContent(tab, year) {
     html += `<tr class="sector-header"><td colspan="${cols.length+3+(hasMentions?1:0)}"><i class="bi bi-chevron-right me-1"></i>${sec}</td></tr>`;
     rows.forEach((row, idx) => {
       const globalIdx = data.rows.indexOf(row);
-      const taux = calcTaux(tab, row.v);
+      const taux = calcTaux(tab, row.v, row.presents);
       html += `<tr>
         <td class="fw-semibold">${esc(row.name)}</td>
         <td><span class="badge bg-light text-dark">${esc(row.sector)}</span></td>`;
       row.v.slice(0, FORM_COLS[tab].length).forEach((val, vi) => {
         html += `<td class="text-center">${val===0&&vi>0?'—':val}</td>`;
+        if (vi === 0 && hasPresentsField(tab)) html += presentsCell(row);
       });
       html += pending
         ? `<td class="text-center text-muted small">en attente</td>`
@@ -668,6 +687,7 @@ function renderYearContent(tab, year) {
   FORM_COLS[tab].forEach((_, ci) => {
     const sum = data.rows.reduce((s, r) => s + (r.v[ci]||0), 0);
     html += `<td class="text-center">${sum}</td>`;
+    if (ci === 0 && hasPresentsField(tab)) html += `<td class="text-center">${totals.presents}</td>`;
   });
   html += pending
     ? `<td class="text-center text-muted small">en attente</td>`
@@ -683,7 +703,7 @@ function renderYearContent(tab, year) {
 
   html += `</tbody></table></div>
   <div class="card-footer bg-transparent d-flex justify-content-between align-items-center flex-wrap gap-2">
-    <small class="text-muted">Année ${year}</small>
+    <small class="text-muted">Année ${year} · Taux = admis / présents${hasPresentsField(tab) ? ' (inscrits en gris italique quand les présents ne sont pas saisis)' : ''}</small>
     <div class="d-flex gap-2 flex-wrap">
       ${['cap','bacpro','bacg'].includes(tab) ? `<button class="btn btn-sm btn-outline-success" onclick="importMentionsExcel('${tab}',${year})">
         <i class="bi bi-file-earmark-excel me-1"></i>Importer mentions (Excel)
@@ -701,14 +721,15 @@ function renderYearContent(tab, year) {
 }
 
 function computeTotals(tab, rows) {
-  let inscrits=0, admis=0;
+  let inscrits=0, presents=0, admis=0;
   rows.forEach(r => {
     inscrits += r.v[0]||0;
+    presents += presentsOf(tab, r.v, r.presents);
     admis    += r.v[1]||0;
     if (tab==='bacpro'||tab==='bacg'||tab==='bts') admis += r.v[4]||0; // +admis2nd
   });
-  const taux = inscrits>0 ? (admis/inscrits*100) : 0;
-  return { inscrits, admis, taux };
+  const taux = presents>0 ? (admis/presents*100) : 0;
+  return { inscrits, presents, admis, taux };
 }
 
 // Session sans aucun admis saisi = résultats pas encore connus (et non 0 % de réussite)
@@ -720,6 +741,14 @@ function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
+// Cellule « Présents » : valeur saisie, ou inscrits en gris si non renseignée
+function presentsCell(row) {
+  const p = row.presents;
+  return (p === null || p === undefined)
+    ? `<td class="text-center text-muted fst-italic" title="Présents non saisis : calcul sur les inscrits">${row.v[0]||0}</td>`
+    : `<td class="text-center">${p}</td>`;
+}
+
 // Options du menu Secteur, en conservant un secteur hors liste (sinon il serait remplacé en silence)
 function sectorOptions(tab, current) {
   const list = [...DEFAULT_SECTORS[tab]];
@@ -728,14 +757,17 @@ function sectorOptions(tab, current) {
 }
 
 // Contrôle de cohérence d'une ligne ; renvoie la liste des anomalies
-function checkRow(tab, name, v) {
+function checkRow(tab, name, v, presents) {
   const issues = [];
+  const pres = presentsOf(tab, v, presents);
+  if (hasPresentsField(tab) && presents != null && presents > v[0])
+    issues.push(`${name} : plus de présents (${presents}) que d'inscrits (${v[0]})`);
   if (FORM_COLS[tab].length === 2) {
-    if (v[1] > v[0]) issues.push(`${name} : plus d'admis (${v[1]}) que d'inscrits (${v[0]})`);
+    if (v[1] > pres) issues.push(`${name} : plus d'admis (${v[1]}) que de présents (${pres})`);
   } else {
-    const [ins, adm1, oral, ref, adm2] = v;
+    const [, adm1, oral, ref, adm2] = v;
     if (adm1 + adm2 === 0) return issues; // résultats pas encore saisis
-    if (adm1 + oral + ref > ins) issues.push(`${name} : Admis 1er + Oral + Refusés = ${adm1+oral+ref}, supérieur aux ${ins} ${FORM_COLS[tab][0].toLowerCase()}`);
+    if (adm1 + oral + ref > pres) issues.push(`${name} : Admis 1er + Oral + Refusés = ${adm1+oral+ref}, supérieur aux ${pres} présents`);
     if (adm2 > oral) issues.push(`${name} : ${adm2} admis au 2nd groupe pour seulement ${oral} à l'oral`);
   }
   return issues;
@@ -871,7 +903,7 @@ function renderCharts(tab) {
           callbacks: {
             label: c => {
               const d = c.dataset.details[c.dataIndex];
-              return d ? `${c.dataset.label} : ${fmtTaux(d.taux).replace('.', ',')} % (${d.admis} admis / ${d.inscrits})` : '';
+              return d ? `${c.dataset.label} : ${fmtTaux(d.taux).replace('.', ',')} % (${d.admis} admis / ${d.presents} présents)` : '';
             }
           }
         }
@@ -1059,9 +1091,18 @@ function buildSpecialtyInputRow(tab, row) {
       <input type="number" class="form-control text-center sp-val" value="${vals[i]||0}" min="0"
         oninput="updateRowTaux(this,'${tab}')">
     </div>`;
+    if (i === 0 && hasPresentsField(tab)) {
+      const p = row?.presents ?? '';
+      html += `<div class="col">
+        <label class="form-label small fw-semibold mb-1 text-center d-block">Présents</label>
+        <input type="number" class="form-control text-center sp-presents" value="${p}" min="0"
+          placeholder="= inscrits" title="Laisser vide si égal aux inscrits"
+          oninput="updateRowTaux(this,'${tab}')">
+      </div>`;
+    }
   });
   // Champ taux calculé en lecture seule
-  const taux = calcTaux(tab, vals);
+  const taux = calcTaux(tab, vals, row?.presents);
   html += `<div class="col">
     <label class="form-label small fw-semibold mb-1 text-center d-block text-muted">Taux</label>
     <div class="form-control text-center fw-bold bg-white ${tauxClass(taux)} sp-taux-preview">${fmtTaux(taux)} %</div>
@@ -1091,7 +1132,7 @@ function buildSpecialtyInputRow(tab, row) {
 function updateRowTaux(inputEl, tab) {
   const row  = inputEl.closest('.specialty-row');
   const vals = [...row.querySelectorAll('.sp-val')].map(i => parseFloat(i.value)||0);
-  const taux = calcTaux(tab, vals);
+  const taux = calcTaux(tab, vals, readPresents(row.querySelector('.sp-presents')));
   const preview = row.querySelector('.sp-taux-preview');
   if (preview) {
     preview.textContent = fmtTaux(taux) + ' %';
@@ -1115,16 +1156,19 @@ function saveYear() {
     const sector = rowEl.querySelector('.sp-sector').value;
     const vals   = [...rowEl.querySelectorAll('.sp-val')].map(i => parseFloat(i.value)||0);
     if (!name) return;
-    const taux = calcTaux(tab, vals);
+    const presents = hasPresentsField(tab) ? readPresents(rowEl.querySelector('.sp-presents')) : null;
+    const taux = calcTaux(tab, vals, presents);
     const menTB = parseInt(rowEl.querySelector('.sp-men-tb')?.value)||0;
     const menB  = parseInt(rowEl.querySelector('.sp-men-b')?.value)||0;
     const menAB = parseInt(rowEl.querySelector('.sp-men-ab')?.value)||0;
     const mentions = (menTB+menB+menAB > 0) ? {TB:menTB, B:menB, AB:menAB} : null;
-    rows.push({ name, sector, v: [...vals, taux], mentions });
+    const r = { name, sector, v: [...vals, taux], mentions };
+    if (presents !== null) r.presents = presents;
+    rows.push(r);
   });
 
   if (!rows.length) { alert('Ajoutez au moins une spécialité.'); return; }
-  const issues = rows.flatMap(r => checkRow(tab, r.name, r.v));
+  const issues = rows.flatMap(r => checkRow(tab, r.name, r.v, r.presents));
   if (issues.length && !confirm('Incohérences détectées :\n\n• ' + issues.join('\n• ') + '\n\nEnregistrer quand même ?')) return;
 
   if (!DB[tab]) DB[tab] = {};
@@ -1145,7 +1189,7 @@ function openEditModal(tab, year, rowIndex) {
   document.getElementById('editSaveBtn').className = `btn btn-${tab}`;
 
   const sectors = DEFAULT_SECTORS[tab];
-  const taux = calcTaux(tab, row.v);
+  const taux = calcTaux(tab, row.v, row.presents);
   let html = `<div class="row g-2">
     <div class="col-md-6">
       <label class="form-label fw-semibold">Nom</label>
@@ -1163,6 +1207,13 @@ function openEditModal(tab, year, rowIndex) {
       <label class="form-label fw-semibold">${c}</label>
       <input type="number" class="form-control" id="edit-v${i}" value="${row.v[i]||0}" min="0">
     </div>`;
+    if (i === 0 && hasPresentsField(tab)) {
+      html += `<div class="col-6 col-md-4">
+        <label class="form-label fw-semibold">Présents</label>
+        <input type="number" class="form-control" id="edit-presents" value="${row.presents ?? ''}" min="0"
+          placeholder="= inscrits" title="Laisser vide si égal aux inscrits">
+      </div>`;
+    }
   });
   html += `<div class="col-6 col-md-4">
     <label class="form-label fw-semibold text-muted">Taux (calculé)</label>
@@ -1194,12 +1245,14 @@ function saveEdit() {
   const name  = document.getElementById('edit-name').value.trim();
   if (!name) { alert('Le nom de la spécialité est obligatoire.'); return; }
   const vals  = fcols.map((_, i) => parseFloat(document.getElementById(`edit-v${i}`).value)||0);
-  const issues = checkRow(tab, name, vals);
+  const presents = hasPresentsField(tab) ? readPresents(document.getElementById('edit-presents')) : null;
+  const issues = checkRow(tab, name, vals, presents);
   if (issues.length && !confirm('Incohérences détectées :\n\n• ' + issues.join('\n• ') + '\n\nEnregistrer quand même ?')) return;
   row.name    = name;
   row.sector  = document.getElementById('edit-sector').value;
-  const taux  = calcTaux(tab, vals);
+  const taux  = calcTaux(tab, vals, presents);
   row.v = [...vals, taux];
+  if (presents !== null) row.presents = presents; else delete row.presents;
   const menTB = parseInt(document.getElementById('edit-men-tb').value)||0;
   const menB  = parseInt(document.getElementById('edit-men-b').value)||0;
   const menAB = parseInt(document.getElementById('edit-men-ab').value)||0;
