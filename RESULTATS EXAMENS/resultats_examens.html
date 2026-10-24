@@ -979,7 +979,7 @@ function mentionsSectionHtml(tab, year, rows, pending) {
   let html = `<div class="chart-card mb-3">
     <div class="d-flex align-items-center justify-content-between mb-1">
       <h6 class="fw-bold mb-0" style="color:#7c3aed"><i class="bi bi-pie-chart-fill me-2"></i>Mentions — session ${year}</h6>
-      <button class="btn btn-sm btn-outline-secondary" onclick="copyChartImage('donut-${tab}-all', this)">
+      <button class="btn btn-sm btn-outline-secondary" onclick="copyMentionsImage('${tab}', ${year}, this)" title="Copie le grand donut et ceux des spécialités en une seule image">
         <i class="bi bi-clipboard me-1"></i>Copier
       </button>
     </div>
@@ -1061,7 +1061,62 @@ function renderMentionCharts(tab, year) {
 // ==================== COPIE GRAPHIQUE ====================
 function copyChartImage(canvasId, btn) {
   const canvas = document.getElementById(canvasId);
-  if (!canvas) return;
+  if (canvas) copyCanvasToClipboard(canvas, btn);
+}
+
+// Assemble le grand donut et les donuts par spécialité en une seule image
+function copyMentionsImage(tab, year, btn) {
+  const big = document.getElementById(`donut-${tab}-all`);
+  if (!big) return;
+  const specs = (DB[tab]?.[year]?.rows || []).filter(hasMentionData);
+  const smalls = specs.map((r, i) => ({ row: r, canvas: document.getElementById(`donut-${tab}-${i}`) }))
+                      .filter(o => o.canvas);
+
+  const dpr = window.devicePixelRatio || 1;
+  const pad = 24, titleH = 44;
+  const bigW = big.clientWidth, bigH = big.clientHeight;
+  const nCols = 3, cellW = 190, smallH = 115, textH = 40, cellH = smallH + textH + 12;
+  const nRows = Math.ceil(smalls.length / nCols);
+  const gridW = nCols * cellW;
+  const W = pad + bigW + pad + gridW + pad;
+  const H = pad + titleH + Math.max(bigH, nRows * cellH) + pad;
+
+  const out = document.createElement('canvas');
+  out.width = W * dpr; out.height = H * dpr;
+  const ctx = out.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.fillStyle = '#1e293b';
+  ctx.font = '700 18px "Segoe UI", Arial, sans-serif';
+  ctx.textBaseline = 'top';
+  ctx.fillText(`Mentions ${TABS[tab].label} — session ${year} — ${schoolSettings.name}`, pad, pad);
+
+  const top = pad + titleH;
+  ctx.drawImage(big, pad, top + Math.max(0, (nRows * cellH - bigH) / 2), bigW, bigH);
+
+  const gx = pad + bigW + pad;
+  smalls.forEach((o, i) => {
+    const cx = gx + (i % nCols) * cellW, cy = top + Math.floor(i / nCols) * cellH;
+    const w = o.canvas.clientWidth, h = o.canvas.clientHeight;
+    const scale = Math.min(1, cellW / w, smallH / h);
+    ctx.drawImage(o.canvas, cx + (cellW - w * scale) / 2, cy, w * scale, h * scale);
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#1e293b';
+    ctx.font = '600 13px "Segoe UI", Arial, sans-serif';
+    ctx.fillText(o.row.name, cx + cellW / 2, cy + smallH + 4);
+    const m = o.row.mentions;
+    ctx.fillStyle = '#64748b';
+    ctx.font = '11px "Segoe UI", Arial, sans-serif';
+    ctx.fillText(`TB ${m.TB||0} · B ${m.B||0} · AB ${m.AB||0}`, cx + cellW / 2, cy + smallH + 22);
+    ctx.textAlign = 'left';
+  });
+
+  copyCanvasToClipboard(out, btn);
+}
+
+function copyCanvasToClipboard(canvas, btn) {
   const restoreHtml = btn.innerHTML;
   canvas.toBlob(blob => {
     if (!blob) return;
