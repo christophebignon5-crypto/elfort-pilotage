@@ -717,7 +717,10 @@ function renderYearContent(tab, year) {
     </div>
   </div></div>`;
 
+  html += mentionsSectionHtml(tab, year, data.rows, pending);
+
   container.innerHTML = html;
+  renderMentionCharts(tab, year);
 }
 
 function computeTotals(tab, rows) {
@@ -926,6 +929,133 @@ function renderCharts(tab) {
       }
     }
   });
+}
+
+// ==================== DONUTS MENTIONS ====================
+const MENTION_COLORS = { TB:'#ca8a04', B:'#16a34a', AB:'#3b82f6', SANS:'#e2e8f0' };
+const MENTION_LABELS = { TB:'Très Bien', B:'Bien', AB:'Assez Bien', SANS:'Admis sans mention' };
+
+// Texte au centre du donut (options.plugins.centerText = { big, small })
+const centerTextPlugin = {
+  id: 'centerText',
+  afterDraw(chart) {
+    const opt = chart.options.plugins.centerText;
+    if (!opt) return;
+    const meta = chart.getDatasetMeta(0);
+    if (!meta.data.length) return;
+    const { x, y } = meta.data[0];
+    const r = meta.data[0].innerRadius;
+    const { ctx } = chart;
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#1e293b';
+    ctx.font = `800 ${Math.max(12, Math.round(r * 0.45))}px "Segoe UI", Arial, sans-serif`;
+    ctx.fillText(opt.big, x, y - (opt.small ? r * 0.12 : 0));
+    if (opt.small) {
+      ctx.fillStyle = '#64748b';
+      ctx.font = `600 ${Math.max(9, Math.round(r * 0.16))}px "Segoe UI", Arial, sans-serif`;
+      ctx.fillText(opt.small, x, y + r * 0.28);
+    }
+    ctx.restore();
+  }
+};
+
+function hasMentionData(r) {
+  return r.mentions && ((r.mentions.TB||0) + (r.mentions.B||0) + (r.mentions.AB||0)) > 0;
+}
+
+// Répartition TB / B / AB / sans mention ; « sans mention » seulement si les admis sont connus
+function mentionSlices(m, admis, pending) {
+  const tb = m?.TB||0, b = m?.B||0, ab = m?.AB||0;
+  const keys = ['TB','B','AB'], vals = [tb, b, ab];
+  if (!pending) { keys.push('SANS'); vals.push(Math.max(0, admis - tb - b - ab)); }
+  return { keys, vals, totalM: tb + b + ab };
+}
+
+function mentionsSectionHtml(tab, year, rows, pending) {
+  const specs = rows.filter(hasMentionData);
+  if (!specs.length) return '';
+  let html = `<div class="chart-card mb-3">
+    <div class="d-flex align-items-center justify-content-between mb-1">
+      <h6 class="fw-bold mb-0" style="color:#7c3aed"><i class="bi bi-pie-chart-fill me-2"></i>Mentions — session ${year}</h6>
+      <button class="btn btn-sm btn-outline-secondary" onclick="copyChartImage('donut-${tab}-all', this)">
+        <i class="bi bi-clipboard me-1"></i>Copier
+      </button>
+    </div>
+    <div class="text-muted small mb-3">${pending
+      ? 'Répartition des mentions (les admis ne sont pas encore saisis).'
+      : 'Au centre : part des admis ayant obtenu une mention. En gris : admis sans mention.'}</div>
+    <div class="row g-4 align-items-center">
+      <div class="col-lg-5">
+        <div style="position:relative;height:280px"><canvas id="donut-${tab}-all"></canvas></div>
+      </div>
+      <div class="col-lg-7">
+        <div class="row g-3">`;
+  specs.forEach((r, i) => {
+    html += `<div class="col-6 col-md-4 text-center">
+            <div style="position:relative;height:115px"><canvas id="donut-${tab}-${i}"></canvas></div>
+            <div class="small fw-semibold mt-1">${esc(r.name)}</div>
+            <div class="text-muted" style="font-size:0.72rem">TB ${r.mentions.TB||0} · B ${r.mentions.B||0} · AB ${r.mentions.AB||0}</div>
+          </div>`;
+  });
+  html += `</div></div></div></div>`;
+  return html;
+}
+
+function renderMentionCharts(tab, year) {
+  (charts[tab+'_men'] || []).forEach(c => c.destroy());
+  charts[tab+'_men'] = [];
+  const data = DB[tab]?.[year];
+  if (!data) return;
+  const pending = isYearPending(tab, data.rows);
+  const specs = data.rows.filter(hasMentionData);
+  if (!specs.length) return;
+
+  const make = (canvasId, m, admis, big) => {
+    const el = document.getElementById(canvasId);
+    if (!el) return;
+    const s = mentionSlices(m, admis, pending);
+    const withPct = !pending && admis > 0;
+    const center = withPct ? Math.round(s.totalM / admis * 100) + '%' : String(s.totalM);
+    charts[tab+'_men'].push(new Chart(el, {
+      type: 'doughnut',
+      data: {
+        labels: s.keys.map(k => MENTION_LABELS[k]),
+        datasets: [{ data: s.vals, backgroundColor: s.keys.map(k => MENTION_COLORS[k]),
+                     borderColor: '#fff', borderWidth: 2 }]
+      },
+      plugins: [centerTextPlugin],
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '64%',
+        plugins: {
+          centerText: { big: center, small: big ? (withPct ? 'des admis avec mention' : 'mentions') : '' },
+          legend: big
+            ? { position: 'right', labels: { boxWidth: 12, padding: 12, font: { size: 12 },
+                generateLabels: chart => {
+                  const ds = chart.data.datasets[0], tot = ds.data.reduce((a, b) => a + b, 0) || 1;
+                  return chart.data.labels.map((l, i) => ({
+                    text: `${l} : ${ds.data[i]} (${Math.round(ds.data[i] / tot * 100)} %)`,
+                    fillStyle: ds.backgroundColor[i], strokeStyle: ds.backgroundColor[i], index: i,
+                    hidden: !chart.getDataVisibility(i),
+                  }));
+                } } }
+            : { display: false },
+          tooltip: { callbacks: { label: c => {
+            const tot = c.dataset.data.reduce((a, b) => a + b, 0) || 1;
+            return `${c.label} : ${c.raw} (${Math.round(c.raw / tot * 100)} %)`;
+          } } }
+        }
+      }
+    }));
+  };
+
+  const totalMen = data.rows.reduce((acc, r) => ({
+    TB: acc.TB + (r.mentions?.TB||0), B: acc.B + (r.mentions?.B||0), AB: acc.AB + (r.mentions?.AB||0)
+  }), {TB:0, B:0, AB:0});
+  // Donut principal : tous les admis du diplôme (y compris les spécialités sans mention saisie)
+  make(`donut-${tab}-all`, totalMen, computeTotals(tab, data.rows).admis, true);
+  specs.forEach((r, i) => make(`donut-${tab}-${i}`, r.mentions, computeTotals(tab, [r]).admis, false));
 }
 
 // ==================== COPIE GRAPHIQUE ====================
